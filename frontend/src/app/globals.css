@@ -1,40 +1,119 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Cores de Fundo */
+  --background-page: #f3f4f6;  /* Cinza claro do fundo da página */
+  --background-surface: #ffffff; /* Branco para cards, formulários, etc. */
+
+  /* Cores de Texto */
+  --text-primary: #171717;      /* Cor principal do texto */
+  --text-on-primary-button: #ffffff; /* Texto branco para botões com fundo escuro */
+
+  /* Cores de Ação (Botões e Links) */
+  --primary: #2563eb;           /* Cor principal do botão */
+  --primary-hover: #1d4ed8;     /* Cor do botão ao passar o mouse */
+  --primary-focus: #3b82f6;      /* Cor para anel de foco e bordas ativas */
+
+  /* Cores de UI (Interface do Usuário) */
+  --border-color: #d1d5db;      /* Cor da borda padrão para inputs */
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --error-color: #ef4444;       /* Cor para mensagens de erro */
+}
+
+/* Aplica a cor de texto padrão */
+body {
+  color: var(--text-primary);
 }
 
 /* Container principal (o <div>) */
 .login-container {
-  @apply flex min-h-screen items-center justify-center bg-gray-100;
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--background-page);
 }
 
 /* Formulário (a tag <form>) */
 .login-form {
-  @apply bg-white p-8 rounded-2xl shadow-lg w-80 space-y-4;
+  background-color: var(--background-surface);
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -4px var(--shadow-color);
+}
+.login-form > * + * {
+  margin-top: 1rem;
 }
 
 /* Título (o <h1>) */
 .login-title {
-  @apply text-2xl font-semibold text-center;
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 600;
+  text-align: center;
 }
 
 /* Inputs (as tags <input>) */
 .login-input {
-  @apply w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500;
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+}
+.login-input:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  border-color: var(--primary-focus);
+  box-shadow: 0 0 0 2px var(--primary-focus);
 }
 
 /* Mensagem de Erro (o <p>) */
 .error-message {
-  @apply text-red-500 text-sm;
+  color: var(--error-color);
+  font-size: 0.875rem;
 }
 
-/* Botão (o <button type="submit">) */
-.login-button {
-  @apply w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition;
+/* Botão (o <button>) */
+.login-button, .create-button {
+  text-align: center;
+  width: 100%;
+  background-color: var(--primary);
+  color: var(--text-on-primary-button);
+  padding: 0.5rem 0;
+  border-radius: 0.5rem;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+.login-button:hover, .create-button:hover {
+  background-color: var(--primary-hover);
 }
 
-ul{
+.divider{
+  display: flex;
+  justify-content: center;
   flex-direction: row;
+  gap: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Cores de Fundo */
+    --background-page: #18181b;      /* Zinco 900 - Um cinza bem escuro, quase preto */
+    --background-surface: #27272a;  /* Zinco 800 - Um cinza um pouco mais claro para cards */
+
+    /* Cores de Texto */
+    --text-primary: #e4e4e7;         /* Zinco 200 - Um branco suave para não cansar a vista */
+    --text-on-primary-button: #ffffff; /* Continua branco, pois o botão é azul */
+
+    /* Cores de Ação (Botões e Links) - Geralmente não mudam */
+    --primary: #1f54c7;
+    --primary-hover: #1b46be;
+    --primary-focus: #3b82f6;
+
+    /* Cores de UI (Interface do Usuário) */
+    --border-color: #3f3f46;         /* Zinco 700 - Borda sutilmente visível no fundo do card */
+    --shadow-color: rgba(0, 0, 0, 0.5); /* Sombra precisa ser mais forte para aparecer */
+    --error-color: #ef4444;            /* Vermelho vibrante funciona bem em ambos os temas */
+  }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -54,12 +55,10 @@ export default function LoginPage() {
 
         {erro && <p className="error-message">{erro}</p>}
 
-        <ul>
-          <li>
-            <button type="button" onClick={() => alert("criar_usuario")} className="login-button">Criar</button>
-            <button type="submit" className="login-button">Entrar</button>
-          </li>
-        </ul>
+        <section className="divider">
+        <Link href="/criar_usuario" className="create-button">Criar</Link>
+        <button type="submit" className="login-button">Entrar</button>
+        </section>
       </form>
     </div>
   );
