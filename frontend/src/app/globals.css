@@ -16,8 +16,10 @@
 
   /* Cores de UI (Interface do Usuário) */
   --border-color: #d1d5db;      /* Cor da borda padrão para inputs */
+  --eye-color: #dee1e7;         /* Cor do ícone de olho */
   --shadow-color: rgba(0, 0, 0, 0.1);
   --error-color: #ef4444;       /* Cor para mensagens de erro */
+  --sucess-color: #16a34a;     /* Cor para mensagens de sucesso */
 }
 
 /* Aplica a cor de texto padrão */
@@ -37,6 +39,7 @@ body {
 /* Formulário (a tag <form>) */
 .login-form {
   background-color: var(--background-surface);
+  min-width: 30%;
   padding: 2rem;
   border-radius: 1rem;
   box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -4px var(--shadow-color);
@@ -75,7 +78,7 @@ body {
 }
 
 /* Botão (o <button>) */
-.login-button, .create-button {
+.login-button, .create-button, .return-button, .register-button {
   text-align: center;
   width: 100%;
   background-color: var(--primary);
@@ -86,7 +89,7 @@ body {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
-.login-button:hover, .create-button:hover {
+.login-button:hover, .create-button:hover, .return-button:hover, .register-button:hover {
   background-color: var(--primary-hover);
 }
 
@@ -95,6 +98,43 @@ body {
   justify-content: center;
   flex-direction: row;
   gap: 1rem;
+}
+
+.success-message {
+  color: var(--sucess-color); /* Um tom de verde, ex: text-green-600 */
+  font-size: 0.875rem; /* 14px */
+}
+
+
+.password-container {
+  position: relative;
+  width: 100%;
+}
+
+.toggle-password-button {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%); /* Centraliza verticalmente */
+  
+  /* Estilos para deixar o botão "invisível" e funcional */
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 1.2rem; /* Tamanho do emoji/ícone */
+  transition-duration: 150ms;
+  color: var(--eye-color);
+}
+
+.toggle-password-button:hover {
+  transform: translateY(-50%) scale(1.4); /* Aumenta um pouco ao passar o mouse */
+  color: var(--text-primary);
+}
+
+.toggle-password-button .icon {
+  width: 1.2rem;  /* 20px */
+  height: 1.2rem; /* 20px */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -116,5 +156,6 @@ body {
     --border-color: #3f3f46;         /* Zinco 700 - Borda sutilmente visível no fundo do card */
     --shadow-color: rgba(0, 0, 0, 0.5); /* Sombra precisa ser mais forte para aparecer */
     --error-color: #ef4444;            /* Vermelho vibrante funciona bem em ambos os temas */
+    --sucess-color: #16a34a;     /* Cor para mensagens de sucesso */
   }
 }

@@ -1,5 +1,8 @@
+// app/page.tsx
 "use client";
 
+import { IconEye } from '@/app/components/icons/IconEye';
+import { IconEyeSlash } from '@/app/components/icons/IconEyeSlash';
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,6 +12,8 @@ export default function LoginPage() {
   const [login, setLogin] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
+
+  const [verSenha, setVerSenha] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,15 +48,18 @@ export default function LoginPage() {
           value={login}
           onChange={(e) => setLogin(e.target.value)}
           className="login-input"
+          required
         />
 
-        <input
-          type="password"
-          placeholder="Senha"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-          className="login-input"
-        />
+        <div className="password-container">
+          <input
+            type={verSenha ? "text" : "password"}
+            placeholder="Senha"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            className="login-input"
+            required
+          /><button type="button" onClick={() => setVerSenha(!verSenha)} className="toggle-password-button" aria-label={verSenha ? "Esconder senha" : "Mostrar senha"}>{verSenha ? <IconEyeSlash className="icon" /> : <IconEye className="icon" />}</button></div>
 
         {erro && <p className="error-message">{erro}</p>}
 
