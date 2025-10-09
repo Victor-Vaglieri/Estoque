@@ -56,8 +56,8 @@ export default function LoginPage() {
         {erro && <p className="error-message">{erro}</p>}
 
         <section className="divider">
-        <Link href="/criar_usuario" className="create-button">Criar</Link>
-        <button type="submit" className="login-button">Entrar</button>
+          <Link href="/criar_usuario" className="create-button">Criar</Link>
+          <button type="submit" className="login-button">Entrar</button>
         </section>
       </form>
     </div>
