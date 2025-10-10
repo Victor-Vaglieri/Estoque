@@ -80,15 +80,20 @@ body {
 /* Botão (o <button>) */
 .login-button, .create-button, .return-button, .register-button {
   text-align: center;
-  width: 100%;
+  flex-grow: 1;
   background-color: var(--primary);
   color: var(--text-on-primary-button);
-  padding: 0.5rem 0;
+  padding: 0.5rem 0.5rem;
   border-radius: 0.5rem;
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
+
+.register-button{
+  overflow-wrap: break-word;
+}
+
 .login-button:hover, .create-button:hover, .return-button:hover, .register-button:hover {
   background-color: var(--primary-hover);
 }
@@ -97,6 +102,8 @@ body {
   display: flex;
   justify-content: center;
   flex-direction: row;
+  justify-items: center;
+  align-items: center;
   gap: 1rem;
 }
 
