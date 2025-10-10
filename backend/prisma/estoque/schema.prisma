@@ -16,13 +16,16 @@ model Produto {
   categoria      String?
   unidade        String    // ex: "kg", "L", "unid"
   quantidadeMin  Int
+  quantidadeEst  Int      @default(0)
+  quantidadeNec  Int      @default(0)
   fornecedor     String?
   observacoes    String?
 
   entradas       Entrada[]
   saidas         Saida[]
   historicoPreco HistoricoPreco[]
-
+  hsitoricoCompra HistoricoCompra[]
+  
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -54,4 +57,16 @@ model HistoricoPreco {
   produto     Produto  @relation(fields: [produtoId], references: [id])
   preco       Float
   data        DateTime @default(now())
+}
+
+
+model HistoricoCompra{
+  id          Int      @id @default(autoincrement())
+  produtoId   Int
+  produto     Produto  @relation(fields: [produtoId], references: [id])
+  quantidade  Int
+  precoTotal  Float
+  data        DateTime @default(now())
+  fornecedor  String?
+  responsavelId Int    // referência ao id de usuário (vindo do outro banco)
 }
