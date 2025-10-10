@@ -6,33 +6,43 @@ import { IconEyeSlash } from '@/app/components/icons/IconEyeSlash';
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { loginUser } from "@/lib/authService";
 
 export default function LoginPage() {
   const router = useRouter();
+
+
   const [login, setLogin] = useState("");
   const [senha, setSenha] = useState("");
-  const [erro, setErro] = useState("");
 
+
+  const [erro, setErro] = useState("");
   const [verSenha, setVerSenha] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setErro(""); // Limpa erro anterior
+    setIsLoading(true); // Inicia o loading
 
-    // Chama sua API do backend NestJS
-    const res = await fetch("http://localhost:3001/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ login, senha }),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      localStorage.setItem("token", data.token); // salva o JWT
-      router.push("/dashboard");
-    } else {
-      setErro("Login ou senha inválidos.");
+    try {
+      // Usa o serviço separado
+      const token = await loginUser(login, senha); 
+      
+      // TODO: Embora Cookies HTTP Only sejam melhores, mantemos o localStorage por agora: 
+      localStorage.setItem("token", token);
+      
+      router.push("/inicio");
+      
+    } catch (error) {
+      // Captura o erro lançado pelo loginUser
+      setErro(error instanceof Error ? error.message : "Erro desconhecido ao tentar logar.");
+      
+    } finally {
+      setIsLoading(false); // Finaliza o loading
     }
   }
+
 
   return (
     <div className="login-container">
