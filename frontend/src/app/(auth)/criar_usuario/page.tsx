@@ -1,4 +1,4 @@
-// app/criar_usuario/page.tsx
+// app/auth/criar_usuario/page.tsx
 
 "use client";
 
