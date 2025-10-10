@@ -17,7 +17,7 @@ model Produto {
   unidade        String    // ex: "kg", "L", "unid"
   quantidadeMin  Int
   quantidadeEst  Int      @default(0)
-  quantidadeNec  Int      @default(0)
+  quantidadeNec  Int
   fornecedor     String?
   observacoes    String?
 
@@ -25,7 +25,7 @@ model Produto {
   saidas         Saida[]
   historicoPreco HistoricoPreco[]
   hsitoricoCompra HistoricoCompra[]
-  
+
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -69,4 +69,14 @@ model HistoricoCompra{
   data        DateTime @default(now())
   fornecedor  String?
   responsavelId Int    // referência ao id de usuário (vindo do outro banco)
+  confirmadoEntrada EstadoEntrada @default(PENDENTE)
+  responsavelConfirmacaoId Int? // referência ao id de usuário que confirmou a entrada
+}
+
+
+enum EstadoEntrada {
+  PENDENTE
+  CONFIRMADO
+  FALTANTE
+  CANCELADO
 }
