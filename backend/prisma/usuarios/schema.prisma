@@ -11,11 +11,18 @@ datasource db {
 model Usuario {
   id       Int      @id @default(autoincrement())
   nome     String
-  funcao   Funcao
+  funcoes  UsuarioFuncao[]
   login    String   @unique
   senha    String
   ativo    Boolean  @default(true)
   createdAt DateTime @default(now())
+}
+
+model UsuarioFuncao {
+  id       Int      @id @default(autoincrement())
+  usuario  Usuario  @relation(fields: [usuarioId], references: [id])
+  usuarioId Int
+  funcao   Funcao
 }
 
 enum Funcao {
