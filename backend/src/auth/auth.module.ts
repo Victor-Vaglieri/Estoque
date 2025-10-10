@@ -12,7 +12,7 @@ import { JwtModule } from '@nestjs/jwt';
     JwtModule.register({
       global: true, // Torna o JwtModule global, não precisa importar em outros módulos
       secret: process.env.SECRET_JWT, // Use uma variável de ambiente para o segredo
-      signOptions: { expiresIn: '1h' }, // O token expira em 1 hora
+      signOptions: { expiresIn: '8h' }, // O token expira em 8 hora
     }),
   ],
   controllers: [AuthController],
