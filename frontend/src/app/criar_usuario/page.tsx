@@ -98,7 +98,7 @@ export default function CreateUserPage() {
 
         {/* 4. Ações do formulário atualizadas */}
         <section className="divider">
-          <Link href="/" className="return-button">Voltar</Link>
+          <Link href="/" className="return-button">Voltar ao Login</Link>
           <button type="submit" className="register-button">Enviar cadastro</button>
         </section>
       </form>
