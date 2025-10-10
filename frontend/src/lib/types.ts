@@ -10,7 +10,7 @@ export interface UserData {
 export interface AuthContextType {
   user: UserData | null;
   isAuthenticated: boolean;
-  // A função de login que vai salvar o token e o user
+  isLoading: boolean; 
   login: (token: string) => void; 
   logout: () => void;
 }

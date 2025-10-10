@@ -3,7 +3,7 @@
 export async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
   // 1. Pega o token salvo
   const token = localStorage.getItem('token'); // TODO: Use Cookies HTTP Only em produção
-  const API_URL = process.env.API_URL;
+  const API_URL = "http://localhost:3001";
 
   if (!token) {
     throw new Error('Usuário não autenticado.');
@@ -25,7 +25,7 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
   // 4. Trata erros (se o token expirar, por exemplo)
   if (res.status === 401 || res.status === 403) {
     localStorage.removeItem('token');
-    window.location.href = '/'; 
+    window.location.href = '/login'; 
   }
 
   // ... restante da lógica
