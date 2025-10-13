@@ -2,15 +2,17 @@
 export type Funcao = 'CADASTRO' | 'COMPRAS' | 'RECEBIMENTO' | 'FUNCIONARIO' | 'EMPREGADA' | 'GESTOR';
 
 export interface UserData {
-  userId: number;
-  login: string;
-  funcoes: Funcao[];
+  sub: number;       // ✅ ADICIONADO: O ID do usuário (padrão JWT "subject")
+  login: string;     // O login/username do usuário
+  funcoes: Funcao[]; // As permissões do usuário
+  exp?: number;      // Opcional: timestamp de expiração do token
+  iat?: number;      // Opcional: timestamp de criação do token
 }
 
 export interface AuthContextType {
   user: UserData | null;
   isAuthenticated: boolean;
-  isLoading: boolean; 
-  login: (token: string) => void; 
+  loading: boolean; // <-- MUDANÇA AQUI: de 'isLoading' para 'loading'
+  login: (token: string) => void;
   logout: () => void;
 }

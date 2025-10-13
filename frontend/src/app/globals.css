@@ -4,9 +4,12 @@
   /* Cores de Fundo */
   --background-page: #f3f4f6;  /* Cinza claro do fundo da página */
   --background-surface: #ffffff; /* Branco para cards, formulários, etc. */
+  --background-header-table: #f9fafb; /* Cinza para o cabeçalho da tabela */
 
   /* Cores de Texto */
   --text-primary: #171717;      /* Cor principal do texto */
+  --text-secondary: #6b7280;      /* Adicionado para textos de subtítulo */
+  --text-tertiary: #4b5563;       /* Adicionado para cabeçalho de tabela */
   --text-on-primary-button: #ffffff; /* Texto branco para botões com fundo escuro */
 
   /* Cores de Ação (Botões e Links) */
@@ -16,7 +19,7 @@
 
   /* Cores de UI (Interface do Usuário) */
   --border-color: #d1d5db;      /* Cor da borda padrão para inputs */
-  --eye-color: #dee1e7;         /* Cor do ícone de olho */
+  --eye-color: #dee1e7;         /* Cor do ícone de olho */  
   --shadow-color: rgba(0, 0, 0, 0.1);
   --error-color: #ef4444;       /* Cor para mensagens de erro */
   --sucess-color: #16a34a;     /* Cor para mensagens de sucesso */
@@ -144,16 +147,70 @@ body {
   height: 1.2rem; /* 20px */
 }
 
+.sidebar {
+  width: 16rem; /* 256px */
+  flex-shrink: 0;
+  background-color: var(--background-surface);
+  color: var(--sidebar-text);
+  padding: 1rem;
+}
+
+.sidebar-skeleton {
+  width: 16rem;
+  background-color: var(--background-surface);
+}
+
+.sidebar-title {
+  font-size: 1.5rem; /* 24px */
+  line-height: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+}
+
+.nav-item {
+  margin-bottom: 0.5rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 0.375rem; /* 6px */
+  text-decoration: none;
+  color: var(--sidebar-text);
+  transition: background-color 0.2s ease-in-out;
+}
+
+.nav-link:hover {
+  background-color: var(--sidebar-hover-background);
+}
+
+/* Estilo para o link ATIVO */
+.nav-link.active {
+  background-color: var(--primary);
+}
+
+.nav-link-icon {
+  margin-right: 0.75rem; /* 12px */
+  /* Opcional: para garantir que os emojis tenham o mesmo tamanho */
+  width: 24px;
+  display: inline-block;
+  text-align: center;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     /* Cores de Fundo */
     --background-page: #18181b;      /* Zinco 900 - Um cinza bem escuro, quase preto */
     --background-surface: #27272a;  /* Zinco 800 - Um cinza um pouco mais claro para cards */
+    --background-header-table: #374151;
 
     /* Cores de Texto */
     --text-primary: #e4e4e7;         /* Zinco 200 - Um branco suave para não cansar a vista */
     --text-on-primary-button: #ffffff; /* Continua branco, pois o botão é azul */
-
+    --text-secondary: #9ca3af;
+    --text-tertiary: #d1d5db;
+    
     /* Cores de Ação (Botões e Links) - Geralmente não mudam */
     --primary: #1f54c7;
     --primary-hover: #1b46be;
