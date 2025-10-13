@@ -17,8 +17,14 @@
     overflow-y: auto;
 }
 
+.content-area{
+    flex: 1 1 0%;
+    overflow: hidden;
+    background-color: var(--background-page);
+}
+
 .main-container {
-    max-width: 1280px;
+    max-width: 100%;
     /* Largura máxima do container */
     margin-left: auto;
     margin-right: auto;
@@ -27,7 +33,7 @@
 }
 
 .menu-toggle{
-    display: hidden;
+    display: block;
 }
 
 .section-header {
@@ -195,9 +201,6 @@
 
 /* Media Queries para Responsividade */
 @media (min-width: 768px) {
-    .menu-toggle{
-        display: block;
-    }
 
     /* md */
     .stats-grid {

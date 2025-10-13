@@ -1,28 +1,63 @@
 @import "tailwindcss";
 
+
+
 :root {
   /* Cores de Fundo */
-  --background-page: #f3f4f6;  /* Cinza claro do fundo da página */
-  --background-surface: #ffffff; /* Branco para cards, formulários, etc. */
-  --background-header-table: #f9fafb; /* Cinza para o cabeçalho da tabela */
+  --background-page: #f3f4f6;
+  /* Cinza claro do fundo da página */
+  --background-surface: #ffffff;
+  /* Branco para cards, formulários, etc. */
+  --background-header-table: #f9fafb;
+  /* Cinza para o cabeçalho da tabela */
 
   /* Cores de Texto */
-  --text-primary: #171717;      /* Cor principal do texto */
-  --text-secondary: #6b7280;      /* Adicionado para textos de subtítulo */
-  --text-tertiary: #4b5563;       /* Adicionado para cabeçalho de tabela */
-  --text-on-primary-button: #ffffff; /* Texto branco para botões com fundo escuro */
+  --text-primary: #171717;
+  /* Cor principal do texto */
+  --text-secondary: #6b7280;
+  /* Adicionado para textos de subtítulo */
+  --text-tertiary: #4b5563;
+  /* Adicionado para cabeçalho de tabela */
+  --text-on-primary-button: #ffffff;
+  /* Texto branco para botões com fundo escuro */
 
   /* Cores de Ação (Botões e Links) */
-  --primary: #2563eb;           /* Cor principal do botão */
-  --primary-hover: #1d4ed8;     /* Cor do botão ao passar o mouse */
-  --primary-focus: #3b82f6;      /* Cor para anel de foco e bordas ativas */
+  --primary: #2563eb;
+  /* Cor principal do botão */
+  --primary-hover: #1d4ed8;
+  /* Cor do botão ao passar o mouse */
+  --primary-focus: #3b82f6;
+  /* Cor para anel de foco e bordas ativas */
 
   /* Cores de UI (Interface do Usuário) */
-  --border-color: #d1d5db;      /* Cor da borda padrão para inputs */
-  --eye-color: #dee1e7;         /* Cor do ícone de olho */  
+  --border-color: #d1d5db;
+  /* Cor da borda padrão para inputs */
+  --eye-color: #191a1d;
+  /* Cor do ícone de olho */
   --shadow-color: rgba(0, 0, 0, 0.1);
-  --error-color: #ef4444;       /* Cor para mensagens de erro */
-  --sucess-color: #16a34a;     /* Cor para mensagens de sucesso */
+  --error-color: #ef4444;
+  /* Cor para mensagens de erro */
+  --sucess-color: #16a34a;
+  /* Cor para mensagens de sucesso */
+}
+
+
+.menu-toggle {
+  display: none;
+}
+
+.top-bar {
+  height: 4rem;
+  width: 100%;
+  background-color: var(--background-surface);
+  display: flex;
+  align-items: right;
+  flex-direction: row-reverse;
+  padding: 0 1.5rem;
+  z-index: 10;
+  position: sticky;
+  gap: 1.5rem;
+  top: 0;
 }
 
 /* Aplica a cor de texto padrão */
@@ -48,7 +83,7 @@ body {
   box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -4px var(--shadow-color);
 }
 
-.login-form > * + * {
+.login-form>*+* {
   margin-top: 1rem;
 }
 
@@ -67,6 +102,7 @@ body {
   border-radius: 0.5rem;
   padding: 0.5rem 0.75rem;
 }
+
 .login-input:focus {
   outline: 2px solid transparent;
   outline-offset: 2px;
@@ -81,7 +117,10 @@ body {
 }
 
 /* Botão (o <button>) */
-.login-button, .create-button, .return-button, .register-button {
+.login-button,
+.create-button,
+.return-button,
+.register-button {
   text-align: center;
   flex-grow: 1;
   background-color: var(--primary);
@@ -93,15 +132,18 @@ body {
   transition-duration: 150ms;
 }
 
-.register-button{
+.register-button {
   overflow-wrap: break-word;
 }
 
-.login-button:hover, .create-button:hover, .return-button:hover, .register-button:hover {
+.login-button:hover,
+.create-button:hover,
+.return-button:hover,
+.register-button:hover {
   background-color: var(--primary-hover);
 }
 
-.divider{
+.divider {
   display: flex;
   justify-content: center;
   flex-direction: row;
@@ -111,8 +153,10 @@ body {
 }
 
 .success-message {
-  color: var(--sucess-color); /* Um tom de verde, ex: text-green-600 */
-  font-size: 0.875rem; /* 14px */
+  color: var(--sucess-color);
+  /* Um tom de verde, ex: text-green-600 */
+  font-size: 0.875rem;
+  /* 14px */
 }
 
 
@@ -125,34 +169,41 @@ body {
   position: absolute;
   top: 50%;
   right: 10px;
-  transform: translateY(-50%); /* Centraliza verticalmente */
-  
+  transform: translateY(-50%);
+  /* Centraliza verticalmente */
+
   /* Estilos para deixar o botão "invisível" e funcional */
   background: none;
   border: none;
   cursor: pointer;
   padding: 0;
-  font-size: 1.2rem; /* Tamanho do emoji/ícone */
+  font-size: 1.2rem;
+  /* Tamanho do emoji/ícone */
   transition-duration: 150ms;
   color: var(--eye-color);
 }
 
 .toggle-password-button:hover {
-  transform: translateY(-50%) scale(1.4); /* Aumenta um pouco ao passar o mouse */
+  transform: translateY(-50%) scale(1.4);
+  /* Aumenta um pouco ao passar o mouse */
   color: var(--text-primary);
 }
 
 .toggle-password-button .icon {
-  width: 1.2rem;  /* 20px */
-  height: 1.2rem; /* 20px */
+  width: 1.2rem;
+  /* 20px */
+  height: 1.2rem;
+  /* 20px */
 }
 
 .sidebar {
-  width: 16rem; /* 256px */
+  width: 16rem;
+  /* 256px */
   flex-shrink: 0;
   background-color: var(--background-surface);
   color: var(--sidebar-text);
   padding: 1rem;
+  display: show;
 }
 
 .sidebar-skeleton {
@@ -161,7 +212,8 @@ body {
 }
 
 .sidebar-title {
-  font-size: 1.5rem; /* 24px */
+  font-size: 1.5rem;
+  /* 24px */
   line-height: 2rem;
   font-weight: 700;
   margin-bottom: 2rem;
@@ -175,7 +227,8 @@ body {
   display: flex;
   align-items: center;
   padding: 0.5rem;
-  border-radius: 0.375rem; /* 6px */
+  border-radius: 0.375rem;
+  /* 6px */
   text-decoration: none;
   color: var(--sidebar-text);
   transition: background-color 0.2s ease-in-out;
@@ -191,35 +244,87 @@ body {
 }
 
 .nav-link-icon {
-  margin-right: 0.75rem; /* 12px */
+  margin-right: 0.75rem;
+  /* 12px */
   /* Opcional: para garantir que os emojis tenham o mesmo tamanho */
   width: 24px;
   display: inline-block;
   text-align: center;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
+.tb-icon{
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.disconect-toggle,
+.theme-toggle {
+  cursor: pointer;
+  font-size: 1.5rem;
+  /* Tamanho do emoji/ícone */
+  transition-duration: 500ms;
+  color: var(--eye-color);
+}
+
+
+
+/* fazer girar o icone .theme-toggle */
+.theme-toggle:hover {
+  /* Aumenta um pouco ao passar o mouse */
+  color: var(--text-primary);
+}
+
+.theme-toggle:active, .disconect-toggle:active {
+  transform: rotate(45deg);
+  transition: transform 0.1s ease-in-out;
+}
+
+
+  :root[data-theme="dark"] {
     /* Cores de Fundo */
-    --background-page: #18181b;      /* Zinco 900 - Um cinza bem escuro, quase preto */
-    --background-surface: #27272a;  /* Zinco 800 - Um cinza um pouco mais claro para cards */
+    --background-page: #18181b;
+    /* Zinco 900 - Um cinza bem escuro, quase preto */
+    --background-surface: #27272a;
+    /* Zinco 800 - Um cinza um pouco mais claro para cards */
     --background-header-table: #374151;
+    --eye-color: #dee1e7;
 
     /* Cores de Texto */
-    --text-primary: #e4e4e7;         /* Zinco 200 - Um branco suave para não cansar a vista */
-    --text-on-primary-button: #ffffff; /* Continua branco, pois o botão é azul */
+    --text-primary: #e4e4e7;
+    /* Zinco 200 - Um branco suave para não cansar a vista */
+    --text-on-primary-button: #ffffff;
+    /* Continua branco, pois o botão é azul */
     --text-secondary: #9ca3af;
     --text-tertiary: #d1d5db;
-    
+
     /* Cores de Ação (Botões e Links) - Geralmente não mudam */
     --primary: #1f54c7;
     --primary-hover: #1b46be;
     --primary-focus: #3b82f6;
 
     /* Cores de UI (Interface do Usuário) */
-    --border-color: #3f3f46;         /* Zinco 700 - Borda sutilmente visível no fundo do card */
-    --shadow-color: rgba(0, 0, 0, 0.5); /* Sombra precisa ser mais forte para aparecer */
-    --error-color: #ef4444;            /* Vermelho vibrante funciona bem em ambos os temas */
-    --sucess-color: #16a34a;     /* Cor para mensagens de sucesso */
+    --border-color: #3f3f46;
+    /* Zinco 700 - Borda sutilmente visível no fundo do card */
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    /* Sombra precisa ser mais forte para aparecer */
+    --error-color: #ef4444;
+    /* Vermelho vibrante funciona bem em ambos os temas */
+    --sucess-color: #16a34a;
+    /* Cor para mensagens de sucesso */
+  }
+
+@media (max-width: 768px) {
+  .login-form {
+    min-width: 80%;
+    /* Em telas pequenas, o formulário ocupa 80% da largura */
+  }
+
+  .menu-toggle {
+    display: show;
+  }
+
+  .sidebar {
+    display: none;
+    /* Esconde a sidebar em telas pequenas */
   }
 }
