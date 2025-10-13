@@ -23,10 +23,6 @@ export default function DashboardHomePage() {
       {/* Cabeçalho da Página */}
       <div className="page-header">
         <h2 className="page-title">Inventory Overview</h2>
-        <div className="header-actions">
-          <button className="btn btn-secondary">Export</button>
-          <button className="btn btn-primary">+ New Product</button>
-        </div>
       </div>
 
       {/* Grid de Estatísticas */}

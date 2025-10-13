@@ -24,6 +24,7 @@ export default function Sidebar() {
   const { user, loading } = useAuth();
   if (loading) {
     return <aside className="sidebar-skeleton"></aside>;
+
   }
   if (!user) {
     return <aside className="sidebar-skeleton"></aside>; 

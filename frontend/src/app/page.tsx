@@ -7,19 +7,19 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/context/AuthContext';
 
 export default function HomePage() {
-  const { user, isLoading } = useAuth(); // Pega o usuário e o estado de carregamento do contexto
+  const { user, loading } = useAuth(); // Pega o usuário e o estado de carregamento do contexto
   const router = useRouter();
 
   useEffect(() => {
     // Só executa a lógica depois que o contexto terminou de verificar a autenticação
-    if (!isLoading) {
+    if (!loading) {
       if (user) {
         router.replace('/inicio'); // Se o usuário existe (logado), vai para o dashboard
       } else {
         router.replace('/login'); // Se não existe (deslogado), vai para a tela de login
       }
     }
-  }, [user, isLoading, router]);
+  }, [user, loading, router]);
 
   // Enquanto a verificação acontece, mostramos uma tela de carregamento
   // para evitar um piscar de tela.
