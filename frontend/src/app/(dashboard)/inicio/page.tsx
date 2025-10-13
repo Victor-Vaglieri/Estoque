@@ -1,6 +1,9 @@
 // app/(dashboard)/page.tsx
 "use client";
 
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/app/context/AuthContext';
+
 // Importe seu novo arquivo CSS aqui
 import './inicio.css';
 
@@ -12,12 +15,60 @@ const StatCard = ({ title, value }: { title: string; value: string }) => (
   </div>
 );
 
-let pendentes_feitos = 12; // fazer fetch futuramente
-let concluidos_feitos = 23; // fazer fetch futuramente
-let pendentes_total = 58; // fazer fetch futuramente
-let concluidos_total = 34; // fazer fetch futuramente
+interface DashboardStats {
+  historico_compra_pendente: number;
+  nome_ultimo_produto_chego: string;
+  quantidade_itens_abaixo_min: number;
+  quantidade_saida: number;
+  // Adicione outras propriedades que sua API retorna
+}
+
 
 export default function DashboardHomePage() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth(); // Obtenha o usuário (que contém o token)
+
+  // 3. Use o useEffect para buscar os dados quando o componente for montado
+  useEffect(() => {
+    // Função assíncrona para buscar os dados
+    const fetchDashboardData = async () => {
+      // Garante que temos o token antes de fazer a chamada
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError("Usuário não autenticado.");
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        // Substitua pela URL real da sua API
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboard/stats`, {
+          method: 'GET',
+          headers: {
+            // Envie o token de autenticação no cabeçalho
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Falha ao buscar os dados do dashboard.');
+        }
+
+        const data: DashboardStats = await response.json();
+        setStats(data); // Salva o OBJETO no estado
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Ocorreu um erro desconhecido.");
+      } finally {
+        setIsLoading(false); // 5. Finaliza o estado de carregamento
+      }
+    };
+
+    fetchDashboardData();
+  }, []); // O array vazio [] garante que o useEffect rode apenas uma vez
+
   return (
     <>
       {/* Cabeçalho da Página */}
@@ -27,10 +78,10 @@ export default function DashboardHomePage() {
 
       {/* Grid de Estatísticas */}
       <div className="stats-grid">
-        <StatCard title="Meus Pedidos Pendentes" value={pendentes_feitos.toString()} />
-        <StatCard title="Meus Pedidos Concluídos" value={concluidos_feitos.toString()} />
-        <StatCard title="Total de Pedidos Pendentes" value={pendentes_total.toString()} />
-        <StatCard title="Total de Pedidos Concluídos" value={concluidos_total.toString()} />
+        <StatCard title="Itens com Estoque Baixo" value={stats?.historico_compra_pendente.toString()|| 'NaN'} />
+        <StatCard title="Saídas de Itens" value={stats?.quantidade_saida.toString() || 'NaN'} />
+        <StatCard title="Compras Pendentes" value={stats?.quantidade_itens_abaixo_min.toString() || 'NaN'} />
+        <StatCard title="Último Recebimento" value={stats?.nome_ultimo_produto_chego || 'ERRO'} />
       </div>
 
       {/* Tabela de Movimentações */}
