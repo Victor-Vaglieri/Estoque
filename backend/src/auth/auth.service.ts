@@ -14,7 +14,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(login: string, pass: string): Promise<{ access_token: string }> {
+  async login(login: string, pass: string): Promise<{ token: string }> {
     // 3. Use o serviço de usuários para fazer a busca
     const user = await this.usuariosDb.usuario.findUnique({
       where: { login },
@@ -28,9 +28,13 @@ export class AuthService {
       throw new UnauthorizedException('Login ou senha inválidos.');
     }
 
-    const payload = { sub: user.id, username: user.login };
+    const funcoes = await this.usuariosDb.usuarioFuncao.findMany({
+      where: { usuarioId: user.id },
+      select: { funcao: true },
+    }).then(results => results.map(r => r.funcao as string));
+    const payload = { sub: user.id, username: user.login, funcoes: funcoes };
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      token: await this.jwtService.signAsync(payload),
     };
   }
 }
