@@ -1,20 +1,18 @@
-// app/auth/login/page.tsx
+// app/auth/login/page.tsx (VERSÃO CORRIGIDA E INTEGRADA)
 "use client";
 
-import { IconEye } from '@/app/components/icons/IconEye';
-import { IconEyeSlash } from '@/app/components/icons/IconEyeSlash';
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/context/AuthContext"; // 1. Importe o useAuth
+import { IconEye } from '@/app/components/icons/IconEye';
+import { IconEyeSlash } from '@/app/components/icons/IconEyeSlash';
 import { loginUser } from "@/lib/authService";
 
 export default function LoginPage() {
-  const router = useRouter();
-
+  const { login: authLogin } = useAuth(); // 2. Pegue a função de login do contexto
 
   const [login, setLogin] = useState("");
   const [senha, setSenha] = useState("");
-
 
   const [erro, setErro] = useState("");
   const [verSenha, setVerSenha] = useState(false);
@@ -22,36 +20,28 @@ export default function LoginPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setErro(""); // Limpa erro anterior
-    setIsLoading(true); // Inicia o loading
+    setErro("");
+    setIsLoading(true);
 
     try {
-      // Usa o serviço separado
-      const token = await loginUser(login, senha); 
-      
-      // TODO: Embora Cookies HTTP Only sejam melhores, mantemos o localStorage por agora: 
-      localStorage.setItem("token", token);
-      
-      router.push("/inicio");
-      
+      // 3. O serviço continua igual, ele busca o token
+      const token = await loginUser(login, senha);
+
+      authLogin(token);
+
     } catch (error) {
-      // Captura o erro lançado pelo loginUser
       setErro(error instanceof Error ? error.message : "Erro desconhecido ao tentar logar.");
       
     } finally {
-      setIsLoading(false); // Finaliza o loading
+      setIsLoading(false);
     }
   }
 
-
+  // O JSX (return) continua exatamente o mesmo...
   return (
     <div className="login-container">
-      <form
-        onSubmit={handleSubmit}
-        className="login-form"
-      >
+      <form onSubmit={handleSubmit} className="login-form">
         <h1 className="login-title">Acesso ao Sistema</h1>
-
         <input
           type="text"
           placeholder="Login"
@@ -60,7 +50,6 @@ export default function LoginPage() {
           className="login-input"
           required
         />
-
         <div className="password-container">
           <input
             type={verSenha ? "text" : "password"}
@@ -69,13 +58,17 @@ export default function LoginPage() {
             onChange={(e) => setSenha(e.target.value)}
             className="login-input"
             required
-          /><button type="button" onClick={() => setVerSenha(!verSenha)} className="toggle-password-button" aria-label={verSenha ? "Esconder senha" : "Mostrar senha"}>{verSenha ? <IconEyeSlash className="icon" /> : <IconEye className="icon" />}</button></div>
-
+          />
+          <button type="button" onClick={() => setVerSenha(!verSenha)} className="toggle-password-button" aria-label={verSenha ? "Esconder senha" : "Mostrar senha"}>
+            {verSenha ? <IconEyeSlash className="icon" /> : <IconEye className="icon" />}
+          </button>
+        </div>
         {erro && <p className="error-message">{erro}</p>}
-
         <section className="divider">
           <Link href="/criar_usuario" className="create-button">Criar</Link>
-          <button type="submit" className="login-button">Entrar</button>
+          <button type="submit" className="login-button" disabled={isLoading}>
+            {isLoading ? 'Entrando...' : 'Entrar'}
+          </button>
         </section>
       </form>
     </div>
