@@ -1,5 +1,5 @@
 // lib/authService.ts
-const API_URL = "http://localhost:3001"; // Variável de Ambiente é melhor!
+const API_URL = process.env.NEXT_PUBLIC_API_URL; // Variável de Ambiente é melhor!
 
 // lib/authService.ts
 
