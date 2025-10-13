@@ -3,19 +3,21 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { PrismaModule } from 'src/prisma/prisma.module'; // Importe o PrismaModule
+import { PrismaModule } from 'src/prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from './jwt.strategy'; // 1. IMPORTE A ESTRATÉGIA
 
 @Module({
   imports: [
-    PrismaModule, // Disponibiliza o PrismaService para este módulo
+    PrismaModule,
     JwtModule.register({
-      global: true, // Torna o JwtModule global, não precisa importar em outros módulos
-      secret: process.env.SECRET_JWT, // Use uma variável de ambiente para o segredo
-      signOptions: { expiresIn: '8h' }, // O token expira em 8 hora
+      global: true,
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '8h' },
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  // 2. ADICIONE A ESTRATÉGIA AOS PROVIDERS
+  providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {}

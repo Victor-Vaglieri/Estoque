@@ -24,7 +24,7 @@ model Produto {
   entradas       Entrada[]
   saidas         Saida[]
   historicoPreco HistoricoPreco[]
-  hsitoricoCompra HistoricoCompra[]
+  historicoCompra HistoricoCompra[]
 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
