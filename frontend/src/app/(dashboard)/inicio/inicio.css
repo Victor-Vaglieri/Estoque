@@ -1,7 +1,16 @@
 .dashboard-layout {
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
+    height: 100%;
     background-color: var(--background-page);
+}
+
+.table-list ul li p {
+    color: var(--text-primary);
+}
+
+.table-list ul li h2 {
+    color: var(--text-primary);
 }
 
 .main-content-wrapper {

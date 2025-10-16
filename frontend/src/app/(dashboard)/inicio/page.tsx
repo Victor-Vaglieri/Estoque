@@ -23,18 +23,23 @@ interface DashboardStats {
   // Adicione outras propriedades que sua API retorna
 }
 
+interface Alert {
+  id: number;
+  titulo: string;
+  descricao: string;
+  importancia: 'ALTA' | 'MEDIA' | 'BAIXA' | 'AVISO';
+}
+
 
 export default function DashboardHomePage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth(); // Obtenha o usuário (que contém o token)
+  const { user } = useAuth();
+  const [alerts, setAlerts] = useState<Alert[]>([]);
 
-  // 3. Use o useEffect para buscar os dados quando o componente for montado
   useEffect(() => {
-    // Função assíncrona para buscar os dados
     const fetchDashboardData = async () => {
-      // Garante que temos o token antes de fazer a chamada
       const token = localStorage.getItem('token');
       if (!token) {
         setError("Usuário não autenticado.");
@@ -43,31 +48,72 @@ export default function DashboardHomePage() {
       }
 
       try {
-        // Substitua pela URL real da sua API
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboard/stats`, {
+        const responseDashboards = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboard/stats`, {
           method: 'GET',
           headers: {
-            // Envie o token de autenticação no cabeçalho
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         });
 
-        if (!response.ok) {
+        const responseAlerts = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/alerts`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!responseDashboards.ok || !responseAlerts.ok) {
           throw new Error('Falha ao buscar os dados do dashboard.');
         }
 
-        const data: DashboardStats = await response.json();
-        setStats(data); // Salva o OBJETO no estado
+        const alertsData = await responseAlerts.json();
+        if (alertsData && Object.keys(alertsData).length > 0) {
+          console.log("Alertas recebidos:", alertsData);
+          setAlerts([]); // Limpa os alertas atuais antes de adicionar novos
+        }
+        // ... dentro do try/catch do useEffect
+        const allAlerts: Alert[] = [];
+
+        // Transforma os dados recebidos no formato que precisamos
+        alertsData.alerta_alto.forEach((alert: any) => allAlerts.push({
+          id: alert.id,
+          titulo: `🚨 ${alert.titulo}`, // Adiciona um ícone ao título
+          descricao: alert.descricao,
+          importancia: 'ALTA'
+        }));
+        alertsData.alerta_medio.forEach((alert: any) => allAlerts.push({
+          id: alert.id,
+          titulo: `⚠️ ${alert.titulo}`,
+          descricao: alert.descricao,
+          importancia: 'MEDIA'
+        }));
+        alertsData.alerta_baixo.forEach((alert: any) => allAlerts.push({
+          id: alert.id,
+          titulo: `ℹ️ ${alert.titulo}`,
+          descricao: alert.descricao,
+          importancia: 'BAIXA'
+        }));
+        alertsData.aviso_ao_usuario.forEach((alert: any) => allAlerts.push({
+          id: alert.id,
+          titulo: `🔔 ${alert.titulo}`,
+          descricao: alert.descricao,
+          importancia: 'AVISO'
+        }));
+
+        setAlerts(allAlerts);
+        const data: DashboardStats = await responseDashboards.json();
+        setStats(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Ocorreu um erro desconhecido.");
       } finally {
-        setIsLoading(false); // 5. Finaliza o estado de carregamento
+        setIsLoading(false);
       }
     };
 
     fetchDashboardData();
-  }, []); // O array vazio [] garante que o useEffect rode apenas uma vez
+  }, []);
 
   return (
     <>
@@ -78,7 +124,7 @@ export default function DashboardHomePage() {
 
       {/* Grid de Estatísticas */}
       <div className="stats-grid">
-        <StatCard title="Itens com Estoque Baixo" value={stats?.historico_compra_pendente.toString()|| 'NaN'} />
+        <StatCard title="Itens com Estoque Baixo" value={stats?.historico_compra_pendente.toString() || 'NaN'} />
         <StatCard title="Saídas de Itens" value={stats?.quantidade_saida.toString() || 'NaN'} />
         <StatCard title="Compras Pendentes" value={stats?.quantidade_itens_abaixo_min.toString() || 'NaN'} />
         <StatCard title="Último Recebimento" value={stats?.nome_ultimo_produto_chego || 'ERRO'} />
@@ -90,9 +136,12 @@ export default function DashboardHomePage() {
       </div>
       {/* TODO acessar a div table-list pra colocar os avisos*/}
       <ul className="table-list">
-        <li className="table-container"><h3>⚠️ Produto "XYZ" está com estoque baixo.</h3></li>
-        <li className="table-container"><h3>ℹ️ Novo fornecedor "ABC Supplies" adicionado.</h3></li>
-        <li className="table-container"><h3>✅ Pedido #1234 concluído com sucesso.</h3></li>
+        {alerts.map((alert) => (
+          <li key={alert.id} className="table-container">
+            <h2>{alert.titulo}</h2>
+            <p>{alert.descricao}</p>
+          </li>
+        ))}
       </ul>
     </>
   );
