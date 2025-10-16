@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../node_modules/@prisma/alertas-client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./alertas.db"
+}
+
+model Alertas {
+  id       Int      @id @default(autoincrement())
+  titulo String
+  descricao String
+  importancia Importancia
+  concluido Boolean @default(false)
+  createdAt DateTime @default(now())
+  destinadoPara Int? // referência ao id de usuário, pode ser nulo 
+  finishedAt DateTime?
+}
+
+enum Importancia {
+  BAIXA
+  MEDIA
+  ALTA
+}
