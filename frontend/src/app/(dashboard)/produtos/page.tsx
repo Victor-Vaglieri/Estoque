@@ -1,32 +1,28 @@
 //app/(dashboard)/produtos/page.tsx
-
-
-// left - <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 48 48"><path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M31 36L19 24L31 12"/></svg>
-
-// down - <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 48 48"><path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M31 36L19 24L31 12"/></svg>
-
 "use client";
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { IconDown } from '@/app/components/icons/IconDown';
+import { IconLeft } from '@/app/components/icons/IconLeft';
 
 import './produtos.css';
 
-type Product = {
-    id: number;
+interface Product {
     nome: string;
+    id: number;
     unidade: string;
-    marca: string;
-    ultimoPreco: number;
-    precoMedio: number;
+    marca: string | null;
+    ultimoPreco: number | null;
+    precoMedio: number | null;
     quantidadeMin: number;
     quantidadeEst: number;
     quantidadeNec: number;
-    observacoes: string;
-};
+    observacoes: string | null;
+}
 
-export default function DashboardHomePage() {
+export default function ProductsHomePage() {
     const router = useRouter();
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -55,9 +51,9 @@ export default function DashboardHomePage() {
                 if (!responseListProducts.ok) {
                     throw new Error(`Erro ao buscar produtos: ${responseListProducts.statusText}`);
                 }
-
-                // TODO confirmar essa entrada 
-                const products = await responseListProducts.json();
+                const data = await responseListProducts.json();
+                setProducts(data);
+                console.log(products)
             } catch (err) {
                 setError(err instanceof Error ? err.message : "Ocorreu um erro desconhecido.");
             } finally {
@@ -70,39 +66,89 @@ export default function DashboardHomePage() {
     const handleToggleEdit = (productId: number) => {
         setEditingProductId(prevId => (prevId === productId ? null : productId));
     };
+
+
+    const handleUpdateProduct = async (event: React.FormEvent<HTMLFormElement>, productId: number) => {
+        event.preventDefault();
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setError("Sua sessão expirou. Faça o login novamente.");
+            return;
+        }
+        // --- 2. CAPTURAR OS DADOS DO FORMULÁRIO ---
+        const formData = new FormData(event.currentTarget);
+        const updatedData = {
+            nome: formData.get('nome') as string,
+            unidade: formData.get('unidade') as string,
+            marca: formData.get('marca') as string,
+            quantidadeMin: parseInt(formData.get('quantidadeMin') as string, 10),
+            quantidadeNec: parseInt(formData.get('quantidadeNec') as string, 10),
+            observacoes: formData.get('observacoes') as string,
+        };
+        console.log("Dados atualizados do formulário:", updatedData);
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${productId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedData),
+            });
+
+            if (!response.ok) {
+                throw new Error("Falha ao atualizar o produto.");
+            }
+
+            const updatedProductFromServer = await response.json();
+
+            // --- 4. ATUALIZAR A LISTA NA TELA ---
+            setProducts(currentProducts =>
+                currentProducts.map(p =>
+                    p.id === productId ? updatedProductFromServer : p
+                )
+            );
+
+            setEditingProductId(null); // Fecha o formulário de edição
+
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Ocorreu um erro ao atualizar.");
+        }
+    };
     if (isLoading) return <p>Carregando produtos...</p>;
     return (
         <>
-            <div className="page-header">
-                <h1 className="page-title">Produtos</h1>
+            <div className="page-header-produtos">
+                <h1 className="page-title-produtos">Produtos</h1>
             </div>
 
-            <ul className="table-list">
+            <ul className="table-list-produtos">
                 {/* Mapeia e renderiza cada produto existente */}
                 {products.map((product) => (
-                    <li key={product.id} className="table-container">
-                        <div className="section-header">
-                            <h2 className="section-title">{product.nome} ({product.unidade}) - {product.marca}</h2>
+                    <li key={product.id} className="table-container-produtos">
+                        <div className="section-header-produtos">
+                            <h2 className="section-title-produtos">{product.nome} ({product.unidade}) - {product.marca}</h2>
                             <button className="action-details" onClick={() => handleToggleEdit(product.id)}>
-                                {editingProductId === product.id ? 'Fechar' : 'Editar'}
+                                {editingProductId === product.id ? <IconDown className='arrow-icon' /> : <IconLeft className='arrow-icon' />}
                             </button>
                         </div>
-                        
-                        <p><strong>Último Preço:</strong> {product.ultimoPreco} | <strong>Preço Médio:</strong> {product.precoMedio}</p>
+
+                        <p><strong>Último Preço:</strong> {product.ultimoPreco?.toFixed(2)} | <strong>Preço Médio:</strong> {product.precoMedio?.toFixed(2)}</p>
                         <p><strong>Estoque:</strong> {product.quantidadeEst} | <strong>Mínimo:</strong> {product.quantidadeMin} | <strong>Necessário:</strong> {product.quantidadeNec}</p>
                         {product.observacoes && <p><strong>Observações:</strong> {product.observacoes}</p>}
 
                         {editingProductId === product.id && (
-                            <div style={{ marginTop: '1.5rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
-                                <h3 className="table-title">Editar Produto</h3>
-                                <form>
-                                    <label>Nome:<input type="text" defaultValue={product.nome} required /></label>
-                                    <label>Unidade:<input type="text" defaultValue={product.unidade} required /></label>
-                                    <label>Marca:<input type="text" defaultValue={product.marca} required /></label>
-                                    <label>Min:<input type="number" defaultValue={product.quantidadeMin} required /></label>
-                                    <label>Nec:<input type="number" defaultValue={product.quantidadeNec} required /></label>
-                                    <label>Observações:<textarea defaultValue={product.observacoes}></textarea></label>
-                                    <button type="submit" className="btn-primary" style={{ marginTop: '1rem' }}>
+                            <div className="form-divider-produtos">
+                                <h3 className="table-title-produtos">Editar Produto</h3>
+                                <form onSubmit={(e) => handleUpdateProduct(e, product.id)}>
+                                    <label>Nome:<input type="text" name="nome" defaultValue={product.nome} required /></label>
+                                    <label>Unidade:<input type="text" name="unidade" defaultValue={product.unidade} required /></label>
+                                    <label>Marca:<input type="text" name="marca" defaultValue={product.marca ?? ''} /></label>
+                                    <label>Min:<input type="number" name="quantidadeMin" defaultValue={product.quantidadeMin} required /></label>
+                                    <label>Nec:<input type="number"  name="quantidadeNec" defaultValue={product.quantidadeNec} required /></label>
+                                    <label>Observações:<textarea name="observacoes" defaultValue={product.observacoes ?? ''}></textarea></label>
+                                    <button type="submit" className="btn-primary">
                                         Salvar Alterações
                                     </button>
                                 </form>
@@ -111,12 +157,11 @@ export default function DashboardHomePage() {
                     </li>
                 ))}
 
-                {/* Card fixo no final da lista para adicionar um novo produto */}
-                <li key="add-product-card" className="table-container">
-                    <div className="section-header">
-                        <h2 className="section-title">Adicionar Novo Produto</h2>
+                <li key="add-product-card" className="table-container-produtos">
+                    <div className="section-header-produtos">
+                        <h2 className="section-title-produtos">Adicionar Novo Produto</h2>
                     </div>
-                    
+
                     {!showCreateForm && (
                         <button className="btn-primary" onClick={() => setShowCreateForm(true)}>
                             Adicionar
@@ -128,11 +173,11 @@ export default function DashboardHomePage() {
                             <label>Nome:<input type="text" required /></label>
                             <label>Unidade:<input type="text" required /></label>
                             <label>Marca:<input type="text" required /></label>
-                            <label>Min:<input type="number" defaultValue={0} required /></label>
+                            <label>Min:<input type="number" required /></label>
                             <label>Nec:<input type="number" required /></label>
                             <label>Observações:<textarea></textarea></label>
-                            
-                            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+
+                            <div className="form-actions">
                                 <button type="submit" className="btn-primary">Salvar Produto</button>
                                 <button type="button" className="btn-secondary" onClick={() => setShowCreateForm(false)}>
                                     Cancelar
