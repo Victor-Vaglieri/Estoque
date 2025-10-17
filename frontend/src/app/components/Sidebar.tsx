@@ -4,19 +4,31 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/app/context/AuthContext';
+import { IconAlert } from './icons/IconAlert';
+import { IconBox } from './icons/IconBox';
+import { IconCart } from './icons/IconCart';
+import { IconConfig } from './icons/IconConfig';
+import { IconGraph } from './icons/IconGraph';
+import { IconHome } from './icons/IconHome';
+import { IconModUsers } from './icons/IconModUsers';
+import { IconOut } from './icons/IconOut';
+import { IconRecive } from './icons/IconRecive';
+import { IconTable } from './icons/IconTable';
+import { IconUser } from './icons/IconUser';
+
 // ... (navLinks continua o mesmo)
 const navLinks = [
-    { name: 'Início', href: '/', icon: '🏠', roles: ['GESTOR','CADASTRO','COMPRAS','RECEBIMENTO','FUNCIONARIO','EMPREGADA'] },
-    { name: 'Cadastro de Itens', href: '/produtos', icon: '📦', roles: ['GESTOR', 'CADASTRO'] },
-    { name: 'Compras', href: '/compras', icon: '🛒', roles: ['GESTOR', 'COMPRAS'] },
-    { name: 'Recebimento', href: '/recebimento', icon: '🚚', roles: ['RECEBIMENTO'] },
-    { name: 'Saída', href: '/saidas', icon: '📤', roles: ['FUNCIONARIO'] },
-    { name: 'Fazer Inventário', href: '/inventario', icon: '📋', roles: ['GESTOR', 'EMPREGADA'] },
-    { name: 'Modificar Usuários', href: '/administracao/usuarios', icon: '👥', roles: ['GESTOR'] },
-    { name: 'Modificar Avisos', href: '/administracao/avisos', icon: '⚠️', roles: ['GESTOR'] },
-    { name: 'Relatórios', href: '/relatorios', icon: '📊', roles: ['GESTOR'] },
-    { name: 'Configurações', href: '/configuracoes', icon: '⚙️', roles: ['GESTOR','CADASTRO','COMPRAS','RECEBIMENTO','FUNCIONARIO','EMPREGADA'] },
-    { name: 'Editar Perfil', href: '/perfil', icon: '👤', roles: ['GESTOR','CADASTRO','COMPRAS','RECEBIMENTO','FUNCIONARIO','EMPREGADA'] },
+    { name: 'Início', href: '/inicio', icon: <IconHome className="sidebar-icon"/>, roles: ['GESTOR','CADASTRO','COMPRAS','RECEBIMENTO','FUNCIONARIO','EMPREGADA'] },
+    { name: 'Cadastro de Itens', href: '/produtos', icon: <IconBox className="sidebar-icon"/>, roles: ['GESTOR', 'CADASTRO'] },
+    { name: 'Compras', href: '/compras', icon: <IconCart className="sidebar-icon"/>, roles: ['GESTOR', 'COMPRAS'] },
+    { name: 'Recebimento', href: '/recebimento', icon: <IconRecive className="sidebar-icon"/>, roles: ['RECEBIMENTO'] },
+    { name: 'Saída', href: '/saidas', icon: <IconOut className="sidebar-icon"/> , roles: ['FUNCIONARIO'] },
+    { name: 'Fazer Inventário', href: '/inventario', icon: <IconTable className="sidebar-icon"/>, roles: ['GESTOR', 'EMPREGADA'] },
+    { name: 'Modificar Usuários', href: '/administracao/usuarios', icon: <IconModUsers className="sidebar-icon"/>, roles: ['GESTOR'] },
+    { name: 'Modificar Avisos', href: '/administracao/avisos', icon: <IconAlert className="sidebar-icon"/>, roles: ['GESTOR'] },
+    { name: 'Relatórios', href: '/relatorios', icon: <IconGraph className="sidebar-icon"/>, roles: ['GESTOR'] },
+    { name: 'Configurações', href: '/configuracoes', icon: <IconConfig className="sidebar-icon"/>, roles: ['GESTOR','CADASTRO','COMPRAS','RECEBIMENTO','FUNCIONARIO','EMPREGADA'] },
+    { name: 'Editar Perfil', href: '/perfil', icon: <IconUser className="sidebar-icon"/>, roles: ['GESTOR','CADASTRO','COMPRAS','RECEBIMENTO','FUNCIONARIO','EMPREGADA'] },
   ];
 
 export default function Sidebar() {
@@ -46,7 +58,7 @@ export default function Sidebar() {
             return (
               <li key={link.name} className="nav-item">
                 <Link href={link.href} className={linkClassName}>
-                  <span className="nav-link-icon">{link.icon}</span>
+                  {link.icon}
                   {link.name}
                 </Link>
               </li>

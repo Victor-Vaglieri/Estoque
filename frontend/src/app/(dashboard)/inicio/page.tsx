@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 // Importe seu novo arquivo CSS aqui
 import './inicio.css';
@@ -32,6 +33,7 @@ interface Alert {
 
 
 export default function DashboardHomePage() {
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,6 +46,8 @@ export default function DashboardHomePage() {
       if (!token) {
         setError("Usuário não autenticado.");
         setIsLoading(false);
+        localStorage.removeItem('token');
+        router.push('/login');
         return;
       }
 
@@ -119,7 +123,7 @@ export default function DashboardHomePage() {
     <>
       {/* Cabeçalho da Página */}
       <div className="page-header">
-        <h2 className="page-title">Inventory Overview</h2>
+        <h2 className="page-title">Visão do Estoque</h2>
       </div>
 
       {/* Grid de Estatísticas */}
