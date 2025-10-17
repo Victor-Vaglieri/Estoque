@@ -1,8 +1,8 @@
 export function IconConfig(props: React.SVGProps<SVGSVGElement>) {
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 48 48" {...props}><g fill="none" strokeLinejoin="round" strokeWidth="4" {...props}>
-            <path fill="#C01554" stroke="#000" d="M24 4L18 10H10V18L4 24L10 30V38H18L24 44L30 38H38V30L44 24L38 18V10H30L24 4Z" />
-            <path fill="#A00331" stroke="#fff" d="M24 30C27.3137 30 30 27.3137 30 24C30 20.6863 27.3137 18 24 18C20.6863 18 18 20.6863 18 24C18 27.3137 20.6863 30 24 30Z" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 48 48" {...props}><g fill="none" strokeLinejoin="round" strokeWidth="2" {...props}>
+            <path fill="#C73E1F" stroke="#000" d="M24 4L18 10H10V18L4 24L10 30V38H18L24 44L30 38H38V30L44 24L38 18V10H30L24 4Z" />
+            <path fill="#6E2211" stroke="#fff" d="M24 30C27.3137 30 30 27.3137 30 24C30 20.6863 27.3137 18 24 18C20.6863 18 18 20.6863 18 24C18 27.3137 20.6863 30 24 30Z" />
         </g>
         </svg>
     )
