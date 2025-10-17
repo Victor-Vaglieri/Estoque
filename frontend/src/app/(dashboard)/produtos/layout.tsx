@@ -1,4 +1,4 @@
-// app/(dashboard)/layout.tsx
+// app/(dashboard)/produtos/layout.tsx
 import Sidebar from '@/app/components/Sidebar';
 import TopBar from '@/app/components/TopBar';
 
@@ -14,12 +14,12 @@ export default function ProdutosLayout({
     <div className="produtos-layout">
       {/* 1. Nossa barra lateral, que será fixa */}
       <Sidebar />
-      <div className="content-area">
+      <div className="content-area-produtos">
         <TopBar />
         {/* 3. O container para o conteúdo principal */}
-        <div className="main-content-wrapper">
-          <main className="main-content">
-            <div className="main-container">
+        <div className="main-content-wrapper-produtos">
+          <main className="main-content-produtos">
+            <div className="main-container-produtos">
               {children}
             </div>
           </main>
