@@ -26,12 +26,6 @@
     overflow-y: auto;
 }
 
-.content-area{
-    flex: 1 1 0%;
-    overflow: hidden;
-    background-color: var(--background-page);
-}
-
 .main-container {
     max-width: 100%;
     /* Largura máxima do container */

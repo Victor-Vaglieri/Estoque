@@ -1,6 +1,16 @@
 @import "tailwindcss";
 
+.content-area{
+    flex: 1 1 0%;
+    overflow: hidden;
+    background-color: var(--background-page);
+}
 
+.sidebar-icon{
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0 .2rem;
+}
 
 :root {
   /* Cores de Fundo */
@@ -10,6 +20,7 @@
   /* Branco para cards, formulários, etc. */
   --background-header-table: #f9fafb;
   /* Cinza para o cabeçalho da tabela */
+  --nav-link-background: #e5e7eb;
 
   /* Cores de Texto */
   --text-primary: #171717;
@@ -232,6 +243,7 @@ body {
   text-decoration: none;
   color: var(--sidebar-text);
   transition: background-color 0.2s ease-in-out;
+  background-color: var(--nav-link-background);
 }
 
 .nav-link:hover {
@@ -288,6 +300,7 @@ body {
     /* Zinco 800 - Um cinza um pouco mais claro para cards */
     --background-header-table: #374151;
     --eye-color: #dee1e7;
+    --nav-link-background: rgba(24, 24, 27,0.25);
 
     /* Cores de Texto */
     --text-primary: #e4e4e7;

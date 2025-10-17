@@ -1,0 +1,137 @@
+/* app/(dashboard)/produtos/produtos.css */
+.produtos-layout {
+    display: flex;
+    min-height: 100vh;
+    height: 100%;
+    background-color: var(--background-page);
+}
+
+
+.create-form {
+    background-color: var(--background-surface);
+    min-width: 100%;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -4px var(--shadow-color);
+    margin-top: 1rem;
+}
+
+/* A lista <ul> que contém todos os cards de produtos */
+.table-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Estilo base para os cards (usado para cada <li>).
+  Este estilo substitui o seu `.create-form` para manter
+  a consistência visual entre todos os cards.
+*/
+.table-container {
+    background-color: var(--background-surface);
+    padding: 1.5rem;
+    border-radius: 0.5rem; /* 8px */
+    box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px -1px var(--shadow-color);
+}
+
+/* Título secundário dentro de um card (ex: "Editar Produto") */
+.table-title {
+    color: var(--text-primary);
+    font-size: 1.25rem; /* 20px */
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* ============================================= */
+/* === 4. Estilos de Formulário              === */
+/* ============================================= */
+
+/* Estilos aplicados aos elementos <form> */
+.table-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Espaçamento entre os campos */
+}
+
+/* Estilos para as <label> dos campos */
+.table-container form label {
+    display: flex;
+    flex-direction: column;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.875rem; /* 14px */
+}
+
+/* Estilos para os campos <input> e <textarea> */
+.table-container form input,
+.table-container form textarea {
+    margin-top: 0.25rem; /* Pequeno espaço entre label e campo */
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem; /* 6px */
+    background-color: var(--background-page);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.table-container form input:focus,
+.table-container form textarea:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-color: var(--primary);
+}
+
+/* ============================================= */
+/* === 5. Botões                             === */
+/* ============================================= */
+
+/* Botão principal (Salvar, Adicionar) */
+.btn-primary {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-on-primary-button);
+    background-color: var(--primary);
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Botão secundário (Cancelar) */
+.btn-secondary {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    background-color: var(--background-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-secondary:hover {
+    background-color: var(--background-page);
+}
+
+/* Botão de ação com estilo de link (Editar) */
+.action-details {
+    font-weight: 500;
+    color: var(--primary);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.action-details:hover {
+    text-decoration: underline;
+}
