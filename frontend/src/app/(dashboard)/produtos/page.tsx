@@ -1,4 +1,3 @@
-//app/(dashboard)/produtos/page.tsx
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -30,38 +29,41 @@ export default function ProductsHomePage() {
     const { user } = useAuth();
     const [editingProductId, setEditingProductId] = useState<number | null>(null);
     const [showCreateForm, setShowCreateForm] = useState(false);
-    useEffect(() => {
-        const fetchProductsData = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                setError("Usuário não autenticado.");
-                setIsLoading(false);
-                localStorage.removeItem('token');
-                router.push('/login');
-                return;
-            }
-            try {
-                const responseListProducts = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
-                if (!responseListProducts.ok) {
-                    throw new Error(`Erro ao buscar produtos: ${responseListProducts.statusText}`);
-                }
-                const data = await responseListProducts.json();
-                setProducts(data);
-                console.log(products)
-            } catch (err) {
-                setError(err instanceof Error ? err.message : "Ocorreu um erro desconhecido.");
-            } finally {
-                setIsLoading(false);
-            }
+
+    // --- FUNÇÃO PARA BUSCAR OS PRODUTOS ---
+    // (Movida para fora do useEffect para que possamos chamá-la novamente)
+    const fetchProductsData = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setError("Usuário não autenticado.");
+            setIsLoading(false);
+            localStorage.removeItem('token');
+            router.push('/login');
+            return;
         }
+        try {
+            const responseListProducts = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (!responseListProducts.ok) {
+                throw new Error(`Erro ao buscar produtos: ${responseListProducts.statusText}`);
+            }
+            const data = await responseListProducts.json();
+            setProducts(data);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Ocorreu um erro desconhecido.");
+        } finally {
+            setIsLoading(false);
+        }
+    }
+    
+    useEffect(() => {
         fetchProductsData();
-    }, []);
+    }, [router]); // Adicione 'router' ao array de dependências
 
     const handleToggleEdit = (productId: number) => {
         setEditingProductId(prevId => (prevId === productId ? null : productId));
@@ -70,12 +72,13 @@ export default function ProductsHomePage() {
 
     const handleUpdateProduct = async (event: React.FormEvent<HTMLFormElement>, productId: number) => {
         event.preventDefault();
+        setError(null); // Limpa erros anteriores
         const token = localStorage.getItem('token');
         if (!token) {
             setError("Sua sessão expirou. Faça o login novamente.");
             return;
         }
-        // --- 2. CAPTURAR OS DADOS DO FORMULÁRIO ---
+        
         const formData = new FormData(event.currentTarget);
         const updatedData = {
             nome: formData.get('nome') as string,
@@ -85,7 +88,6 @@ export default function ProductsHomePage() {
             quantidadeNec: parseInt(formData.get('quantidadeNec') as string, 10),
             observacoes: formData.get('observacoes') as string,
         };
-        console.log("Dados atualizados do formulário:", updatedData);
 
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${productId}`, {
@@ -98,30 +100,74 @@ export default function ProductsHomePage() {
             });
 
             if (!response.ok) {
-                throw new Error("Falha ao atualizar o produto.");
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Falha ao atualizar o produto.");
             }
 
-            const updatedProductFromServer = await response.json();
-
             // --- 4. ATUALIZAR A LISTA NA TELA ---
-            setProducts(currentProducts =>
-                currentProducts.map(p =>
-                    p.id === productId ? updatedProductFromServer : p
-                )
-            );
-
+            // A forma mais fiável de atualizar é buscar a lista novamente
+            await fetchProductsData(); 
             setEditingProductId(null); // Fecha o formulário de edição
 
         } catch (err) {
             setError(err instanceof Error ? err.message : "Ocorreu um erro ao atualizar.");
         }
     };
+    
+    // --- 1. NOVA FUNÇÃO PARA CRIAR PRODUTO ---
+    const handleCreateProduct = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setError(null); // Limpa erros anteriores
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setError("Sua sessão expirou. Faça o login novamente.");
+            return;
+        }
+
+        const formData = new FormData(event.currentTarget);
+        const createData = {
+            nome: formData.get('nome') as string,
+            unidade: formData.get('unidade') as string,
+            marca: formData.get('marca') as string,
+            quantidadeMin: parseInt(formData.get('quantidadeMin') as string, 10),
+            quantidadeNec: parseInt(formData.get('quantidadeNec') as string, 10),
+            observacoes: formData.get('observacoes') as string,
+        };
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
+                method: 'POST', // Método para criar é POST
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(createData),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Falha ao criar o produto.");
+            }
+
+            // Após criar, buscamos a lista de produtos novamente
+            // para incluir o novo produto que foi adicionado
+            await fetchProductsData();
+            setShowCreateForm(false); // Fecha o formulário de criação
+
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Ocorreu um erro ao criar o produto.");
+        }
+    };
+    
+
     if (isLoading) return <p>Carregando produtos...</p>;
     return (
         <>
             <div className="page-header-produtos">
                 <h1 className="page-title-produtos">Produtos</h1>
             </div>
+            {/* Adicionado para exibir mensagens de erro */}
+            {error && <p className="error-message">{error}</p>}
 
             <ul className="table-list-produtos">
                 {/* Mapeia e renderiza cada produto existente */}
@@ -148,9 +194,14 @@ export default function ProductsHomePage() {
                                     <label>Min:<input type="number" name="quantidadeMin" defaultValue={product.quantidadeMin} required /></label>
                                     <label>Nec:<input type="number"  name="quantidadeNec" defaultValue={product.quantidadeNec} required /></label>
                                     <label>Observações:<textarea name="observacoes" defaultValue={product.observacoes ?? ''}></textarea></label>
-                                    <button type="submit" className="btn-primary">
-                                        Salvar Alterações
-                                    </button>
+                                    <div className="form-actions"> {/* Adicionado div para consistência de layout */}
+                                        <button type="submit" className="btn-primary">
+                                            Salvar Alterações
+                                        </button>
+                                        <button type="button" className="btn-secondary" onClick={() => setEditingProductId(null)}>
+                                            Cancelar
+                                        </button>
+                                    </div>
                                 </form>
                             </div>
                         )}
@@ -160,22 +211,27 @@ export default function ProductsHomePage() {
                 <li key="add-product-card" className="table-container-produtos">
                     <div className="section-header-produtos">
                         <h2 className="section-title-produtos">Adicionar Novo Produto</h2>
+                         <button className="action-details" onClick={() => setShowCreateForm(!showCreateForm)}>
+                             {showCreateForm ? <IconDown className='arrow-icon'/> : <IconLeft className='arrow-icon'/>}
+                        </button>
                     </div>
 
-                    {!showCreateForm && (
+                    {!showCreateForm && !error && ( // Esconde o botão se o formulário estiver aberto OU se houver um erro
                         <button className="btn-primary" onClick={() => setShowCreateForm(true)}>
                             Adicionar
                         </button>
                     )}
 
                     {showCreateForm && (
-                        <form>
-                            <label>Nome:<input type="text" required /></label>
-                            <label>Unidade:<input type="text" required /></label>
-                            <label>Marca:<input type="text" required /></label>
-                            <label>Min:<input type="number" required /></label>
-                            <label>Nec:<input type="number" required /></label>
-                            <label>Observações:<textarea></textarea></label>
+                        // --- 2. CONECTAR O FORMULÁRIO À NOVA FUNÇÃO ---
+                        <form onSubmit={handleCreateProduct}>
+                            {/* --- 3. ADICIONAR OS ATRIBUTOS 'name' --- */}
+                            <label>Nome:<input type="text" name="nome" required /></label>
+                            <label>Unidade:<input type="text" name="unidade" required /></label>
+                            <label>Marca:<input type="text" name="marca" /></label>
+                            <label>Min:<input type="number" name="quantidadeMin" defaultValue={0} required /></label>
+                            <label>Nec:<input type="number" name="quantidadeNec" defaultValue={0} required /></label>
+                            <label>Observações:<textarea name="observacoes"></textarea></label>
 
                             <div className="form-actions">
                                 <button type="submit" className="btn-primary">Salvar Produto</button>
@@ -190,3 +246,4 @@ export default function ProductsHomePage() {
         </>
     );
 }
+

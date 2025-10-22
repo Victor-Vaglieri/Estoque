@@ -14,12 +14,11 @@ import { IconModUsers } from './icons/IconModUsers';
 import { IconOut } from './icons/IconOut';
 import { IconRecive } from './icons/IconRecive';
 import { IconTable } from './icons/IconTable';
-import { IconUser } from './icons/IconUser';
 
 // ... (navLinks continua o mesmo)
 const navLinks = [
-    { name: 'Início', href: '/inicio', icon: <IconHome className="sidebar-icon"/>, roles: ['GESTOR','CADASTRO','COMPRAS','RECEBIMENTO','FUNCIONARIO','EMPREGADA'] },
-    { name: 'Cadastro de Itens', href: '/produtos', icon: <IconBox className="sidebar-icon"/>, roles: ['GESTOR', 'CADASTRO'] },
+    { name: 'Início', href: '/inicio', icon: <IconHome className="sidebar-icon"/>, roles: ['GESTOR','CADASTRO','COMPRAS','RECEBIMENTO','FUNCIONARIO','EMPREGADA'] }, // feito
+    { name: 'Cadastro de Itens', href: '/produtos', icon: <IconBox className="sidebar-icon"/>, roles: ['GESTOR', 'CADASTRO'] }, // feito
     { name: 'Compras', href: '/compras', icon: <IconCart className="sidebar-icon"/>, roles: ['GESTOR', 'COMPRAS'] },
     { name: 'Recebimento', href: '/recebimento', icon: <IconRecive className="sidebar-icon"/>, roles: ['RECEBIMENTO'] },
     { name: 'Saída', href: '/saidas', icon: <IconOut className="sidebar-icon"/> , roles: ['FUNCIONARIO'] },
@@ -27,8 +26,7 @@ const navLinks = [
     { name: 'Modificar Usuários', href: '/administracao/usuarios', icon: <IconModUsers className="sidebar-icon"/>, roles: ['GESTOR'] },
     { name: 'Modificar Avisos', href: '/administracao/avisos', icon: <IconAlert className="sidebar-icon"/>, roles: ['GESTOR'] },
     { name: 'Relatórios', href: '/relatorios', icon: <IconGraph className="sidebar-icon"/>, roles: ['GESTOR'] },
-    { name: 'Configurações', href: '/configuracoes', icon: <IconConfig className="sidebar-icon"/>, roles: ['GESTOR','CADASTRO','COMPRAS','RECEBIMENTO','FUNCIONARIO','EMPREGADA'] },
-    { name: 'Editar Perfil', href: '/perfil', icon: <IconUser className="sidebar-icon"/>, roles: ['GESTOR','CADASTRO','COMPRAS','RECEBIMENTO','FUNCIONARIO','EMPREGADA'] },
+    { name: 'Configurações', href: '/configuracoes', icon: <IconConfig className="sidebar-icon"/>, roles: ['GESTOR','CADASTRO','COMPRAS','RECEBIMENTO','FUNCIONARIO','EMPREGADA'] }, // feito
   ];
 
 export default function Sidebar() {
