@@ -5,53 +5,54 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { EstoqueDbService } from '../prisma/estoque-db.service';
 import { Prisma } from '@prisma/estoque-client'; // Importe o Prisma para ter acesso ao `Prisma.sql` se precisar 
 import { UpdateProductDto } from './dto/update-product.dto';
+import { CreateProductDto } from './dto/create-product.dto';
 
 export interface Product {
-    nome: string;
-    id: number;
-    unidade: string;
-    marca: string | null;
-    ultimoPreco: number | null;
-    precoMedio: number | null;
-    quantidadeMin: number;
-    quantidadeEst: number;
-    quantidadeNec: number;
-    observacoes: string | null;
+  nome: string;
+  id: number;
+  unidade: string;
+  marca: string | null;
+  ultimoPreco: number | null;
+  precoMedio: number | null;
+  quantidadeMin: number;
+  quantidadeEst: number;
+  quantidadeNec: number;
+  observacoes: string | null;
 }
 
 @Injectable()
 export class ProductsService {
-    constructor(private estoqueDb: EstoqueDbService) { }
+  constructor(private estoqueDb: EstoqueDbService) { }
 
-    async getProducts(userId: number): Promise<Product[]> {
-        const produtos = await this.estoqueDb.produto.findMany({});
-        const produtos_list: Product[] = [];
-        for (let produto of produtos) {
-            produtos_list.push({
-                nome: produto.nome, 
-                id: produto.id, 
-                unidade: produto.unidade, 
-                marca: produto.marca ?? null, 
-                ultimoPreco: await this.estoqueDb.historicoPreco.findFirst({
-                    where: { produtoId: produto.id },
-                    orderBy: { data: 'desc' },
-                }).then(precoRecord => precoRecord ? precoRecord.preco : null),
-                precoMedio:  await this.estoqueDb.historicoPreco.aggregate({
-                    _avg: {
-                        preco: true,
-                    },
-                    where: { produtoId: produto.id },
-                }).then(avgRecord => avgRecord._avg.preco ?? null), 
-                quantidadeMin: produto.quantidadeMin, 
-                quantidadeEst: produto.quantidadeEst, 
-                quantidadeNec: produto.quantidadeNec, 
-                observacoes: produto.observacoes ?? null
-            });
-        }
-        return produtos_list;
+  async getProducts(userId: number): Promise<Product[]> {
+    const produtos = await this.estoqueDb.produto.findMany({});
+    const produtos_list: Product[] = [];
+    for (let produto of produtos) {
+      produtos_list.push({
+        nome: produto.nome,
+        id: produto.id,
+        unidade: produto.unidade,
+        marca: produto.marca ?? null,
+        ultimoPreco: await this.estoqueDb.historicoPreco.findFirst({
+          where: { produtoId: produto.id },
+          orderBy: { data: 'desc' },
+        }).then(precoRecord => precoRecord ? precoRecord.preco : null),
+        precoMedio: await this.estoqueDb.historicoPreco.aggregate({
+          _avg: {
+            preco: true,
+          },
+          where: { produtoId: produto.id },
+        }).then(avgRecord => avgRecord._avg.preco ?? null),
+        quantidadeMin: produto.quantidadeMin,
+        quantidadeEst: produto.quantidadeEst,
+        quantidadeNec: produto.quantidadeNec,
+        observacoes: produto.observacoes ?? null
+      });
     }
+    return produtos_list;
+  }
 
-    async modifyProduct(
+  async modifyProduct(
     userId: number,
     productId: number,
     productData: UpdateProductDto // Use o DTO que criamos
@@ -82,11 +83,16 @@ export class ProductsService {
     }
   }
 
-    async addProduct(userId: number, productData: Prisma.ProdutoCreateInput) {
-        const newProduct = await this.estoqueDb.produto.create({
-            data: { ...productData },
+  async addProduct(userId: number, productData: CreateProductDto) {
 
-        });
-        return newProduct;
-    }
+    const newProduct = await this.estoqueDb.produto.create({
+      data: {
+        ...productData,     // Os dados do DTO (nome, unidade, marca, etc.)
+        quantidadeEst: 0   // Define o estoque inicial como 0
+      }
+    });
+
+    // Retorna o produto recém-criado
+    return newProduct;
+  }
 }
