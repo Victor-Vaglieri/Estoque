@@ -54,9 +54,7 @@ export class RecebimentosService {
 
         try {
             const [updatedHistorico, updatedProduto] = await this.estoqueDb.$transaction(async (prismaTx) => {
-                
-                // 2. CORREÇÃO AQUI: Tipagem explícita para a variável
-                // Indica que ela pode ser null OU um objeto Produto
+
                 let updatedProdutoResult: Produto | null = null; 
 
                 const updatedHistoricoCompra = await prismaTx.historicoCompra.update({
@@ -68,9 +66,6 @@ export class RecebimentosService {
                     },
                 });
 
-                // Lógica de Atualização de Estoque
-                
-                // Caso 1: Novo status é CONFIRMADO e o antigo NÃO ERA
                 if (newStatus === EstadoEntrada.CONFIRMADO && oldStatus !== EstadoEntrada.CONFIRMADO) {
                     updatedProdutoResult = await prismaTx.produto.update({ // Agora a atribuição é válida
                         where: { id: produtoId },
@@ -81,7 +76,6 @@ export class RecebimentosService {
                         },
                     });
                 } 
-                // Caso 2: Novo status NÃO É CONFIRMADO mas o antigo ERA
                 else if (newStatus !== EstadoEntrada.CONFIRMADO && oldStatus === EstadoEntrada.CONFIRMADO) {
                      // Primeiro busca o produto para garantir que o estoque não fique negativo
                      const produtoAtual = await prismaTx.produto.findUniqueOrThrow({ where: { id: produtoId } });
