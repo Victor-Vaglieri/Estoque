@@ -5,7 +5,7 @@ import TopBar from '@/app/components/TopBar'; // Componente da barra superior
 import './configuracoes.css';
 
 
-export default function DashboardLayout({
+export default function ConfiguracoesLayout({
     children,
 }: {
     children: React.ReactNode;
