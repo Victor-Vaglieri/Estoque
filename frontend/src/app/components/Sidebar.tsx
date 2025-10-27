@@ -19,8 +19,8 @@ import { IconTable } from './icons/IconTable';
 const navLinks = [
     { name: 'Início', href: '/inicio', icon: <IconHome className="sidebar-icon"/>, roles: ['GESTOR','CADASTRO','COMPRAS','RECEBIMENTO','FUNCIONARIO','EMPREGADA'] }, // feito
     { name: 'Cadastro de Itens', href: '/produtos', icon: <IconBox className="sidebar-icon"/>, roles: ['GESTOR', 'CADASTRO'] }, // feito
-    { name: 'Compras', href: '/compras', icon: <IconCart className="sidebar-icon"/>, roles: ['GESTOR', 'COMPRAS'] },
-    { name: 'Recebimento', href: '/recebimento', icon: <IconRecive className="sidebar-icon"/>, roles: ['RECEBIMENTO'] },
+    { name: 'Compras', href: '/compras', icon: <IconCart className="sidebar-icon"/>, roles: ['GESTOR', 'COMPRAS'] }, // feito
+    { name: 'Recebimento', href: '/recebimento', icon: <IconRecive className="sidebar-icon"/>, roles: ['RECEBIMENTO', 'GESTOR'] },
     { name: 'Saída', href: '/saidas', icon: <IconOut className="sidebar-icon"/> , roles: ['FUNCIONARIO'] },
     { name: 'Fazer Inventário', href: '/inventario', icon: <IconTable className="sidebar-icon"/>, roles: ['GESTOR', 'EMPREGADA'] },
     { name: 'Modificar Usuários', href: '/administracao/usuarios', icon: <IconModUsers className="sidebar-icon"/>, roles: ['GESTOR'] },
