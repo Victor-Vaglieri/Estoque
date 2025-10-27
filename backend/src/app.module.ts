@@ -10,9 +10,10 @@ import { AlertsModule } from './alerts/alerts.module';
 import { ProductsModule } from './products/products.module';
 import { UsersModule } from './users/users.module';
 import { ToBuyProductsModule } from './to_buy_products/to-buy-products.module'; 
+import { RecebimentosModule } from './recive/recive.module'; // <-- IMporte o módulo de recebimentos
 
 @Module({
-  imports: [AuthModule, PrismaModule, DashboardModule,AlertsModule,ProductsModule,UsersModule,ToBuyProductsModule], // <-- E ADICIONE AQUI
+  imports: [AuthModule, PrismaModule, DashboardModule,AlertsModule,ProductsModule,UsersModule,ToBuyProductsModule,RecebimentosModule], // <-- E ADICIONE AQUI
   controllers: [AppController],
   providers: [AppService],
 })
