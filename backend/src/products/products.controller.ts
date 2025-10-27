@@ -35,7 +35,7 @@ export class ProductsController {
   async modifyProduct(
     @Param('id', ParseIntPipe) productId: number, 
     @Request() req,
-    @Body() updateProductDto: UpdateProductDto,// Idealmente, crie um DTO (Data Transfer Object) para productData
+    @Body() updateProductDto: UpdateProductDto,
   ) {
     const userId = req.user.sub;
     
