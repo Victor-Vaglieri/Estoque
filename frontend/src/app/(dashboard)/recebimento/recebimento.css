@@ -116,10 +116,10 @@
 }
 
 .status-pendente {
-    background-color: #f59e0b; /* Ambar 500 */
+    background-color: #f97316; /* Ambar 500 */
 }
 .status-faltante {
-    background-color: #f97316; /* Laranja 500 */
+    background-color: #9C1A15; 
 }
 /* Adicione cores para CONFIRMADO, CANCELADO se precisar */
 
@@ -207,7 +207,8 @@
     background-color: #f97316; /* Laranja */
 }
 .btn-warning:hover:not(:disabled) {
-    background-color: #ea580c; /* Laranja mais escuro */
+    background-color: rgba(234, 88, 12, 0.01); /* Laranja mais escuro */
+
 }
 
 /* Botão de Perigo (Cancelar) */
