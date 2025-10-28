@@ -13,9 +13,9 @@ import { ToBuyProductsModule } from './to_buy_products/to-buy-products.module';
 import { RecebimentosModule } from './recive/recive.module'; // <-- IMporte o módulo de recebimentos
 import { InventarioModule } from './inventory/inventory.module';
 import { ReportsModule } from './reports/reports.module';
-
+import { WarningsModule } from './warnings/warnings.module';
 @Module({
-  imports: [AuthModule, PrismaModule, DashboardModule,AlertsModule,ProductsModule,UsersModule,ToBuyProductsModule,RecebimentosModule,InventarioModule,ReportsModule,], // <-- E ADICIONE AQUI
+  imports: [AuthModule, PrismaModule, DashboardModule,AlertsModule,ProductsModule,UsersModule,ToBuyProductsModule,RecebimentosModule,InventarioModule,ReportsModule,WarningsModule], // <-- E ADICIONE AQUI
   controllers: [AppController],
   providers: [AppService],
 })
