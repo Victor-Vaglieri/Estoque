@@ -1,6 +1,8 @@
 // app/(dashboard)/page.tsx
 "use client";
 
+
+// tem parada errada nos stats
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
