@@ -17,16 +17,26 @@ import { IconTable } from './icons/IconTable';
 
 // ... (navLinks continua o mesmo)
 const navLinks = [
-    { name: 'Início', href: '/inicio', icon: <IconHome className="sidebar-icon"/>, roles: ['GESTOR','CADASTRO','COMPRAS','RECEBIMENTO','FUNCIONARIO','EMPREGADA'] }, // feito
-    { name: 'Cadastro de Itens', href: '/produtos', icon: <IconBox className="sidebar-icon"/>, roles: ['GESTOR', 'CADASTRO'] }, // feito
-    { name: 'Compras', href: '/compras', icon: <IconCart className="sidebar-icon"/>, roles: ['GESTOR', 'COMPRAS'] }, // feito
-    { name: 'Recebimento', href: '/recebimento', icon: <IconRecive className="sidebar-icon"/>, roles: ['RECEBIMENTO', 'GESTOR'] }, // + ou - feito
+    { name: 'Início', href: '/inicio', icon: <IconHome className="sidebar-icon"/>, roles: ['GESTOR','CADASTRO','COMPRAS','RECEBIMENTO','FUNCIONARIO','EMPREGADA'] }, 
+    // feito, arrumar alertas e infos, infos parecem erradas (provavelmente backend) e alertas estão feios
+    { name: 'Cadastro de Itens', href: '/produtos', icon: <IconBox className="sidebar-icon"/>, roles: ['GESTOR', 'CADASTRO'] }, 
+    // feito, falta jeito de remover itens
+    { name: 'Compras', href: '/compras', icon: <IconCart className="sidebar-icon"/>, roles: ['GESTOR', 'COMPRAS'] }, 
+    // feito
+    { name: 'Recebimento', href: '/recebimento', icon: <IconRecive className="sidebar-icon"/>, roles: ['RECEBIMENTO', 'GESTOR'] }, 
+    // + ou - feito, precisa repopular, e confirmar se está tudo certo
     { name: 'Saída', href: '/saidas', icon: <IconOut className="sidebar-icon"/> , roles: ['FUNCIONARIO','GESTOR'] }, 
-    { name: 'Fazer Inventário', href: '/inventario', icon: <IconTable className="sidebar-icon"/>, roles: ['GESTOR', 'EMPREGADA'] }, // + ou - feito
-    { name: 'Modificar Usuários', href: '/administracao/usuarios', icon: <IconModUsers className="sidebar-icon"/>, roles: ['GESTOR'] },
-    { name: 'Modificar Avisos', href: '/administracao/avisos', icon: <IconAlert className="sidebar-icon"/>, roles: ['GESTOR'] },
+
+    { name: 'Fazer Inventário', href: '/inventario', icon: <IconTable className="sidebar-icon"/>, roles: ['GESTOR', 'EMPREGADA'] }, 
+    // + ou - feito, não tão agradavel e confirmar se precisa criar alertas de inventario 
+    { name: 'Modificar Usuários', href: '/perfis', icon: <IconModUsers className="sidebar-icon"/>, roles: ['GESTOR'] },
+
+    { name: 'Modificar Avisos', href: '/avisos', icon: <IconAlert className="sidebar-icon"/>, roles: ['GESTOR'] },
+    // + ou - feito, falta mudar o ID para o nome do usuario 
     { name: 'Relatórios', href: '/relatorios', icon: <IconGraph className="sidebar-icon"/>, roles: ['GESTOR'] },
-    { name: 'Configurações', href: '/configuracoes', icon: <IconConfig className="sidebar-icon"/>, roles: ['GESTOR','CADASTRO','COMPRAS','RECEBIMENTO','FUNCIONARIO','EMPREGADA'] }, // feito
+    // + ou - feito, falta melhorar e/ou adicionar os graficos e refazer os relatorios em xlsx
+    { name: 'Configurações', href: '/configuracoes', icon: <IconConfig className="sidebar-icon"/>, roles: ['GESTOR','CADASTRO','COMPRAS','RECEBIMENTO','FUNCIONARIO','EMPREGADA'] }, 
+    // feito, por enquanto só mudar senha e login
   ];
 
 export default function Sidebar() {

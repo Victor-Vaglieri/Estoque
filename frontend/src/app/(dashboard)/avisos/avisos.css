@@ -1,0 +1,417 @@
+.avisos-layout {
+    display: flex; /* mantém a sidebar + conteúdo lado a lado */
+    min-height: 100vh;
+    height: 100%;
+    background-color: var(--background-page);
+}
+
+
+.page-title-avisos {
+    color: var(--text-primary);
+    font-size: 1.875rem;
+    font-weight: 700;
+}
+
+.page-header-avisos {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.section-header-avisos {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-title-avisos {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.content-area-avisos {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.main-content-wrapper-avisos {
+    flex: 1 1 0%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.main-content-avisos {
+    flex: 1 1 0%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.main-container-avisos {
+    max-width: 100%;
+    /* Largura máxima do container */
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2rem 1.5rem;
+    /* py-8 px-6 */
+}
+
+
+/* Layout Geral e Cabeçalho */
+.page-header-avisos {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.page-title-avisos {
+    color: var(--text-primary);
+    font-size: 1.875rem; /* 30px */
+    font-weight: 700;
+}
+
+/* Botão Adicionar no cabeçalho */
+.page-header-avisos .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem; /* Espaço entre ícone e texto */
+}
+.page-header-avisos .btn-primary svg {
+    font-size: 1.2em; /* Tamanho do ícone '+' */
+}
+
+
+/* Mensagens de Feedback */
+.avisos-message {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.avisos-error {
+    background-color: #fef2f2;
+    color: var(--error-color);
+    border: 1px solid var(--error-color);
+}
+
+.avisos-success {
+    background-color: #f0fdf4;
+    color: var(--sucess-color);
+    border: 1px solid var(--sucess-color);
+}
+
+/* Container do Formulário */
+.avisos-form-container {
+    background-color: var(--background-surface);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -2px var(--shadow-color);
+    margin-bottom: 2rem;
+    border-left: 4px solid var(--primary);
+}
+
+.form-title {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+/* Estilos do Formulário */
+.avisos-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.avisos-form label {
+    display: flex;
+    flex-direction: column;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.avisos-form input,
+.avisos-form textarea,
+.avisos-form select {
+    margin-top: 0.25rem;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    background-color: var(--background-page);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-family: inherit;
+}
+.avisos-form input:focus,
+.avisos-form textarea:focus,
+.avisos-form select:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-color: var(--primary);
+}
+.avisos-form textarea {
+    resize: vertical; /* Permite redimensionar apenas verticalmente */
+}
+
+/* Linha do formulário com múltiplos campos */
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.25rem;
+}
+
+/* Ações do Formulário (botões) */
+.form-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    justify-content: flex-end; /* Alinha botões à direita */
+}
+
+/* --- Container da Lista e Ordenação --- */
+.avisos-list-container {
+    margin-top: 1rem;
+}
+
+/* --- MUDANÇA: Seletor de Ordenação --- */
+.sort-selector-container {
+    /* display: flex; */ /* Removido para label ficar em cima */
+    /* align-items: center; */ /* Removido */
+    /* gap: 0.75rem; */ /* Removido */
+    margin-bottom: 1.5rem;
+    /* Removemos fundo e sombra do container */
+    /* background-color: var(--background-surface); */
+    /* box-shadow: 0 1px 2px 0 var(--shadow-color); */
+    width: fit-content; /* Largura baseada no conteúdo */
+}
+/* Estilo da Label */
+.sort-selector-container label {
+    display: block; /* Garante que ocupe linha própria */
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem; /* Pequeno espaço abaixo da label */
+}
+/* Estilo do Select */
+.sort-selector {
+    /* Aparência customizada (remove padrão do navegador) */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    
+    padding: 0.6rem 2.5rem 0.6rem 1rem; /* Padding: Cima/Baixo, Direita (para seta), Esquerda */
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem; /* 6px */
+    /* Cores como na imagem */
+    background-color: var(--background-surface); /* Usa a cor de fundo do card/superfície */
+    color: var(--text-primary); /* Usa a cor primária de texto */
+    font-size: 1rem; /* 16px - Tamanho maior como na imagem */
+    font-weight: 500;
+    cursor: pointer;
+    width: 250px; /* Largura fixa ou ajuste conforme necessário */
+
+    /* Seta customizada usando SVG como background */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23${(typeof getComputedStyle !== 'undefined' ? getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') : '6b7280').substring(1)}'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center; /* Posição da seta */
+    background-size: 1.2em; /* Tamanho da seta */
+}
+.sort-selector:focus {
+     outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-color: var(--primary);
+}
+
+
+/* Mensagem de "Nenhum aviso" */
+.no-avisos-message {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 2rem;
+    font-style: italic;
+}
+
+
+/* Grelha de Avisos */
+.avisos-grid {
+    display: grid;
+    /* Adapta as colunas ao tamanho da tela */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+    gap: 1.5rem;
+    align-items: stretch; /* Faz os cards terem a mesma altura na linha */
+}
+
+/* Card Individual */
+.aviso-card {
+    background-color: var(--background-surface);
+    border-radius: 0.375rem; /* Menor arredondamento */
+    box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px -1px var(--shadow-color);
+    padding: 1.25rem;
+    border-left: 5px solid; /* Mantém borda esquerda colorida */
+    border-color: transparent; /* Torna as bordas transparentes por padrão */
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Ocupa toda a altura disponível na grelha */
+    transition: box-shadow 0.2s ease-in-out;
+}
+.aviso-card:hover {
+     box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -2px var(--shadow-color);
+}
+
+/* Cores das bordas (agora aplicadas a ambas) */
+.importancia-baixa { border-color: #3b82f6; } /* Azul */
+.importancia-media { border-color: #f59e0b; } /* Âmbar */
+.importancia-alta { border-color: var(--error-color); } /* Vermelho */
+
+/* Estilo para cards concluídos */
+.aviso-card.concluido {
+    opacity: 0.7;
+    background-color: var(--background-page); /* Fundo mais apagado */
+    border-color: var(--text-tertiary); /* Borda cinza quando concluído */
+}
+.aviso-card.concluido .aviso-title {
+    text-decoration: line-through; /* Título riscado */
+    color: var(--text-secondary);
+}
+
+
+/* Cabeçalho do Card */
+.aviso-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Alinha no topo */
+    margin-bottom: 0.75rem;
+}
+
+.aviso-title {
+    color: var(--text-primary);
+    font-size: 1.1rem; /* Um pouco menor */
+    font-weight: 600;
+    margin-right: 0.5rem; /* Espaço para o badge */
+     word-break: break-word; /* Quebra palavras longas */
+}
+
+/* Badge de Importância */
+.aviso-badge {
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px; 
+    font-size: 0.7rem; 
+    font-weight: 700;
+    text-transform: uppercase;
+    color: white;
+    white-space: nowrap;
+    flex-shrink: 0; /* Impede que encolha */
+}
+.badge-baixa { background-color: #3b82f6; } /* Azul */
+.badge-media { background-color: #f59e0b; } /* Âmbar */
+.badge-alta { background-color: var(--error-color); } /* Vermelho */
+
+/* Descrição */
+.aviso-descricao {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    white-space: pre-wrap; /* Preserva quebras de linha e espaços */
+    word-break: break-word;
+    flex-grow: 1; /* Faz a descrição crescer */
+}
+
+/* Rodapé do Card */
+.aviso-footer {
+    display: flex;
+    flex-wrap: wrap; /* Permite quebrar linha em telas pequenas */
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem; /* Espaço entre data e botões */
+    border-top: 1px solid var(--border-color);
+    padding-top: 0.75rem;
+    margin-top: auto; /* Empurra o rodapé para baixo */
+}
+
+.aviso-date, .aviso-finished-date {
+    color: var(--text-tertiary);
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+.aviso-finished-date {
+    display: block; /* Ocupa linha própria */
+    margin-top: 0.5rem;
+    text-align: right;
+    width: 100%;
+}
+
+
+/* Container dos Botões de Ação */
+.aviso-actions {
+    display: flex;
+    gap: 0.5rem; /* Espaço menor entre botões */
+}
+
+/* Estilos para Botões de Ação */
+.btn-aviso {
+    background: none;
+    border: 1px solid transparent; /* Sem borda por padrão */
+    padding: 0.3rem 0.6rem; /* Mais compacto */
+    border-radius: 0.25rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem; /* Espaço entre ícone e texto */
+    font-size: 0.8rem; /* Menor */
+    font-weight: 500;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+/* Cores e Hover dos botões */
+.btn-concluir { color: var(--sucess-color); border-color: var(--sucess-color); }
+.btn-concluir:hover:not(:disabled) { background-color: #dcfce7; }
+
+.btn-reabrir { color: #f59e0b; border-color: #f59e0b; } /* Âmbar */
+.btn-reabrir:hover:not(:disabled) { background-color: #fffbeb; }
+
+.btn-editar { color: var(--primary); border-color: var(--primary); }
+.btn-editar:hover:not(:disabled) { background-color: #eff6ff; }
+
+.btn-remover { color: var(--error-color); border-color: var(--error-color); }
+.btn-remover:hover:not(:disabled) { background-color: #fef2f2; }
+
+/* Estado desabilitado */
+.btn-aviso:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: var(--border-color);
+    color: var(--text-tertiary);
+}
+.btn-aviso:disabled:hover {
+     background-color: transparent; /* Remove hover no desabilitado */
+}
+
+
+/* Botões primários e secundários (usados no form) */
+.btn-primary, .btn-secondary {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+.btn-primary { background-color: var(--primary); color: var(--text-on-primary-button); }
+.btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); }
+.btn-secondary { background-color: var(--background-surface); color: var(--text-tertiary); border: 1px solid var(--border-color); }
+.btn-secondary:hover:not(:disabled) { background-color: var(--background-page); }
+.btn-primary:disabled, .btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; }
+
