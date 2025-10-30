@@ -1,5 +1,6 @@
 "use client";
-// separar para components de top-bar
+
+// TODO arrumar burger menu
 
 import { useState } from "react";
 import { useEffect } from "react";
@@ -21,7 +22,6 @@ export default function TopBar() {
     return (
         <div className="top-bar">
 
-            {/* Botão de Sair/Desconectar */}
             <button
                 className="disconect-toggle"
                 aria-label="Sair da conta"
@@ -31,7 +31,6 @@ export default function TopBar() {
                 <IconExit className="tb-icon" />
             </button>
 
-            {/* Botão de Tema (com textos dinâmicos) */}
             <button
                 className="theme-toggle"
                 aria-label={theme === 'light' ? 'Mudar para tema escuro' : 'Mudar para tema claro'}
@@ -41,7 +40,6 @@ export default function TopBar() {
                 {theme === 'light' ? <IconMoon className="tb-icon" /> : <IconSun className="tb-icon" />}
             </button>
 
-            {/* Botão de Menu */}
             <button
                 className="menu-toggle"
                 aria-label="Abrir menu"

@@ -12,9 +12,7 @@ export default function RecebimentoLayout({
 }) {
     return (
             <div className="recebimento-layout">
-                {/* 1. Barra Lateral (Sidebar) */}
                 <Sidebar />
-                {/* 2. Conteúdo Principal */}
                 <div className="main-content-wrapper-recebimento">
                     <TopBar />
                     <main className="main-content-recebimento">

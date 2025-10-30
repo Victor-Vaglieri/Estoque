@@ -15,7 +15,6 @@ import { IconOut } from './icons/IconOut';
 import { IconRecive } from './icons/IconRecive';
 import { IconTable } from './icons/IconTable';
 
-// ... (navLinks continua o mesmo)
 const navLinks = [
     { name: 'Início', href: '/inicio', icon: <IconHome className="sidebar-icon"/>, roles: ['GESTOR','CADASTRO','COMPRAS','RECEBIMENTO','FUNCIONARIO','EMPREGADA'] }, 
     // feito, arrumar alertas e infos, infos parecem erradas (provavelmente backend) e alertas estão feios
@@ -30,7 +29,7 @@ const navLinks = [
     { name: 'Fazer Inventário', href: '/inventario', icon: <IconTable className="sidebar-icon"/>, roles: ['GESTOR', 'EMPREGADA'] }, 
     // + ou - feito, não tão agradavel e confirmar se precisa criar alertas de inventario 
     { name: 'Modificar Usuários', href: '/perfis', icon: <IconModUsers className="sidebar-icon"/>, roles: ['GESTOR'] },
-
+    // feito, aparentemente tudo ok
     { name: 'Modificar Avisos', href: '/avisos', icon: <IconAlert className="sidebar-icon"/>, roles: ['GESTOR'] },
     // + ou - feito, falta mudar o ID para o nome do usuario 
     { name: 'Relatórios', href: '/relatorios', icon: <IconGraph className="sidebar-icon"/>, roles: ['GESTOR'] },
@@ -56,8 +55,7 @@ export default function Sidebar() {
 
   return (
     <aside className="sidebar">
-      {/* ... o resto do seu componente ... */}
-      <h1 className="sidebar-title">Stock Control</h1>
+      <h1 className="sidebar-title">Controle</h1>
       <nav className="sidebar-nav">
         <ul>
           {allowedLinks.map((link) => {

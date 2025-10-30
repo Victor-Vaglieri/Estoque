@@ -1,10 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-// Usando caminho de alias padrão
 import { useAuth } from '@/app/context/AuthContext'; 
 import { useRouter } from 'next/navigation';
-// Importa componentes de gráficos (exemplo com Recharts)
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 
@@ -36,7 +34,7 @@ export default function RelatoriosPage() {
     // Estados de feedback
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [isDownloading, setIsDownloading] = useState(false); // Para feedback de download
+    const [isDownloading, setIsDownloading] = useState(false);
 
 
     // --- Funções para buscar dados dos relatórios ---
@@ -50,7 +48,6 @@ export default function RelatoriosPage() {
         }
 
         try {
-            // Exemplo: Buscar múltiplos dados de relatórios em paralelo
             const [overviewRes, stockValueRes, purchaseHistoryRes] = await Promise.all([
                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/relatorios/overview`, { headers: { 'Authorization': `Bearer ${token}` } }),
                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/relatorios/stock-value`, { headers: { 'Authorization': `Bearer ${token}` } }),
@@ -65,7 +62,6 @@ export default function RelatoriosPage() {
             const stockValueChartData: StockValue[] = await stockValueRes.json();
             const purchaseHistoryChartData: PurchaseHistory[] = await purchaseHistoryRes.json();
 
-            // Atualiza os estados
             setTotalStockValue(overviewData.totalValue);
             setTotalItems(overviewData.totalItems);
             setLowStockCount(overviewData.lowStockCount);
@@ -79,7 +75,6 @@ export default function RelatoriosPage() {
         }
     };
 
-    // Busca inicial
     useEffect(() => {
         fetchReportData();
     }, [router]);
@@ -111,7 +106,7 @@ export default function RelatoriosPage() {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${reportType}_${new Date().toISOString().split('T')[0]}.xlsx`; // Nome do ficheiro ex: inventario_2025-10-28.xlsx
+            a.download = `${reportType}_${new Date().toISOString().split('T')[0]}.xlsx`; 
             document.body.appendChild(a);
             a.click();
             a.remove();
