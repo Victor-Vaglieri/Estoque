@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
-// 1. Importe o tipo 'Produto' do seu cliente Prisma
+// Importe os tipos necessários do seu cliente Prisma
 import { Prisma, EstadoEntrada, Produto } from '@prisma/estoque-client'; 
-import { EstoqueDbService } from '../prisma/estoque-db.service';
+import { EstoqueDbService } from '../prisma/estoque-db.service'; // Ajuste o caminho
 import { UpdateRecebimentoDto } from './dto/update-recebimento.dto';
 
 @Injectable()
@@ -12,7 +12,10 @@ export class RecebimentosService {
      * Busca todos os HistóricoCompra com status PENDENTE ou FALTANTE.
      * Inclui dados do produto associado.
      */
-    async findPending(userId: number) {
+    async findPending(userId: number /* userId pode ser usado para filtro futuro */) {
+        
+        // TODO: Adicionar lógica de permissão se necessário
+        
         const pending = await this.estoqueDb.historicoCompra.findMany({
             where: {
                 confirmadoEntrada: {
@@ -20,26 +23,34 @@ export class RecebimentosService {
                 },
             },
             include: {
-                produto: { 
-                    select: { id: true, nome: true, unidade: true, marca: true }
+                produto: { // Inclui os dados do produto relacionado
+                    select: {
+                        id: true,
+                        nome: true,
+                        unidade: true,
+                        marca: true,
+                    }
                 }, 
             },
-            orderBy: { data: 'asc' }
+            orderBy: {
+                data: 'asc', // Ordena pelos mais antigos primeiro
+            }
         });
         return pending;
     }
 
     /**
      * Atualiza o status e o preço de um HistóricoCompra.
-     * Atualiza o estoque do produto conforme necessário.
+     * Cria registos de Entrada/Saida, atualiza o estoque e o histórico de preço.
      */
     async updateStatus(
-        userId: number, 
+        userId: number, // ID do usuário que está confirmando
         historicoCompraId: number, 
         updateDto: UpdateRecebimentoDto
     ) {
         const { status: newStatus, precoConfirmado } = updateDto;
 
+        // 1. Encontra o registro de compra original
         const compraOriginal = await this.estoqueDb.historicoCompra.findUnique({
             where: { id: historicoCompraId },
         });
@@ -52,22 +63,30 @@ export class RecebimentosService {
         const quantidadeComprada = compraOriginal.quantidade;
         const produtoId = compraOriginal.produtoId;
 
+        // --- Início da Transação Prisma ---
         try {
+            // $transaction garante que todas as operações falhem ou tenham sucesso juntas
             const [updatedHistorico, updatedProduto] = await this.estoqueDb.$transaction(async (prismaTx) => {
-
+                
                 let updatedProdutoResult: Produto | null = null; 
 
+                // 2. Atualiza o HistóricoCompra (sempre)
                 const updatedHistoricoCompra = await prismaTx.historicoCompra.update({
                     where: { id: historicoCompraId },
                     data: {
                         confirmadoEntrada: newStatus,
-                        precoTotal: precoConfirmado, 
-                        responsavelConfirmacaoId: userId, 
+                        precoTotal: precoConfirmado, // Atualiza o preço com o valor da NF
+                        responsavelConfirmacaoId: userId, // Regista quem confirmou
                     },
                 });
 
+                // 3. Lógica de Atualização de Estoque e Registo
+                
+                // Caso 1: Novo status é CONFIRMADO e o antigo NÃO ERA
                 if (newStatus === EstadoEntrada.CONFIRMADO && oldStatus !== EstadoEntrada.CONFIRMADO) {
-                    updatedProdutoResult = await prismaTx.produto.update({ // Agora a atribuição é válida
+                    
+                    // 3a. Incrementa o estoque
+                    updatedProdutoResult = await prismaTx.produto.update({
                         where: { id: produtoId },
                         data: {
                             quantidadeEst: {
@@ -75,11 +94,40 @@ export class RecebimentosService {
                             },
                         },
                     });
+                    
+                    // 3b. Cria o registo na tabela Entrada
+                    await prismaTx.entrada.create({
+                        data: {
+                            produtoId: produtoId,
+                            quantidade: quantidadeComprada,
+                            precoPago: precoConfirmado, // Preço TOTAL confirmado da NF
+                            fornecedor: compraOriginal.fornecedor, // Da compra original
+                            responsavelId: userId, // ID de quem confirmou
+                        }
+                    });
+
+                    // 3c. --- ADIÇÃO CORRIGIDA ---
+                    // Adiciona ao Histórico de Preço o NOVO PREÇO UNITÁRIO
+                    if (quantidadeComprada > 0) { // Evita divisão por zero
+                        const precoUnitario = precoConfirmado / quantidadeComprada;
+                        
+                        await prismaTx.historicoPreco.create({
+                            data: {
+                                produtoId: produtoId,
+                                preco: precoUnitario, // Salva o PREÇO UNITÁRIO
+                                data: new Date() // Data da confirmação
+                            }
+                        });
+                    }
+                    // --- FIM DA ADIÇÃO ---
+
                 } 
+                // Caso 2: Novo status NÃO É CONFIRMADO mas o antigo ERA
                 else if (newStatus !== EstadoEntrada.CONFIRMADO && oldStatus === EstadoEntrada.CONFIRMADO) {
-                     // Primeiro busca o produto para garantir que o estoque não fique negativo
+                     
+                     // 3a. Decrementa o estoque
                      const produtoAtual = await prismaTx.produto.findUniqueOrThrow({ where: { id: produtoId } });
-                     updatedProdutoResult = await prismaTx.produto.update({ // Agora a atribuição é válida
+                     updatedProdutoResult = await prismaTx.produto.update({
                         where: { id: produtoId },
                         data: {
                             quantidadeEst: {
@@ -87,12 +135,26 @@ export class RecebimentosService {
                             },
                         },
                     });
+
+                    // 3b. Cria um registo na tabela Saida para justificar a reversão
+                     await prismaTx.saida.create({
+                        data: {
+                            produtoId: produtoId,
+                            quantidade: quantidadeComprada,
+                            responsavelId: userId, // ID de quem fez a reversão
+                            motivo: `Reversão de Compra: Status da Compra ID ${historicoCompraId} alterado para ${newStatus}.`,
+                        }
+                    });
+                    
+                    // Nota: Não removemos o preço do HistóricoPreco, pois o preço 
+                    // foi válido naquela data, mesmo que a entrada tenha sido revertida.
                 }
                 
                 return [updatedHistoricoCompra, updatedProdutoResult]; 
             });
+            // --- Fim da Transação Prisma ---
 
-            return updatedHistorico;
+            return updatedHistorico; // Retorna o histórico atualizado
 
         } catch (error) {
             console.error("Erro ao atualizar recebimento:", error);
