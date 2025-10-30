@@ -4,17 +4,14 @@ import TopBar from '@/app/components/TopBar'; // Componente da barra superior
 
 import './perfis.css';
 
-
-export default function RecebimentoLayout({
+export default function PerfisLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
     return (
             <div className="perfis-layout">
-                {/* 1. Barra Lateral (Sidebar) */}
                 <Sidebar />
-                {/* 2. Conteúdo Principal */}
                 <div className="main-content-wrapper-perfis">
                     <TopBar />
                     <main className="main-content-perfis">

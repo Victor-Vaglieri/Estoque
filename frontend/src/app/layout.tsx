@@ -3,7 +3,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { AuthProvider } from '@/app/context/AuthContext'; // 1. Importe seu AuthProvider
+import { AuthProvider } from '@/app/context/AuthContext';
 import { ThemeProvider } from '@/app/context/ThemeContext';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -23,7 +23,6 @@ export default function RootLayout({
   return (
     <html data-theme={theme} lang="pt-BR">
       <body className={inter.className}>
-        {/* 2. Envolva tudo com o AuthProvider */}
         <ThemeProvider>
           <AuthProvider>
             {children}

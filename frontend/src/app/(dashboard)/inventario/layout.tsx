@@ -5,7 +5,7 @@ import TopBar from '@/app/components/TopBar'; // Componente da barra superior
 import './inventario.css';
 
 
-export default function RecebimentoLayout({
+export default function InventarioLayout({
     children,
 }: {
     children: React.ReactNode;

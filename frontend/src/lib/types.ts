@@ -1,18 +1,18 @@
-// Tipos baseados no seu ENUM Funcao do Prisma
+// Funções possíveis do usuário, DEVE ser igual ao Enum Funcao no Prisma
 export type Funcao = 'CADASTRO' | 'COMPRAS' | 'RECEBIMENTO' | 'FUNCIONARIO' | 'EMPREGADA' | 'GESTOR';
 
 export interface UserData {
-  sub: number;       // ✅ ADICIONADO: O ID do usuário (padrão JWT "subject")
-  login: string;     // O login/username do usuário
-  funcoes: Funcao[]; // As permissões do usuário
-  exp?: number;      // Opcional: timestamp de expiração do token
-  iat?: number;      // Opcional: timestamp de criação do token
+  sub: number;
+  login: string;
+  funcoes: Funcao[];
+  exp?: number;
+  iat?: number;
 }
 
 export interface AuthContextType {
   user: UserData | null;
   isAuthenticated: boolean;
-  loading: boolean; // <-- MUDANÇA AQUI: de 'isLoading' para 'loading'
+  loading: boolean;
   login: (token: string) => void;
   logout: () => void;
 }

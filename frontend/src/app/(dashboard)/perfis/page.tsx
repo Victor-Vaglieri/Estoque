@@ -76,7 +76,6 @@ export default function PerfisPage() {
         try {
             // Agora busca 3 listas
             const results = await Promise.allSettled([
-                // 1. Solicitações Pendentes
                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/solicitacoes`, {
                     method: 'GET',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
