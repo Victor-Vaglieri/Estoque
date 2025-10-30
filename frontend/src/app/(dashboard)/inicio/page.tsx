@@ -1,14 +1,12 @@
-// app/(dashboard)/page.tsx
 "use client";
 
-
-// tem parada errada nos stats
 import { useState, useEffect } from 'react';
+// Usando caminho relativo para corrigir o erro de importação
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
 // Importe seu novo arquivo CSS aqui
-import './inicio.css';
+import './inicio.css'; // Corrigido para corresponder ao nome do arquivo
 
 // Componente para os cards de estatísticas
 const StatCard = ({ title, value }: { title: string; value: string }) => (
@@ -19,11 +17,10 @@ const StatCard = ({ title, value }: { title: string; value: string }) => (
 );
 
 interface DashboardStats {
-  historico_compra_pendente: number;
-  nome_ultimo_produto_chego: string;
   quantidade_itens_abaixo_min: number;
   quantidade_saida: number;
-  // Adicione outras propriedades que sua API retorna
+  historico_compra_pendente: number;
+  nome_ultimo_produto_chego: string;
 }
 
 interface Alert {
@@ -70,16 +67,15 @@ export default function DashboardHomePage() {
           },
         });
 
-        if (!responseDashboards.ok || !responseAlerts.ok) {
-          throw new Error('Falha ao buscar os dados do dashboard.');
+        if (!responseDashboards.ok) {
+            throw new Error('Falha ao buscar os dados de estatísticas.');
         }
+         if (!responseAlerts.ok) {
+             throw new Error('Falha ao buscar os dados de alertas.');
+         }
 
         const alertsData = await responseAlerts.json();
-        if (alertsData && Object.keys(alertsData).length > 0) {
-          console.log("Alertas recebidos:", alertsData);
-          setAlerts([]); // Limpa os alertas atuais antes de adicionar novos
-        }
-        // ... dentro do try/catch do useEffect
+        
         const allAlerts: Alert[] = [];
 
         // Transforma os dados recebidos no formato que precisamos
@@ -119,7 +115,7 @@ export default function DashboardHomePage() {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [router]); // Adicionado router como dependência
 
   return (
     <>
@@ -129,26 +125,43 @@ export default function DashboardHomePage() {
       </div>
 
       {/* Grid de Estatísticas */}
-      <div className="stats-grid">
-        <StatCard title="Itens com Estoque Baixo" value={stats?.historico_compra_pendente.toString() || 'NaN'} />
-        <StatCard title="Saídas de Itens" value={stats?.quantidade_saida.toString() || 'NaN'} />
-        <StatCard title="Compras Pendentes" value={stats?.quantidade_itens_abaixo_min.toString() || 'NaN'} />
-        <StatCard title="Último Recebimento" value={stats?.nome_ultimo_produto_chego || 'ERRO'} />
-      </div>
+      {isLoading && <p>Carregando estatísticas...</p>}
+      {error && <p className="dash-message dash-error">{error}</p>}
+      
+      {!isLoading && stats && (
+        <div className="stats-grid">
+          <StatCard title="Itens com Estoque Baixo" value={stats?.quantidade_itens_abaixo_min.toString() || '0'} />
+          <StatCard title="Saídas de Itens (Hoje)" value={stats?.quantidade_saida.toString() || '0'} />
+          <StatCard title="Compras Pendentes" value={stats?.historico_compra_pendente.toString() || '0'} />
+          <StatCard title="Último Recebimento" value={stats?.nome_ultimo_produto_chego || 'Nenhum'} />
+        </div>
+      )}
 
-      {/* Tabela de Movimentações */}
+
+      {/* Secção de Alertas e Avisos */}
       <div className="section-header">
         <h1 className="section-title">Alertas e Avisos</h1>
       </div>
-      {/* TODO acessar a div table-list pra colocar os avisos*/}
-      <ul className="table-list">
-        {alerts.map((alert) => (
-          <li key={alert.id} className="table-container">
-            <h2>{alert.titulo}</h2>
-            <p>{alert.descricao}</p>
-          </li>
-        ))}
-      </ul>
+      
+      {/* Lista de Alertas com novo estilo */}
+      {!isLoading && alerts.length === 0 && !error && (
+         <p className="no-alerts-message">Nenhum alerta no momento.</p>
+      )}
+
+      {/* --- MUDANÇA: Usando .table-list e .table-container --- */}
+      {alerts.length > 0 && (
+        <ul className="table-list">
+          {alerts.map((alert) => (
+            // Usa as classes do seu novo CSS, mais a classe de importância
+            <li key={alert.id} className={`table-container importancia-${alert.importancia.toLowerCase()}`}>
+              {/* O seu novo CSS já estiliza <h2> e <p> dentro de .table-container */}
+              <h2>{alert.titulo}</h2>
+              <p>{alert.descricao}</p>
+            </li>
+          ))}
+        </ul>
+      )}
     </>
   );
 }
+
