@@ -1,0 +1,18 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../node_modules/@prisma/cadastros-client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./cadastros.db"
+}
+
+model Cadastro {
+  id       Int      @id @default(autoincrement())
+  nome     String
+  login    String   @unique
+  senha    String
+  responsavelId  Int?  // referência ao id de usuário (vindo do outro banco, manual)
+  createdAt DateTime @default(now())
+}
