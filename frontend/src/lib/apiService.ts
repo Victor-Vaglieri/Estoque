@@ -1,7 +1,7 @@
 // lib/apiService.ts
 // TODO: Use Cookies HTTP Only em produção em vez de sessionStorage
 export async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
-  const token = sessionStorage.getItem('token'); 
+  const token = localStorage.getItem('token'); 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   if (!token) {
@@ -20,7 +20,7 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
   });
 
   if (res.status === 401 || res.status === 403) {
-    sessionStorage.removeItem('token');
+    localStorage.removeItem('token');
     window.location.href = '/login'; 
   }
   return res;

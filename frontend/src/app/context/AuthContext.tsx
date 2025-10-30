@@ -16,13 +16,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
       if (token) {
         const decodedUser = decodeToken(token);
         if (decodedUser) {
           setUser(decodedUser);
         } else {
-          sessionStorage.removeItem('token');
+          localStorage.removeItem('token');
         }
       }
     } catch (error) {

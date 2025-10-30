@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-// Caminho de importação corrigido para relativo (subindo um nível)
+// Caminho de importação corrigido para relativo
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -62,10 +62,13 @@ export default function ComprasPage() {
         fetchProductsToBuy();
     }, [router]);
 
-    const handleRegisterPurchase = async (event: React.FormEvent<HTMLFormElement>, productId: number, productName: string) => { // Adicionado productName para mensagens
+    const handleRegisterPurchase = async (event: React.FormEvent<HTMLFormElement>, productId: number, productName: string) => { 
         event.preventDefault();
+        // --- CORREÇÃO AQUI: Captura o form ANTES das chamadas async ---
+        const formElement = event.currentTarget; 
+        
         clearFeedback();
-        setIsSubmittingMap(prev => ({ ...prev, [productId]: true })); // Inicia o loading para este produto
+        setIsSubmittingMap(prev => ({ ...prev, [productId]: true })); 
 
         const token = localStorage.getItem('token');
         if (!token) {
@@ -74,7 +77,7 @@ export default function ComprasPage() {
             return;
         }
 
-        const formData = new FormData(event.currentTarget);
+        const formData = new FormData(formElement); // Usa a referência guardada
         const purchaseData = {
             productId: productId,
             quantidade: parseFloat(formData.get('quantidade') as string), 
@@ -82,12 +85,12 @@ export default function ComprasPage() {
         };
 
         if (!purchaseData.quantidade || purchaseData.quantidade <= 0) {
-            setError(`[${productName}] Quantidade inválida.`); // Mostrar nome do produto no erro
+            setError(`[${productName}] Quantidade inválida.`); 
             setIsSubmittingMap(prev => ({ ...prev, [productId]: false }));
             return;
         }
         if (purchaseData.preco === null || purchaseData.preco < 0) {
-            setError(`[${productName}] Preço inválido.`); // Mostrar nome do produto no erro
+            setError(`[${productName}] Preço inválido.`); 
             setIsSubmittingMap(prev => ({ ...prev, [productId]: false }));
             return;
         }
@@ -100,17 +103,21 @@ export default function ComprasPage() {
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || `[${productName}] Falha ao registrar.`); // Mostrar nome
+                throw new Error(errorData.message || `[${productName}] Falha ao registrar.`); 
             }
             
-            setSuccess(`[${productName}] Compra registrada!`); // Mostrar nome
-            await fetchProductsToBuy(); 
-             const formElement = event.currentTarget;
-             formElement.reset(); 
+            setSuccess(`[${productName}] Compra registrada!`); 
+            
+            // --- CORREÇÃO AQUI: Reseta o form ANTES de recarregar os dados ---
+            // (Isto garante que o form ainda existe quando .reset() é chamado)
+            formElement.reset(); 
+            
+            await fetchProductsToBuy(); // Recarrega a lista (o card vai desaparecer)
+
         } catch (err) {
-            setError(err instanceof Error ? err.message : `[${productName}] Ocorreu um erro.`); // Mostrar nome
+            setError(err instanceof Error ? err.message : `[${productName}] Ocorreu um erro.`); 
         } finally {
-            setIsSubmittingMap(prev => ({ ...prev, [productId]: false })); // Finaliza o loading
+            setIsSubmittingMap(prev => ({ ...prev, [productId]: false })); 
         }
     };
 

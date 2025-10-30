@@ -139,18 +139,16 @@ export default function InventarioPage() {
         }
     };
 
-    // --- NOVO: Lógica de Ordenação ---
+    // --- Lógica de Ordenação ---
     const sortedProducts = useMemo(() => {
-        let sortableProducts = [...products]; // Cria cópia para não modificar o estado original
+        let sortableProducts = [...products]; 
         if (sortConfig !== null) {
             sortableProducts.sort((a, b) => {
-                // Assegura que temos uma chave válida para ordenar
                 if (!sortConfig.key) return 0;
 
                 const aValue = a[sortConfig.key];
                 const bValue = b[sortConfig.key];
 
-                // Lógica de comparação (considera null/undefined e tipos)
                 if (aValue === null || aValue === undefined) return sortConfig.direction === 'ascending' ? 1 : -1;
                 if (bValue === null || bValue === undefined) return sortConfig.direction === 'ascending' ? -1 : 1;
 
@@ -160,26 +158,25 @@ export default function InventarioPage() {
                 if (aValue > bValue) {
                     return sortConfig.direction === 'ascending' ? 1 : -1;
                 }
-                return 0; // São iguais
+                return 0; 
             });
         }
         return sortableProducts;
-    }, [products, sortConfig]); // Recalcula quando os produtos ou a ordenação mudam
+    }, [products, sortConfig]); 
 
-    // --- NOVO: Função para Solicitar Ordenação ---
+    // --- Função para Solicitar Ordenação ---
     const requestSort = (key: keyof Product) => {
         let direction: 'ascending' | 'descending' = 'ascending';
-        // Se já está ordenando por esta chave, inverte a direção
         if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
             direction = 'descending';
         }
         setSortConfig({ key, direction });
     };
 
-     // --- NOVO: Função para obter a classe CSS do cabeçalho de ordenação ---
+     // --- Função para obter a classe CSS do cabeçalho de ordenação ---
      const getSortDirectionClass = (key: keyof Product) => {
         if (!sortConfig || sortConfig.key !== key) {
-            return ''; // Nenhuma classe se não for a coluna ordenada
+            return ''; 
         }
         return sortConfig.direction === 'ascending' ? 'sort-asc' : 'sort-desc';
     };
@@ -217,7 +214,6 @@ export default function InventarioPage() {
                     <table className="inventario-table">
                         <thead>
                             <tr>
-                                {/* --- MUDANÇA: Cabeçalhos com botão para ordenar --- */}
                                 <th>
                                     <button 
                                         type="button" 
@@ -258,18 +254,18 @@ export default function InventarioPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {/* --- MUDANÇA: Mapeia sobre 'sortedProducts' --- */}
                             {sortedProducts.map((product) => {
                                 const currentQuantityValue = editedQuantities[product.id] ?? product.quantidadeEst.toString();
                                 const isEdited = editedQuantities[product.id] !== undefined; 
 
                                 return (
                                     <tr key={product.id} className={isEdited ? 'edited-row' : ''}> 
-                                        <td>{product.nome}</td>
-                                        <td>{product.marca || '-'}</td>
-                                        <td>{product.unidade}</td>
-                                        <td>{product.quantidadeMin}</td>
-                                        <td>
+                                        {/* --- MUDANÇA: Adicionado data-label --- */}
+                                        <td data-label="Nome">{product.nome}</td>
+                                        <td data-label="Marca">{product.marca || '-'}</td>
+                                        <td data-label="Unidade">{product.unidade}</td>
+                                        <td data-label="Estoque Mínimo">{product.quantidadeMin}</td>
+                                        <td data-label="Qtd. Contada">
                                             <input 
                                                 type="text" 
                                                 inputMode="decimal" 
