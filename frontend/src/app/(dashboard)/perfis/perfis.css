@@ -1,0 +1,376 @@
+.perfis-layout {
+    display: flex; /* mantém a sidebar + conteúdo lado a lado */
+    min-height: 100vh;
+    height: 100%;
+    background-color: var(--background-page);
+}
+
+
+.page-title-perfis {
+    color: var(--text-primary);
+    font-size: 1.875rem;
+    font-weight: 700;
+}
+
+.page-header-perfis {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+
+.section-header-perfis {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-title-perfis {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.content-area-perfis {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.main-content-wrapper-perfis {
+    flex: 1 1 0%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.main-content-perfis {
+    flex: 1 1 0%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.main-container-perfis {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2rem 1.5rem;
+}
+
+/* Layout Geral e Cabeçalho */
+.page-header-perfis {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.page-title-perfis {
+    color: var(--text-primary);
+    font-size: 1.875rem; /* 30px */
+    font-weight: 700;
+}
+
+/* Container principal (para as duas secções) */
+.perfis-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem; /* Espaço entre as secções */
+}
+
+.perfis-section {
+    width: 100%;
+}
+
+.section-title {
+    color: var(--text-primary);
+    font-size: 1.5rem; /* 24px */
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Mensagens de Feedback */
+.perfis-message {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.perfis-error {
+    background-color: #fef2f2;
+    color: var(--error-color);
+    border: 1px solid var(--error-color);
+}
+
+.perfis-success {
+    background-color: #f0fdf4;
+    color: var(--sucess-color);
+    border: 1px solid var(--sucess-color);
+}
+
+.no-data-message {
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 2rem;
+    font-style: italic;
+    background-color: var(--background-surface);
+    border-radius: 0.5rem;
+}
+
+
+/* Estilos da Tabela (baseado no inventario.css) */
+.perfis-table-container {
+    background-color: var(--background-surface);
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px -1px var(--shadow-color);
+    overflow-x: auto; /* Permite rolagem horizontal */
+}
+
+.perfis-table {
+    width: 100%;
+    /* --- REMOVIDO: min-width: 700px; --- */
+    border-collapse: collapse;
+}
+
+.perfis-table thead {
+    background-color: var(--background-header-table);
+}
+
+.perfis-table th {
+    padding: 1rem; /* Aumentado */
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700; /* Mais forte */
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    /* --- REMOVIDO: white-space: nowrap; --- */
+}
+
+.perfis-table td {
+    padding: 1rem; /* Aumentado */
+    font-size: 0.875rem;
+    /* --- MUDANÇA: Cor do texto principal --- */
+    color: var(--text-secondary); 
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    /* --- REMOVIDO: white-space: nowrap; --- */
+    /* Adicionado: quebra de linha para texto longo */
+    white-space: normal;
+    word-break: break-word;
+}
+
+/* Alinha ações e badges verticalmente se a linha ficar alta */
+.perfis-table td:last-child {
+    vertical-align: top;
+    padding-top: 1rem;
+}
+.perfis-table td .perfis-actions {
+     margin-top: 2px; /* Pequeno ajuste */
+}
+
+
+.perfis-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* --- ESTILO: Linha confirmada --- */
+.perfis-table tbody tr.confirmed-row td {
+    color: var(--text-tertiary);
+    background-color: var(--background-surface); /* Fundo cinza muito claro */
+}
+
+
+/* Botões de Ação na Tabela */
+.perfis-actions {
+    display: flex;
+    gap: 0.5rem;
+    /* Garante que os botões não quebrem linha */
+    white-space: nowrap; 
+}
+
+.btn-action {
+    padding: 0.4rem 0.9rem; /* Ligeiramente maior */
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+    color: white;
+}
+.btn-action:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-aprovar { background-color: var(--sucess-color); }
+.btn-aprovar:hover:not(:disabled) { background-color: #15803d; }
+
+.btn-rejeitar { background-color: var(--error-color); }
+.btn-rejeitar:hover:not(:disabled) { background-color: #dc2626; }
+
+.btn-editar { background-color: var(--primary); }
+.btn-editar:hover:not(:disabled) { background-color: var(--primary-hover); }
+
+/* Badge de Permissão (Role) */
+.role-badge {
+    padding: 0.25rem 0.75rem; /* Ligeiramente maior */
+    border-radius: 9999px; 
+    font-size: 0.75rem; /* Ligeiramente maior */
+    font-weight: 700;
+    text-transform: uppercase;
+    white-space: nowrap; 
+    /* Adicionado para espaçamento se houver múltiplos badges */
+    margin: 2px 0; 
+    display: inline-block;
+}
+
+/* Estilos de exemplo para roles */
+.role-gestor {
+    background-color: #fef2f2; 
+    color: #b91c1c; 
+}
+.role-funcionario {
+     background-color: #eff6ff;
+     color: #1d4ed8;
+}
+.role-compras {
+    background-color: #f0fdf4;
+    color: #15803d;
+}
+.role-cadastro, .role-recebimento, .role-empregada {
+     background-color: #f3f4f6;
+     color: var(--text-tertiary);
+}
+/* Estilo para roles com vírgula (ex: GESTOR, COMPRAS) */
+.role-gestor-compras, .role-compras-gestor {
+     background: linear-gradient(90deg, #fef2f2 50%, #f0fdf4 50%);
+     color: var(--text-primary);
+     border: 1px solid var(--border-color);
+}
+
+.role-nd {
+    background-color: #f3f4f6;
+    color: var(--text-tertiary);
+}
+
+
+/* --- ESTILOS DO MODAL (Sem alterações) --- */
+
+.perfis-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.perfis-modal-content {
+    background-color: var(--background-surface);
+    color: var(--text-primary);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.modal-error {
+    margin: 0; /* Remove margem extra da mensagem de erro dentro do modal */
+}
+
+/* Grupo de Checkboxes para Funções */
+.funcoes-checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 colunas */
+    gap: 0.75rem;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.5rem 0;
+}
+
+.funcao-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.funcao-checkbox input[type="checkbox"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    cursor: pointer;
+}
+
+/* Ações do Modal */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end; /* Alinha botões à direita */
+    gap: 0.75rem;
+}
+
+/* Botões (reutilizando estilos globais se existirem) */
+.btn-primary {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-on-primary-button);
+    background-color: var(--primary);
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+}
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    background-color: var(--background-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+.btn-secondary:hover:not(:disabled) {
+    background-color: var(--background-page);
+}
+.btn-secondary:disabled {
+     opacity: 0.6;
+    cursor: not-allowed;
+}
+
