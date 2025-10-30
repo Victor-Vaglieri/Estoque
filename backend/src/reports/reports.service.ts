@@ -21,14 +21,9 @@ export interface PurchaseHistory {
 export class ReportsService {
     constructor(private estoqueDb: EstoqueDbService) {}
 
-    /**
-     * Calcula os KPIs da Visão Geral.
-     */
     async getOverview(userId: number) {
-        // Busca todos os produtos do usuário para calcular
         const products = await this.estoqueDb.produto.findMany({
             include: {
-                // Inclui o último preço para calcular o valor
                 historicoPreco: {
                      orderBy: { data: 'desc' },
                      take: 1
@@ -47,6 +42,7 @@ export class ReportsService {
                 lowStockCount++;
             }
         });
+
 
         return {
             totalValue,
