@@ -14,8 +14,10 @@ import { RecebimentosModule } from './recive/recive.module'; // <-- IMporte o mÃ
 import { InventarioModule } from './inventory/inventory.module';
 import { ReportsModule } from './reports/reports.module';
 import { WarningsModule } from './warnings/warnings.module';
+import { CadastrosModule } from './cadasters/cadasters.module';
+import { RegistrationModule } from './create_cadaster/create-cadaster.module';
 @Module({
-  imports: [AuthModule, PrismaModule, DashboardModule,AlertsModule,ProductsModule,UsersModule,ToBuyProductsModule,RecebimentosModule,InventarioModule,ReportsModule,WarningsModule], // <-- E ADICIONE AQUI
+  imports: [AuthModule, PrismaModule, DashboardModule,AlertsModule,ProductsModule,UsersModule,ToBuyProductsModule,RecebimentosModule,InventarioModule,ReportsModule,WarningsModule,CadastrosModule,RegistrationModule], // <-- E ADICIONE AQUI
   controllers: [AppController],
   providers: [AppService],
 })
