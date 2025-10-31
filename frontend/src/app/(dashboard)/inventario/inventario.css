@@ -199,7 +199,6 @@
     text-align: right; 
     box-sizing: border-box; 
     transition: border-color 0.2s, box-shadow 0.2s, color 0.2s;
-    -moz-appearance: textfield; 
 }
 .quantity-input::-webkit-outer-spin-button,
 .quantity-input::-webkit-inner-spin-button {
