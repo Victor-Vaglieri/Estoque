@@ -20,7 +20,7 @@ export class RegistrationService {
         const { nome, login, senha } = dto;
 
         // 1. Fazer o hash da senha antes de salvar
-        const hashedPassword = await bcrypt.hash(senha, 10);
+        const hashedPassword = await bcrypt.hash(senha, 12);
 
         try {
             // 2. Criar a nova entrada no banco de dados 'cadastros'
