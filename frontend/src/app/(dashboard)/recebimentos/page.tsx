@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
+import "./recebimentos.css";
 
 // Interface para os dados recebidos do backend (GET /recebimentos/pendentes)
 // Inclui dados do HistoricoCompra e do Produto associado

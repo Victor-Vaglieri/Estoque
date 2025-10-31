@@ -191,7 +191,7 @@
     border: 1px solid var(--border-color); 
     border-radius: 0.375rem; /* Mais arredondado */
     /* MUDANÇA: Fundo branco (surface) para destacar */
-    background-color: var(--background-surface); 
+    background-color: var(--background-page); 
     /* MUDANÇA: Cor do texto primária (mais escura) */
     color: var(--text-primary); 
     font-size: 0.875rem; /* Garantir tamanho */
@@ -211,7 +211,7 @@
 .quantity-input:focus,
 .edited-row .quantity-input {
     border-color: var(--primary); 
-    background-color: var(--background-surface); 
+    background-color: var(--background-header-table); 
     outline: none; 
     color: var(--text-primary); 
     box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.2); 

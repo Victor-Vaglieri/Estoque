@@ -190,7 +190,7 @@
 /* --- ESTILO: Linha confirmada --- */
 .perfis-table tbody tr.confirmed-row td {
     color: var(--text-tertiary);
-    background-color: var(--background-page);
+    background-color: var(--background-surface);
     /* Fundo cinza muito claro */
 }
 
@@ -268,42 +268,42 @@
 
 /* Estilos de exemplo para roles */
 .role-gestor {
-    background-color: #fef2f2;
+    background-color: var(--background-page);
     color: #b91c1c;
 }
 
 .role-funcionario {
-    background-color: #eff6ff;
+    background-color: var(--background-page);
     color: #1d4ed8;
 }
 
 .role-compras {
-    background-color: #f0fdf4;
+    background-color: var(--background-page);
     color: #15803d;
 }
 
 .role-cadastro {
-    background-color: #f3f4f6;
+    background-color: var(--background-page);
     color: var(--text-tertiary);
 }
 
 .role-recebimento{
-     background-color: #f3f4f6;
+     background-color: var(--background-page);
      color: rgb(172, 132, 2);
 }
 
 .role-empregada {
-     background-color: #f3f4f6;
+     background-color: var(--background-page);
      color: rgb(170, 2, 2);
 }
 
 .role-nd {
-    background-color: #f3f4f6;
-    color: rgb(124, 9, 255);
+    background-color: var(--background-page);
+    color: rgb(31, 221, 255);
 }
 
 .role-cadastro{
-    background-color: #f3f4f6;
+    background-color: var(--background-page);
     color: rgb(124, 9, 255);
 }
 

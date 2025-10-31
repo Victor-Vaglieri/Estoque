@@ -118,7 +118,7 @@
 
 
 .compras-needed {
-    color: var(--primary) !important; /* Destaque para o que falta */
+    color: #ff5454 !important; /* Destaque para o que falta */
     font-weight: 700;
     margin-top: 0.5rem;
 }
