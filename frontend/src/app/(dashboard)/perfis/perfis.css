@@ -1,5 +1,6 @@
 .perfis-layout {
-    display: flex; /* mantém a sidebar + conteúdo lado a lado */
+    display: flex;
+    /* mantém a sidebar + conteúdo lado a lado */
     min-height: 100vh;
     height: 100%;
     background-color: var(--background-page);
@@ -72,7 +73,8 @@
 
 .page-title-perfis {
     color: var(--text-primary);
-    font-size: 1.875rem; /* 30px */
+    font-size: 1.875rem;
+    /* 30px */
     font-weight: 700;
 }
 
@@ -80,7 +82,8 @@
 .perfis-container {
     display: flex;
     flex-direction: column;
-    gap: 2.5rem; /* Espaço entre as secções */
+    gap: 2.5rem;
+    /* Espaço entre as secções */
 }
 
 .perfis-section {
@@ -89,7 +92,8 @@
 
 .section-title {
     color: var(--text-primary);
-    font-size: 1.5rem; /* 24px */
+    font-size: 1.5rem;
+    /* 24px */
     font-weight: 600;
     margin-bottom: 1.5rem;
     padding-bottom: 0.75rem;
@@ -126,17 +130,18 @@
 }
 
 
-/* Estilos da Tabela (baseado no inventario.css) */
+/* Estilos da Tabela */
 .perfis-table-container {
     background-color: var(--background-surface);
     border-radius: 0.5rem;
     box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px -1px var(--shadow-color);
-    overflow-x: auto; /* Permite rolagem horizontal */
+    overflow-x: auto;
+    /* Mantém o scroll horizontal em desktop */
+    padding: 0;
 }
 
 .perfis-table {
     width: 100%;
-    /* --- REMOVIDO: min-width: 700px; --- */
     border-collapse: collapse;
 }
 
@@ -145,25 +150,23 @@
 }
 
 .perfis-table th {
-    padding: 1rem; /* Aumentado */
+    padding: 1rem;
     text-align: left;
     font-size: 0.75rem;
-    font-weight: 700; /* Mais forte */
+    font-weight: 700;
     color: var(--text-tertiary);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    /* --- REMOVIDO: white-space: nowrap; --- */
+    white-space: nowrap;
+    /* Cabeçalho não quebra */
 }
 
 .perfis-table td {
-    padding: 1rem; /* Aumentado */
+    padding: 1rem;
     font-size: 0.875rem;
-    /* --- MUDANÇA: Cor do texto principal --- */
-    color: var(--text-secondary); 
+    color: var(--text-secondary);
     border-bottom: 1px solid var(--border-color);
     vertical-align: middle;
-    /* --- REMOVIDO: white-space: nowrap; --- */
-    /* Adicionado: quebra de linha para texto longo */
     white-space: normal;
     word-break: break-word;
 }
@@ -173,8 +176,10 @@
     vertical-align: top;
     padding-top: 1rem;
 }
+
 .perfis-table td .perfis-actions {
-     margin-top: 2px; /* Pequeno ajuste */
+    margin-top: 2px;
+    /* Pequeno ajuste */
 }
 
 
@@ -185,7 +190,8 @@
 /* --- ESTILO: Linha confirmada --- */
 .perfis-table tbody tr.confirmed-row td {
     color: var(--text-tertiary);
-    background-color: var(--background-surface); /* Fundo cinza muito claro */
+    background-color: var(--background-page);
+    /* Fundo cinza muito claro */
 }
 
 
@@ -193,12 +199,12 @@
 .perfis-actions {
     display: flex;
     gap: 0.5rem;
-    /* Garante que os botões não quebrem linha */
-    white-space: nowrap; 
+    white-space: nowrap;
 }
 
 .btn-action {
-    padding: 0.4rem 0.9rem; /* Ligeiramente maior */
+    padding: 0.4rem 0.9rem;
+    /* Ligeiramente maior */
     font-size: 0.8rem;
     font-weight: 500;
     border: none;
@@ -207,64 +213,102 @@
     transition: background-color 0.2s, opacity 0.2s;
     color: white;
 }
+
 .btn-action:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
-.btn-aprovar { background-color: var(--sucess-color); }
-.btn-aprovar:hover:not(:disabled) { background-color: #15803d; }
+.btn-aprovar {
+    background-color: var(--sucess-color);
+}
 
-.btn-rejeitar { background-color: var(--error-color); }
-.btn-rejeitar:hover:not(:disabled) { background-color: #dc2626; }
+.btn-aprovar:hover:not(:disabled) {
+    background-color: #15803d;
+}
 
-.btn-editar { background-color: var(--primary); }
-.btn-editar:hover:not(:disabled) { background-color: var(--primary-hover); }
+.btn-rejeitar {
+    background-color: var(--error-color);
+}
+
+.btn-rejeitar:hover:not(:disabled) {
+    background-color: #dc2626;
+}
+
+.btn-editar {
+    background-color: var(--primary);
+}
+
+.btn-editar:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+}
+
+/* --- MUDANÇA: Container para Badges Múltiplos --- */
+.role-badge-container {
+    display: flex;
+    flex-wrap: wrap;
+    /* Permite que os badges quebrem a linha */
+    gap: 0.25rem;
+    /* Pequeno espaço entre os badges */
+    align-items: center;
+}
 
 /* Badge de Permissão (Role) */
 .role-badge {
-    padding: 0.25rem 0.75rem; /* Ligeiramente maior */
-    border-radius: 9999px; 
-    font-size: 0.75rem; /* Ligeiramente maior */
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
-    white-space: nowrap; 
-    /* Adicionado para espaçamento se houver múltiplos badges */
-    margin: 2px 0; 
+    white-space: nowrap;
+    /* margin: 2px 0; */
+    /* Removido, 'gap' no container é melhor */
     display: inline-block;
 }
 
 /* Estilos de exemplo para roles */
 .role-gestor {
-    background-color: #fef2f2; 
-    color: #b91c1c; 
+    background-color: #fef2f2;
+    color: #b91c1c;
 }
+
 .role-funcionario {
-     background-color: #eff6ff;
-     color: #1d4ed8;
+    background-color: #eff6ff;
+    color: #1d4ed8;
 }
+
 .role-compras {
     background-color: #f0fdf4;
     color: #15803d;
 }
-.role-cadastro, .role-recebimento, .role-empregada {
-     background-color: #f3f4f6;
-     color: var(--text-tertiary);
-}
-/* Estilo para roles com vírgula (ex: GESTOR, COMPRAS) */
-.role-gestor-compras, .role-compras-gestor {
-     background: linear-gradient(90deg, #fef2f2 50%, #f0fdf4 50%);
-     color: var(--text-primary);
-     border: 1px solid var(--border-color);
-}
 
-.role-nd {
+.role-cadastro {
     background-color: #f3f4f6;
     color: var(--text-tertiary);
 }
 
+.role-recebimento{
+     background-color: #f3f4f6;
+     color: rgb(172, 132, 2);
+}
 
-/* --- ESTILOS DO MODAL (Sem alterações) --- */
+.role-empregada {
+     background-color: #f3f4f6;
+     color: rgb(170, 2, 2);
+}
+
+.role-nd {
+    background-color: #f3f4f6;
+    color: rgb(124, 9, 255);
+}
+
+.role-cadastro{
+    background-color: #f3f4f6;
+    color: rgb(124, 9, 255);
+}
+
+
+/* --- ESTILOS DO MODAL --- */
 
 .perfis-modal-overlay {
     position: fixed;
@@ -290,6 +334,8 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    /* Adicionado para mobile */
+    margin: 1rem;
 }
 
 .modal-title {
@@ -300,13 +346,15 @@
 }
 
 .modal-error {
-    margin: 0; /* Remove margem extra da mensagem de erro dentro do modal */
+    margin: 0;
+    /* Remove margem extra da mensagem de erro dentro do modal */
 }
 
 /* Grupo de Checkboxes para Funções */
 .funcoes-checkbox-group {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 colunas */
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 colunas */
     gap: 0.75rem;
     border-top: 1px solid var(--border-color);
     border-bottom: 1px solid var(--border-color);
@@ -331,7 +379,8 @@
 /* Ações do Modal */
 .modal-actions {
     display: flex;
-    justify-content: flex-end; /* Alinha botões à direita */
+    justify-content: flex-end;
+    /* Alinha botões à direita */
     gap: 0.75rem;
 }
 
@@ -347,9 +396,11 @@
     cursor: pointer;
     transition: background-color 0.2s, opacity 0.2s;
 }
+
 .btn-primary:hover:not(:disabled) {
     background-color: var(--primary-hover);
 }
+
 .btn-primary:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -366,11 +417,115 @@
     cursor: pointer;
     transition: background-color 0.2s, opacity 0.2s;
 }
+
 .btn-secondary:hover:not(:disabled) {
     background-color: var(--background-page);
 }
+
 .btn-secondary:disabled {
-     opacity: 0.6;
+    opacity: 0.6;
     cursor: not-allowed;
 }
 
+/* ================================================= */
+/* --- Estilos de Responsividade para Tabela --- */
+/* ================================================= */
+
+@media (max-width: 768px) {
+
+    /* Esconde o cabeçalho da tabela em telas pequenas */
+    .perfis-table thead {
+        display: none;
+    }
+
+    /* Transforma a tabela, linhas e células em blocos (cards) */
+    .perfis-table,
+    .perfis-table tbody,
+    .perfis-table tr,
+    .perfis-table td {
+        display: block;
+        width: 100%;
+    }
+
+    /* Remove o container da tabela para os cards preencherem */
+    .perfis-table-container {
+        background-color: transparent;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 0;
+        overflow-x: hidden;
+        /* Remove scroll no modo card */
+    }
+
+    /* Cada linha (tr) vira um card */
+    .perfis-table tr {
+        background-color: var(--background-surface);
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px -1px var(--shadow-color);
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        /* Garante que o :before não vaze */
+    }
+
+    /* Células */
+    .perfis-table td {
+        padding: 0.75rem 1rem;
+        padding-left: 50%;
+        /* Espaço à esquerda para o "label" */
+        text-align: right;
+        /* Alinha o valor à direita */
+        position: relative;
+        /* Contexto para o ::before */
+        border-bottom: 1px dashed var(--border-color);
+        /* Linha tracejada entre "colunas" */
+    }
+
+    .perfis-table td:last-child {
+        border-bottom: none;
+        /* Remove borda da última célula */
+        padding-top: 0.75rem;
+        /* Reseta o padding-top */
+        text-align: right;
+        /* Garante alinhamento */
+    }
+
+    .perfis-table td .perfis-actions {
+        margin-top: 0;
+        /* Reseta a margem */
+        justify-content: flex-end;
+        /* Alinha botões à direita */
+    }
+
+    /* Cria o "label" da coluna usando o data-label */
+    .perfis-table td::before {
+        content: attr(data-label);
+        /* Pega o texto do data-label="Nome" */
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 45%;
+        /* Largura do label */
+
+        font-weight: 600;
+        color: var(--text-primary);
+        text-align: left;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        white-space: normal;
+        /* Permite quebra de linha no label */
+    }
+
+    /* --- MUDANÇA: Ajusta o container do badge no modo card --- */
+    .perfis-table td .role-badge-container {
+        justify-content: flex-end;
+        /* Alinha badges à direita */
+        padding-left: 0;
+        /* Remove padding extra */
+    }
+
+    .perfis-table td .role-badge {
+        font-size: 0.7rem;
+    }
+}

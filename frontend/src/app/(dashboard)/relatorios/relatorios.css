@@ -102,7 +102,8 @@
 /* Grelha de KPIs (Visão Geral) */
 .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Responsivo */
+    /* Responsivo: 1 coluna em mobile, auto-fit em telas maiores */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
     gap: 1.5rem;
 }
 
@@ -140,7 +141,8 @@
 /* Grelha de Gráficos */
 .charts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Responsivo */
+     /* Responsivo: 1 coluna em mobile, auto-fit em telas maiores */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
     gap: 2rem;
 }
 
@@ -148,6 +150,8 @@
      border: 1px solid var(--border-color);
      border-radius: 0.25rem;
      padding: 1rem;
+     /* Garante que o gráfico não transborde no mobile */
+     overflow: hidden; 
 }
 
 .chart-container h3 {
@@ -221,5 +225,25 @@
     background-color: #fef2f2;
     color: var(--error-color);
     border: 1px solid var(--error-color);
+}
+
+/* Botões primários (para o modal) */
+.btn-primary {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-on-primary-button);
+    background-color: var(--primary);
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+}
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
