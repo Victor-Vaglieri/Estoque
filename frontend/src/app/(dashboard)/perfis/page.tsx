@@ -1,12 +1,9 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-// Usando caminho relativo
+// Usando caminho de alias padrão
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
-
-// Importe o CSS específico para esta página
-import './perfis.css';
 
 // --- 1. Enum de Funções (deve espelhar o seu schema 'usuarios.db') ---
 enum Funcao {
@@ -25,7 +22,6 @@ interface CadastroRequest {
     login: string;
     responsavelId: number | null; 
     createdAt: string;
-    // --- NOVO CAMPO ---
     responsavelNome?: string | null; // O nome do aprovador
 }
 
@@ -40,11 +36,10 @@ interface User {
 export default function PerfisPage() {
     const router = useRouter();
     const { user } = useAuth(); 
-    const currentUserId =  user?.sub;
+    const currentUserId = user?.sub;
 
     const [solicitacoes, setSolicitacoes] = useState<CadastroRequest[]>([]);
     const [usuarios, setUsuarios] = useState<User[]>([]);
-    // Estado para solicitações confirmadas
     const [solicitacoesConfirmadas, setSolicitacoesConfirmadas] = useState<CadastroRequest[]>([]);
     
     const [isLoading, setIsLoading] = useState(true);
@@ -74,18 +69,15 @@ export default function PerfisPage() {
         }
 
         try {
-            // Agora busca 3 listas
             const results = await Promise.allSettled([
                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/solicitacoes`, {
                     method: 'GET',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 }),
-                 // 2. Utilizadores Atuais
                  fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/usuarios`, {
                     method: 'GET',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 }),
-                // 3. Solicitações Confirmadas
                  fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/confirmados`, {
                     method: 'GET',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -134,7 +126,6 @@ export default function PerfisPage() {
     }, [router, user]); 
 
     // --- FUNÇÕES DE APROVAÇÃO E REJEIÇÃO (Solicitações) ---
-
     const handleAprovarClick = (solicitacao: CadastroRequest) => {
         setSolicitacaoParaAprovar(solicitacao); 
         setSelectedFuncoes([Funcao.FUNCIONARIO]); 
@@ -148,12 +139,10 @@ export default function PerfisPage() {
             setError("Selecione pelo menos uma função para o novo usuário.");
             return;
         }
-
         setIsSubmitting(solicitacaoParaAprovar.id); 
         clearFeedback();
         const token = localStorage.getItem('token');
         if (!token) { router.push('/login'); return; }
-
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/aprovar/${solicitacaoParaAprovar.id}`, { 
                 method: 'POST', 
@@ -163,16 +152,13 @@ export default function PerfisPage() {
                 },
                 body: JSON.stringify({ funcoes: selectedFuncoes }) 
             });
-
              if (!response.ok) {
                  const errData = await response.json();
                 throw new Error(errData.message || 'Falha ao aprovar usuário.');
             }
-            
             setSuccess('Utilizador aprovado e criado com sucesso!');
             setShowApproveModal(false); 
             await fetchData(); 
-
         } catch (err) {
              setError(err instanceof Error ? err.message : 'Ocorreu um erro ao aprovar.');
         } finally {
@@ -182,26 +168,21 @@ export default function PerfisPage() {
     
     const handleRejeitar = async (cadastroId: number) => {
          if (!window.confirm('Tem certeza que deseja rejeitar esta solicitação? Ela será removida permanentemente.')) return;
-        
         setIsSubmitting(cadastroId); 
         clearFeedback();
         const token = localStorage.getItem('token');
         if (!token) { router.push('/login'); return; }
-
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/rejeitar/${cadastroId}`, { 
                 method: 'DELETE', 
                 headers: { 'Authorization': `Bearer ${token}` },
             });
-
              if (!response.ok) {
                  const errData = await response.json();
                 throw new Error(errData.message || 'Falha ao rejeitar usuário.');
             }
-            
             setSuccess('Solicitação rejeitada com sucesso.');
             await fetchData(); 
-
         } catch (err) {
              setError(err instanceof Error ? err.message : 'Ocorreu um erro ao rejeitar.');
         } finally {
@@ -219,7 +200,7 @@ export default function PerfisPage() {
         });
     };
 
-    // --- NOVAS FUNÇÕES: GERIR UTILIZADORES ATUAIS ---
+    // --- FUNÇÕES DE GESTÃO DE UTILIZADORES ATUAIS ---
     const handleEditUserClick = (user: User) => {
         if (user.id === currentUserId) {
             setError("Não pode editar as suas próprias funções.");
@@ -248,12 +229,10 @@ export default function PerfisPage() {
             setError("O usuário deve ter pelo menos uma função."); 
             return;
         }
-
         setIsSubmitting(usuarioParaEditar.id); 
         clearFeedback();
         const token = localStorage.getItem('token');
         if (!token) { router.push('/login'); return; }
-
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/usuario/${usuarioParaEditar.id}`, { 
                 method: 'PATCH', 
@@ -263,16 +242,13 @@ export default function PerfisPage() {
                 },
                 body: JSON.stringify({ funcoes: selectedEditFuncoes }) 
             });
-
              if (!response.ok) {
                  const errData = await response.json();
                 throw new Error(errData.message || 'Falha ao atualizar usuário.');
             }
-            
             setSuccess('Usuário atualizado com sucesso!');
             setShowEditModal(false); 
             await fetchData(); 
-
         } catch (err) {
              setError(err instanceof Error ? err.message : 'Ocorreu um erro ao atualizar.');
         } finally {
@@ -285,26 +261,21 @@ export default function PerfisPage() {
             setError("Você não pode remover a si mesmo.");
             return;
         }
-        
         setIsSubmitting(userId); 
         clearFeedback();
         const token = localStorage.getItem('token');
         if (!token) { router.push('/login'); return; }
-
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/usuario/${userId}`, { 
                 method: 'DELETE', 
                 headers: { 'Authorization': `Bearer ${token}` },
             });
-
              if (!response.ok) {
                  const errData = await response.json();
                 throw new Error(errData.message || 'Falha ao remover usuário.');
             }
-            
             setSuccess('Usuário removido com sucesso.');
             await fetchData(); 
-
         } catch (err) {
              setError(err instanceof Error ? err.message : 'Ocorreu um erro ao remover.');
         } finally {
@@ -341,7 +312,7 @@ export default function PerfisPage() {
                                             <th>ID Solicitação</th>
                                             <th>Nome</th>
                                             <th>Login Desejado</th>
-                                            <th>ID Responsável (Se houver)</th>
+                                            <th>ID Responsável</th>
                                             <th>Data Solicitação</th>
                                             <th>Ações</th>
                                         </tr>
@@ -349,12 +320,13 @@ export default function PerfisPage() {
                                     <tbody>
                                         {solicitacoes.map((req) => (
                                             <tr key={`req-${req.id}`}>
-                                                <td>{req.id}</td>
-                                                <td>{req.nome}</td>
-                                                <td>{req.login}</td>
-                                                <td>{req.responsavelId || 'N/A'}</td>
-                                                <td>{new Date(req.createdAt).toLocaleDateString()}</td>
-                                                <td>
+                                                {/* --- MUDANÇA: Adicionado data-label --- */}
+                                                <td data-label="ID Solicitação">{req.id}</td>
+                                                <td data-label="Nome">{req.nome}</td>
+                                                <td data-label="Login Desejado">{req.login}</td>
+                                                <td data-label="ID Responsável">{req.responsavelId || 'N/A'}</td>
+                                                <td data-label="Data Solicitação">{new Date(req.createdAt).toLocaleDateString()}</td>
+                                                <td data-label="Ações">
                                                     <div className="perfis-actions">
                                                         <button 
                                                             className="btn-action btn-rejeitar" 
@@ -402,15 +374,30 @@ export default function PerfisPage() {
                                     <tbody>
                                         {usuarios.map((u) => (
                                             <tr key={`user-${u.id}`}>
-                                                <td>{u.id}</td>
-                                                <td>{u.nome}</td>
-                                                <td>{u.login}</td>
-                                                <td>
-                                                    <span className={`role-badge role-${u.role ? u.role.toLowerCase().replace(/, /g, '-') : 'nd'}`}>
-                                                        {u.role || 'N/D'}
-                                                    </span>
+                                                {/* --- MUDANÇA: Adicionado data-label --- */}
+                                                <td data-label="ID Utilizador">{u.id}</td>
+                                                <td data-label="Nome">{u.nome}</td>
+                                                <td data-label="Login">{u.login}</td>
+                                                
+                                                {/* --- MUDANÇA: Lógica para Múltiplas Roles --- */}
+                                                <td data-label="Permissão (Role)">
+                                                    <div className="role-badge-container">
+                                                        {u.role && u.role !== 'N/D' ? (
+                                                            u.role.split(', ').map((role) => (
+                                                                <span 
+                                                                    key={role} 
+                                                                    className={`role-badge role-${role.toLowerCase()}`}
+                                                                >
+                                                                    {role}
+                                                                </span>
+                                                            ))
+                                                        ) : (
+                                                            <span className="role-badge role-nd">N/D</span>
+                                                        )}
+                                                    </div>
                                                 </td>
-                                                <td>
+
+                                                <td data-label="Ações">
                                                     <div className="perfis-actions">
                                                         <button 
                                                             className="btn-action btn-rejeitar"
@@ -438,9 +425,9 @@ export default function PerfisPage() {
                         )}
                     </section>
 
-                    {/* --- ATUALIZADO: Secção 3: Solicitações Confirmadas --- */}
+                    {/* --- Secção 3: Solicitações Confirmadas --- */}
                      <section className="perfis-section">
-                        <h2 className="section-title">Histórico de Solicitações Confirmadas</h2>
+                        <h2 className="section-title">Histórico de Solicitações (Confirmadas)</h2>
                         {error && !isLoading && !solicitacoesConfirmadas.length && <p className="no-data-message">Não foi possível carregar o histórico.</p>}
                         {!error && !isLoading && solicitacoesConfirmadas.length === 0 ? (
                             <p className="no-data-message">Nenhuma solicitação confirmada encontrada.</p>
@@ -452,18 +439,17 @@ export default function PerfisPage() {
                                             <th>ID Solicitação</th>
                                             <th>Nome</th>
                                             <th>Login (Criado)</th>
-                                            {/* --- MUDANÇA: Título da Coluna --- */}
                                             <th>Aprovado por (Nome)</th> 
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {solicitacoesConfirmadas.map((req) => (
                                             <tr key={`req-conf-${req.id}`} className="confirmed-row">
-                                                <td>{req.id}</td>
-                                                <td>{req.nome}</td>
-                                                <td>{req.login}</td>
-                                                {/* --- MUDANÇA: Exibe o nome --- */}
-                                                <td>
+                                                {/* --- MUDANÇA: Adicionado data-label --- */}
+                                                <td data-label="ID Solicitação">{req.id}</td>
+                                                <td data-label="Nome">{req.nome}</td>
+                                                <td data-label="Login (Criado)">{req.login}</td>
+                                                <td data-label="Aprovado por (Nome)">
                                                     {req.responsavelNome || `ID: ${req.responsavelId}`}
                                                 </td>
                                             </tr>
