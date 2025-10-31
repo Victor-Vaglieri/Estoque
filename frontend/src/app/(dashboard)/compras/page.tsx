@@ -154,7 +154,7 @@ export default function ComprasPage() {
                                 
                                 <div className="compras-pending-info"> 
                                     {product.quantidadePendenteFaltante > 0 && (
-                                        <p style={{ color: 'orange', fontWeight: 'bold' }}>
+                                        <p style={{ color: '#eea811', fontWeight: 'bold' }}>
                                             (Já comprado/Pendente: {product.quantidadePendenteFaltante} {product.unidade})
                                         </p>
                                     )}

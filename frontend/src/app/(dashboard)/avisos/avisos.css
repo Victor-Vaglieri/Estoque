@@ -1,67 +1,3 @@
-.avisos-layout {
-    display: flex; /* mantém a sidebar + conteúdo lado a lado */
-    min-height: 100vh;
-    height: 100%;
-    background-color: var(--background-page);
-}
-
-
-.page-title-avisos {
-    color: var(--text-primary);
-    font-size: 1.875rem;
-    font-weight: 700;
-}
-
-.page-header-avisos {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-}
-
-.section-header-avisos {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.section-title-avisos {
-    color: var(--text-primary);
-    font-size: 1.5rem;
-    font-weight: 700;
-}
-
-.content-area-avisos {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-}
-
-.main-content-wrapper-avisos {
-    flex: 1 1 0%;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.main-content-avisos {
-    flex: 1 1 0%;
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-
-.main-container-avisos {
-    max-width: 100%;
-    /* Largura máxima do container */
-    margin-left: auto;
-    margin-right: auto;
-    padding: 2rem 1.5rem;
-    /* py-8 px-6 */
-}
-
-
 /* Layout Geral e Cabeçalho */
 .page-header-avisos {
     display: flex;
@@ -270,7 +206,7 @@
 }
 
 /* Cores das bordas (agora aplicadas a ambas) */
-.importancia-baixa { border-color: #3b82f6; } /* Azul */
+.importancia-baixa { border-color: var(--primary); } /* Azul */
 .importancia-media { border-color: #f59e0b; } /* Âmbar */
 .importancia-alta { border-color: var(--error-color); } /* Vermelho */
 
@@ -309,12 +245,12 @@
     font-size: 0.7rem; 
     font-weight: 700;
     text-transform: uppercase;
-    color: white;
+    color: var(--text-on-primary-button);
     white-space: nowrap;
     flex-shrink: 0; /* Impede que encolha */
 }
-.badge-baixa { background-color: #3b82f6; } /* Azul */
-.badge-media { background-color: #f59e0b; } /* Âmbar */
+.badge-baixa { background-color: var(--primary); } /* Azul */
+.badge-media { background-color: #dd8d03; } /* Âmbar */
 .badge-alta { background-color: var(--error-color); } /* Vermelho */
 
 /* Descrição */
@@ -359,45 +295,71 @@
     gap: 0.5rem; /* Espaço menor entre botões */
 }
 
-/* Estilos para Botões de Ação */
+/* Estilos para Botões de Ação (SÓLIDOS) */
 .btn-aviso {
     background: none;
-    border: 1px solid transparent; /* Sem borda por padrão */
-    padding: 0.3rem 0.6rem; /* Mais compacto */
+    border: 1px solid transparent; 
+    padding: 0.3rem 0.6rem; 
     border-radius: 0.25rem;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem; /* Espaço entre ícone e texto */
-    font-size: 0.8rem; /* Menor */
+    gap: 0.3rem; 
+    font-size: 0.8rem; 
     font-weight: 500;
-    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
+    
+    /* --- MUDANÇA: Texto branco --- */
+    color: var(--text-on-primary-button);
 }
 
-/* Cores e Hover dos botões */
-.btn-concluir { color: var(--sucess-color); border-color: var(--sucess-color); }
-.btn-concluir:hover:not(:disabled) { background-color: #dcfce7; }
+/* --- MUDANÇA: Cores e Hover dos botões SÓLIDOS --- */
 
-.btn-reabrir { color: #f59e0b; border-color: #f59e0b; } /* Âmbar */
-.btn-reabrir:hover:not(:disabled) { background-color: #fffbeb; }
+/* CONCLUIR (Verde) */
+.btn-concluir { 
+    background-color: var(--sucess-color);
+    border-color: var(--sucess-color); 
+}
+.btn-concluir:hover:not(:disabled) { 
+    background-color: #15803d; /* Verde mais escuro */
+    border-color: #15803d;
+}
 
-.btn-editar { color: var(--primary); border-color: var(--primary); }
-.btn-editar:hover:not(:disabled) { background-color: #eff6ff; }
+/* REABRIR (Âmbar/Laranja) */
+.btn-reabrir { 
+    background-color: #f59e0b; /* Âmbar */
+    border-color: #f59e0b; 
+}
+.btn-reabrir:hover:not(:disabled) { 
+    background-color: #d97706; /* Âmbar mais escuro */
+    border-color: #d97706;
+}
 
-.btn-remover { color: var(--error-color); border-color: var(--error-color); }
-.btn-remover:hover:not(:disabled) { background-color: #fef2f2; }
+/* EDITAR (Azul) */
+.btn-editar { 
+    background-color: var(--primary);
+    border-color: var(--primary); 
+}
+.btn-editar:hover:not(:disabled) { 
+    background-color: var(--primary-hover); /* Variável já existe! */
+    border-color: var(--primary-hover);
+}
 
-/* Estado desabilitado */
+/* REMOVER (Vermelho) */
+.btn-remover { 
+    background-color: var(--error-color);
+    border-color: var(--error-color); 
+}
+.btn-remover:hover:not(:disabled) { 
+    background-color: #dc2626; /* Vermelho mais escuro */
+    border-color: #dc2626;
+}
+
+/* --- MUDANÇA: Estado desabilitado para botões sólidos --- */
 .btn-aviso:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    border-color: var(--border-color);
-    color: var(--text-tertiary);
 }
-.btn-aviso:disabled:hover {
-     background-color: transparent; /* Remove hover no desabilitado */
-}
-
 
 /* Botões primários e secundários (usados no form) */
 .btn-primary, .btn-secondary {
@@ -415,3 +377,17 @@
 .btn-secondary:hover:not(:disabled) { background-color: var(--background-page); }
 .btn-primary:disabled, .btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; }
 
+
+:root[data-theme="dark"] .btn-concluir:hover:not(:disabled) { 
+    background-color: #16a34a; /* Verde (escuro) 600 */
+    border-color: #16a34a;
+}
+:root[data-theme="dark"] .btn-reabrir:hover:not(:disabled) { 
+    /* Opcional: A cor âmbar pode ser diferente no escuro */
+    background-color: #d97706; /* Âmbar (escuro) 600 */
+    border-color: #d97706;
+}
+:root[data-theme="dark"] .btn-remover:hover:not(:disabled) { 
+    background-color: #ef4444; /* Vermelho (escuro) 500 */
+    border-color: #ef4444;
+}

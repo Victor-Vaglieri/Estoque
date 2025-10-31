@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
+
+import "./perfis.css";
 // --- 1. Enum de Funções (deve espelhar o seu schema 'usuarios.db') ---
 enum Funcao {
     CADASTRO = 'CADASTRO',

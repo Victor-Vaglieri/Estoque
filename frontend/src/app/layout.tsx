@@ -5,10 +5,12 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/app/context/AuthContext';
 import { ThemeProvider } from '@/app/context/ThemeContext';
+// --- 1. Importar o novo provider ---
+import { SidebarProvider } from '@/app/context/SidebarContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
-const theme = 'light'
+const theme = 'light' // O seu 'theme' estático está aqui
 
 export const metadata: Metadata = {
   title: 'Sistema de Controle de Estoque',
@@ -25,7 +27,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider>
           <AuthProvider>
-            {children}
+            <SidebarProvider>
+                {children}
+            </SidebarProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
