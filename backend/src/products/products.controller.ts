@@ -18,6 +18,14 @@ export class ProductsController {
     return this.productsService.getProducts(userId);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/withStock')
+  async getProductsWithStock(@Request() req) {
+    const userId = req.user.sub;
+
+    return this.productsService.getProductsWithStock(userId);
+  }
+
   // Endpoint para CRIAR um novo produto
   @UseGuards(AuthGuard('jwt'))
   @Post() // 2. Use o decorador @Post
