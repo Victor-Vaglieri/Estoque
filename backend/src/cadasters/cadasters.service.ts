@@ -16,13 +16,12 @@ export class PerfisService {
         private cadastrosDb: CadastrosDbService 
     ) {}
 
-    // --- Lógica de Solicitações (Usa cadastrosDb) ---
 
     async getSolicitacoes(userId: number) {
-        // ... (código existente)
         return this.cadastrosDb.cadastro.findMany({
             where: {
-                responsavelId: null 
+                responsavelId: null, 
+                ativo: true
             },
             orderBy: { createdAt: 'asc' }, 
             select: { 
@@ -35,17 +34,12 @@ export class PerfisService {
         });
     }
 
-    /**
-     * Busca todas as solicitações que JÁ FORAM CONFIRMADAS.
-     * --- AGORA INCLUI O NOME DO APROVADOR ---
-     */
     async getSolicitacoesConfirmadas(userId: number) {
-        // 1. Busca solicitações confirmadas
         const solicitacoes = await this.cadastrosDb.cadastro.findMany({
             where: {
                 responsavelId: { 
                     not: null 
-                } 
+                }, ativo: true
             },
             orderBy: { createdAt: 'desc' }, 
             select: { 
@@ -61,7 +55,6 @@ export class PerfisService {
             return [];
         }
 
-        // 2. Extrai os IDs dos responsáveis (aprovadores)
         const responsavelIds = [
             ...new Set(solicitacoes.map(s => s.responsavelId).filter(id => id !== null) as number[])
         ];
@@ -82,25 +75,20 @@ export class PerfisService {
         // 4. Mapeia os IDs para nomes para consulta rápida
         const aprovadorMap = new Map(aprovadores.map(a => [a.id, a.nome]));
 
-        // 5. Combina os dados
         return solicitacoes.map(solicitacao => {
-            // --- CORREÇÃO AQUI ---
-            // Verifica se responsavelId não é nulo ANTES de usar o Map.get
             const responsavelNome = solicitacao.responsavelId 
                 ? aprovadorMap.get(solicitacao.responsavelId) 
-                : null; // Se o ID for nulo (o que não deve acontecer aqui, mas o tipo permite), o nome é nulo
+                : null;
 
             return {
                 ...solicitacao,
-                // Adiciona o nome do aprovador ao objeto de retorno
-                responsavelNome: responsavelNome || 'ID Desconhecido' // Fallback
+                responsavelNome: responsavelNome || 'ID Desconhecido'
             };
         });
     }
 
 
     async aprovarSolicitacao(adminId: number, cadastroId: number, aprovarDto: AprovarSolicitacaoDto) {
-        // ... (código existente)
         const cadastro = await this.cadastrosDb.cadastro.findUnique({
             where: { 
                 id: cadastroId,
@@ -166,7 +154,6 @@ export class PerfisService {
     }
 
     async rejeitarSolicitacao(adminId: number, cadastroId: number) {
-        // ... (código existente)
         try {
             await this.cadastrosDb.cadastro.delete({
                 where: { 
@@ -227,7 +214,6 @@ export class PerfisService {
     }
 
     async deleteUser(adminId: number, targetUserId: number) {
-        // ... (código existente)
         let userLogin: string;
         try {
              const user = await this.usuariosDb.usuario.findUniqueOrThrow({
@@ -257,8 +243,9 @@ export class PerfisService {
             throw error;
         }
         try {
-            await this.cadastrosDb.cadastro.deleteMany({
-                where: { login: userLogin } 
+            await this.cadastrosDb.cadastro.updateMany({
+                where: { login: userLogin },
+                data: { ativo: false }
             });
         } catch (error) {
             console.warn(`AVISO: Utilizador ${userLogin} (ID: ${targetUserId}) foi removido, mas falhou a limpeza do 'cadastros.db'. Erro: ${error.message}`);

@@ -30,7 +30,7 @@ export class ToBuyProductsService {
             where: {
                 quantidadeNec: {
                     gt: 0 
-                },
+                }, ativo: true,
 
                 quantidadeEst: { 
                     lt: this.estoqueDb.produto.fields.quantidadeNec 
@@ -47,31 +47,25 @@ export class ToBuyProductsService {
             }
         });
         
-        // 2. Para cada produto, busca a SOMA de compras pendentes/faltantes
         const productsWithPendingCount = await Promise.all(
             productsToBuyRaw.map(async (product) => {
                 
-                // --- CORREÇÃO AQUI: Trocado de .count() para .aggregate() ---
                 const pendingAggregation = await this.estoqueDb.historicoCompra.aggregate({
                     _sum: {
-                        quantidade: true // Soma a coluna 'quantidade'
+                        quantidade: true
                     },
                     where: {
                         produtoId: product.id,
-                        // userId: userId, // Opcional: se a contagem deve ser só do usuário
                         confirmadoEntrada: { 
                             in: [EstadoEntrada.PENDENTE, EstadoEntrada.FALTANTE] 
                         }
                     }
                 });
 
-                // O resultado é { _sum: { quantidade: 15 } } ou { _sum: { quantidade: null } }
                 const pendingQuantitySum = pendingAggregation._sum.quantidade || 0;
-
-                // Retorna um novo objeto com a SOMA adicionada
                 return {
                     ...product,
-                    quantidadePendenteFaltante: pendingQuantitySum // Usa a SOMA
+                    quantidadePendenteFaltante: pendingQuantitySum
                 };
             })
         );
@@ -79,25 +73,21 @@ export class ToBuyProductsService {
         return productsWithPendingCount;
     }
 
-    /**
-     * Lógica para o POST /to-buy-products
-     * Regista uma nova compra no histórico.
-     */
+
     async addBuy(userId: number, compraData: CreateHistoricBuyDto) {
         const { productId, quantidade, preco } = compraData;
 
         // 1. Verificar se o produto existe e pertence ao usuário
         const produto = await this.estoqueDb.produto.findUnique({
             where: { 
-                id: productId
-            },
+                id: productId, ativo: true
+            }, 
         });
 
         if (!produto) {
             throw new NotFoundException(`Produto com ID ${productId} não encontrado.`);
         }
 
-        // 2. Cria o registo de compra
         try {
              const novaCompra = await this.estoqueDb.historicoCompra.create({
                  data: {
@@ -106,7 +96,7 @@ export class ToBuyProductsService {
                      data: new Date(),
                      confirmadoEntrada: EstadoEntrada.PENDENTE, // Estado inicial
                      produto: { connect: { id: productId } }, 
-                     responsavelId: userId // Conecta ao usuário responsável pela compra
+                     responsavelId: userId 
                  }
              });
 
@@ -115,7 +105,6 @@ export class ToBuyProductsService {
         } catch (error) {
              console.error("Erro ao registrar compra:", error);
              if (error instanceof Prisma.PrismaClientKnownRequestError) {
-                 // Tratar erros específicos do Prisma
              }
              throw new BadRequestException("Não foi possível registrar a compra.");
         }

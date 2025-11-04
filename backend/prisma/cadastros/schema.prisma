@@ -15,4 +15,5 @@ model Cadastro {
   senha    String
   responsavelId  Int?  // referência ao id de usuário (vindo do outro banco, manual)
   createdAt DateTime @default(now())
+  ativo Boolean @default(true)
 }
