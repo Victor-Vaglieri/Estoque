@@ -93,8 +93,14 @@ export default function RecebimentosPage() {
 
     // Busca os dados ao carregar a página
     useEffect(() => {
+        if (user) {
+            if (!user.funcoes.some(f => f === 'RECEBIMENTO' || f === 'GESTOR')) {
+                router.push('/inicio');
+                return;
+            }
+        }
         fetchPendingReceipts();
-    }, [router]);
+    }, [user,router]);
 
     // Função para lidar com a mudança no input de preço
     const handlePriceChange = (receiptId: number, value: string) => {

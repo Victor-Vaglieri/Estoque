@@ -216,3 +216,92 @@
 .arrow-icon--rotated {
     transform: rotate(90deg);
 }
+
+/* 1. Alinha o label do checkbox na horizontal (sobrescreve o padrão do formulário) */
+.table-container-produtos form label.checkbox-label {
+    flex-direction: row;
+    align-items: center;
+    font-weight: 500;
+}
+
+/* 2. Esconde o checkbox padrão e cria a "caixa" personalizada */
+.checkbox-label input[type="checkbox"] {
+    /* Esconde o visual padrão */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    
+    /* Remove margens do formulário e alinha */
+    margin-top: 0;
+    margin-left: 0.5rem; /* Espaço entre o texto "Ativo:" e a caixa */
+    vertical-align: middle;
+
+    /* Define o tamanho da nova caixa */
+    width: 1.15rem;  /* Aprox. 18px */
+    height: 1.15rem; /* Aprox. 18px */
+
+    /* Estiliza a caixa com suas variáveis */
+    background-color: var(--background-page);
+    border: 2px solid var(--border-color);
+    border-radius: 0.25rem; /* 4px */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    /* Posição relativa para ancorar o "check" (::after) */
+    position: relative;
+}
+
+/* 3. Estilo do estado :checked (quando marcado) */
+.checkbox-label input[type="checkbox"]:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* 4. Estilo do estado :focus (para acessibilidade) */
+.checkbox-label input[type="checkbox"]:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* 5. Cria o "check" (símbolo de marcado) usando ::after */
+.checkbox-label input[type="checkbox"]::after {
+    content: "";
+    position: absolute;
+    display: none; /* Escondido por padrão */
+    
+    /* Posiciona o "check" no centro */
+    left: 50%;
+    top: 50%;
+
+    /* Desenha o "check" (um "L" rotacionado) */
+    width: 0.25rem;  /* Largura do traço */
+    height: 0.6rem; /* Altura do traço */
+    border: solid var(--text-on-primary-button); /* Cor do check (usei a cor do texto do botão) */
+    border-width: 0 2px 2px 0; /* "Desenha" o L */
+    
+    /* Ajusta a posição final e rotaciona */
+    transform: translate(-50%, -60%) rotate(45deg);
+}
+
+/* 6. Mostra o "check" quando o input estiver :checked */
+.checkbox-label input[type="checkbox"]:checked::after {
+    display: block;
+}
+
+.table-container-produtos {
+    /* ...seus estilos existentes... */
+    border-left: 5px solid transparent; 
+    transition: border-color 0.3s ease;
+}
+
+/* Agora, colorimos a borda dos ativos com uma cor "sucesso" 
+  (Estou usando var(--primary) como exemplo, mude se tiver uma cor de sucesso) 
+*/
+.table-container-produtos:not(.produto-inativo) {
+    border-left-color: var(--primary); /* ou uma cor verde, ex: #28a745 */
+}
+
+/* E colorimos a borda dos inativos com uma cor "erro" ou "cinza" */
+.table-container-produtos.produto-inativo {
+    border-left-color: var(--error-color); /* ou um cinza, ex: #6c757d */
+}

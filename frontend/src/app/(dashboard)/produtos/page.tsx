@@ -19,6 +19,7 @@ interface Product {
     quantidadeEst: number;
     quantidadeNec: number;
     observacoes: string | null;
+    ativo: boolean;
 }
 
 export default function ProductsHomePage() {
@@ -30,8 +31,6 @@ export default function ProductsHomePage() {
     const [editingProductId, setEditingProductId] = useState<number | null>(null);
     const [showCreateForm, setShowCreateForm] = useState(false);
 
-    // --- FUNÇÃO PARA BUSCAR OS PRODUTOS ---
-    // (Movida para fora do useEffect para que possamos chamá-la novamente)
     const fetchProductsData = async () => {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -60,10 +59,16 @@ export default function ProductsHomePage() {
             setIsLoading(false);
         }
     }
-    
+
     useEffect(() => {
+        if (user) {
+            if (!user.funcoes.some(f => f === 'CADASTRO' || f === 'GESTOR')) {
+                router.push('/inicio');
+                return;
+            }
+        }
         fetchProductsData();
-    }, [router]); // Adicione 'router' ao array de dependências
+    }, [user,router]); // Adicione 'router' ao array de dependências
 
     const handleToggleEdit = (productId: number) => {
         setEditingProductId(prevId => (prevId === productId ? null : productId));
@@ -78,7 +83,7 @@ export default function ProductsHomePage() {
             setError("Sua sessão expirou. Faça o login novamente.");
             return;
         }
-        
+
         const formData = new FormData(event.currentTarget);
         const updatedData = {
             nome: formData.get('nome') as string,
@@ -87,6 +92,7 @@ export default function ProductsHomePage() {
             quantidadeMin: parseInt(formData.get('quantidadeMin') as string, 10),
             quantidadeNec: parseInt(formData.get('quantidadeNec') as string, 10),
             observacoes: formData.get('observacoes') as string,
+            ativo: (event.currentTarget.elements.namedItem('ativo') as HTMLInputElement).checked,
         };
 
         try {
@@ -104,23 +110,21 @@ export default function ProductsHomePage() {
                 throw new Error(errorData.message || "Falha ao atualizar o produto.");
             }
 
-            // --- 4. ATUALIZAR A LISTA NA TELA ---
-            // A forma mais fiável de atualizar é buscar a lista novamente
-            await fetchProductsData(); 
-            setEditingProductId(null); // Fecha o formulário de edição
+            await fetchProductsData();
+            setEditingProductId(null);
 
         } catch (err) {
             setError(err instanceof Error ? err.message : "Ocorreu um erro ao atualizar.");
         }
     };
-    
-    // --- 1. NOVA FUNÇÃO PARA CRIAR PRODUTO ---
+
     const handleCreateProduct = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        setError(null); // Limpa erros anteriores
+        setError(null);
         const token = localStorage.getItem('token');
         if (!token) {
             setError("Sua sessão expirou. Faça o login novamente.");
+            router.push('/login');
             return;
         }
 
@@ -132,11 +136,12 @@ export default function ProductsHomePage() {
             quantidadeMin: parseInt(formData.get('quantidadeMin') as string, 10),
             quantidadeNec: parseInt(formData.get('quantidadeNec') as string, 10),
             observacoes: formData.get('observacoes') as string,
+            ativo: (event.currentTarget.elements.namedItem('ativo') as HTMLInputElement).checked,
         };
 
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
-                method: 'POST', // Método para criar é POST
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -149,16 +154,14 @@ export default function ProductsHomePage() {
                 throw new Error(errorData.message || "Falha ao criar o produto.");
             }
 
-            // Após criar, buscamos a lista de produtos novamente
-            // para incluir o novo produto que foi adicionado
             await fetchProductsData();
-            setShowCreateForm(false); // Fecha o formulário de criação
+            setShowCreateForm(false);
 
         } catch (err) {
             setError(err instanceof Error ? err.message : "Ocorreu um erro ao criar o produto.");
         }
     };
-    
+
 
     if (isLoading) return <p>Carregando produtos...</p>;
     return (
@@ -166,13 +169,14 @@ export default function ProductsHomePage() {
             <div className="page-header-produtos">
                 <h1 className="page-title-produtos">Produtos</h1>
             </div>
-            {/* Adicionado para exibir mensagens de erro */}
             {error && <p className="error-message">{error}</p>}
 
             <ul className="table-list-produtos">
-                {/* Mapeia e renderiza cada produto existente */}
                 {products.map((product) => (
-                    <li key={product.id} className="table-container-produtos">
+                    <li
+                        key={product.id}
+                        className={`table-container-produtos ${!product.ativo ? 'produto-inativo' : ''}`}
+                    >
                         <div className="section-header-produtos">
                             <h2 className="section-title-produtos">{product.nome} ({product.unidade}) - {product.marca}</h2>
                             <button className="action-details" onClick={() => handleToggleEdit(product.id)}>
@@ -192,9 +196,17 @@ export default function ProductsHomePage() {
                                     <label>Unidade:<input type="text" name="unidade" defaultValue={product.unidade} required /></label>
                                     <label>Marca:<input type="text" name="marca" defaultValue={product.marca ?? ''} /></label>
                                     <label>Min:<input type="number" name="quantidadeMin" defaultValue={product.quantidadeMin} required /></label>
-                                    <label>Nec:<input type="number"  name="quantidadeNec" defaultValue={product.quantidadeNec} required /></label>
+                                    <label>Nec:<input type="number" name="quantidadeNec" defaultValue={product.quantidadeNec} required /></label>
                                     <label>Observações:<textarea name="observacoes" defaultValue={product.observacoes ?? ''}></textarea></label>
-                                    <div className="form-actions"> {/* Adicionado div para consistência de layout */}
+                                    <label className="checkbox-label">
+                                        Ativo:
+                                        <input
+                                            type="checkbox"
+                                            name="ativo"
+                                            defaultChecked={product.ativo}
+                                        />
+                                    </label>
+                                    <div className="form-actions">
                                         <button type="submit" className="btn-primary">
                                             Salvar Alterações
                                         </button>
@@ -211,27 +223,33 @@ export default function ProductsHomePage() {
                 <li key="add-product-card" className="table-container-produtos">
                     <div className="section-header-produtos">
                         <h2 className="section-title-produtos">Adicionar Novo Produto</h2>
-                         <button className="action-details" onClick={() => setShowCreateForm(!showCreateForm)}>
-                             {showCreateForm ? <IconDown className='arrow-icon'/> : <IconLeft className='arrow-icon'/>}
+                        <button className="action-details" onClick={() => setShowCreateForm(!showCreateForm)}>
+                            {showCreateForm ? <IconDown className='arrow-icon' /> : <IconLeft className='arrow-icon' />}
                         </button>
                     </div>
 
-                    {!showCreateForm && !error && ( // Esconde o botão se o formulário estiver aberto OU se houver um erro
+                    {!showCreateForm && !error && (
                         <button className="btn-primary" onClick={() => setShowCreateForm(true)}>
                             Adicionar
                         </button>
                     )}
 
                     {showCreateForm && (
-                        // --- 2. CONECTAR O FORMULÁRIO À NOVA FUNÇÃO ---
                         <form onSubmit={handleCreateProduct}>
-                            {/* --- 3. ADICIONAR OS ATRIBUTOS 'name' --- */}
                             <label>Nome:<input type="text" name="nome" required /></label>
                             <label>Unidade:<input type="text" name="unidade" required /></label>
                             <label>Marca:<input type="text" name="marca" /></label>
                             <label>Min:<input type="number" name="quantidadeMin" defaultValue={0} required /></label>
                             <label>Nec:<input type="number" name="quantidadeNec" defaultValue={0} required /></label>
                             <label>Observações:<textarea name="observacoes"></textarea></label>
+                            <label className="checkbox-label">
+                                Ativo:
+                                <input
+                                    type="checkbox"
+                                    name="ativo"
+                                    defaultChecked={true}
+                                />
+                            </label>
 
                             <div className="form-actions">
                                 <button type="submit" className="btn-primary">Salvar Produto</button>

@@ -27,15 +27,15 @@ type SortConfig = {
 
 export default function InventarioPage() {
     const router = useRouter();
-    const { user } = useAuth(); 
+    const { user } = useAuth();
 
     const [products, setProducts] = useState<Product[]>([]);
     const [editedQuantities, setEditedQuantities] = useState<Record<number, string>>({});
     const [isLoading, setIsLoading] = useState(true);
-    const [isSaving, setIsSaving] = useState(false); 
+    const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState<string | null>(null); 
-    
+    const [success, setSuccess] = useState<string | null>(null);
+
     // --- NOVO: Estado para Ordenação ---
     const [sortConfig, setSortConfig] = useState<SortConfig>(null);
 
@@ -45,9 +45,9 @@ export default function InventarioPage() {
     }
 
     const fetchProducts = async () => {
-        setIsLoading(true); 
-        clearFeedback(); 
-        setEditedQuantities({}); 
+        setIsLoading(true);
+        clearFeedback();
+        setEditedQuantities({});
 
         const token = localStorage.getItem('token');
         if (!token) {
@@ -56,35 +56,43 @@ export default function InventarioPage() {
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/inventory`, {
                 method: 'GET',
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
             });
 
             if (!response.ok) {
-                 let errorMsg = 'Falha ao carregar o inventário.';
+                let errorMsg = 'Falha ao carregar o inventário.';
                 try { const errorData = await response.json(); errorMsg = errorData.message || errorMsg; } catch (e) { /* Ignora */ }
                 throw new Error(errorMsg);
             }
             const data: Product[] = await response.json();
-            setProducts(data); 
-            
+            setProducts(data);
+
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Ocorreu um erro ao carregar o inventário.');
         } finally {
-             setIsLoading(false);
+            setIsLoading(false);
         }
     };
 
     useEffect(() => {
+        if (user) {
+            if (!Array.isArray(user?.funcoes) || !user.funcoes.some(f => f === 'EMPREGADA' || f === 'GESTOR')) {
+                router.push('/inicio');
+                return;
+            }
+
+        }
+
         fetchProducts();
-    }, [router]);
+    }, [user, router]);
 
     const handleQuantityChange = (productId: number, value: string) => {
-        const sanitizedValue = value.replace(/[^0-9.]/g, ''); 
+        const sanitizedValue = value.replace(/[^0-9.]/g, '');
         if ((sanitizedValue.match(/\./g) || []).length > 1) return;
         setEditedQuantities(prev => ({ ...prev, [productId]: sanitizedValue }));
-         clearFeedback(); 
+        clearFeedback();
     };
 
     const handleSaveChanges = async () => {
@@ -92,23 +100,23 @@ export default function InventarioPage() {
         clearFeedback();
         const token = localStorage.getItem('token');
         if (!token) {
-             router.push('/login');
-             setIsSaving(false); 
-             return;
+            router.push('/login');
+            setIsSaving(false);
+            return;
         }
 
         const updates = Object.entries(editedQuantities)
             .map(([productIdStr, quantityStr]) => {
                 const productId = parseInt(productIdStr, 10);
-                const newQuantity = quantityStr === '' || quantityStr === '.' ? NaN : parseFloat(quantityStr); 
+                const newQuantity = quantityStr === '' || quantityStr === '.' ? NaN : parseFloat(quantityStr);
                 const originalProduct = products.find(p => p.id === productId);
 
                 if (!isNaN(newQuantity) && newQuantity >= 0 && originalProduct && newQuantity !== originalProduct.quantidadeEst) {
                     return { productId, newQuantity };
                 }
-                return null; 
+                return null;
             })
-            .filter(update => update !== null) as { productId: number, newQuantity: number }[]; 
+            .filter(update => update !== null) as { productId: number, newQuantity: number }[];
 
         if (updates.length === 0) {
             setSuccess("Nenhuma alteração para salvar.");
@@ -117,23 +125,23 @@ export default function InventarioPage() {
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inventario/update`, { 
-                method: 'PATCH', 
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inventario/update`, {
+                method: 'PATCH',
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ updates }), 
+                body: JSON.stringify({ updates }),
             });
 
-             if (!response.ok) {
-                 let errorMsg = 'Falha ao salvar o inventário.';
+            if (!response.ok) {
+                let errorMsg = 'Falha ao salvar o inventário.';
                 try { const errorData = await response.json(); errorMsg = errorData.message || errorMsg; } catch (e) { /* Ignora */ }
                 throw new Error(errorMsg);
             }
 
             setSuccess("Inventário atualizado com sucesso!");
-            await fetchProducts(); 
+            await fetchProducts();
 
         } catch (err) {
-             setError(err instanceof Error ? err.message : 'Ocorreu um erro ao salvar.');
+            setError(err instanceof Error ? err.message : 'Ocorreu um erro ao salvar.');
         } finally {
             setIsSaving(false);
         }
@@ -141,7 +149,7 @@ export default function InventarioPage() {
 
     // --- Lógica de Ordenação ---
     const sortedProducts = useMemo(() => {
-        let sortableProducts = [...products]; 
+        let sortableProducts = [...products];
         if (sortConfig !== null) {
             sortableProducts.sort((a, b) => {
                 if (!sortConfig.key) return 0;
@@ -158,11 +166,11 @@ export default function InventarioPage() {
                 if (aValue > bValue) {
                     return sortConfig.direction === 'ascending' ? 1 : -1;
                 }
-                return 0; 
+                return 0;
             });
         }
         return sortableProducts;
-    }, [products, sortConfig]); 
+    }, [products, sortConfig]);
 
     // --- Função para Solicitar Ordenação ---
     const requestSort = (key: keyof Product) => {
@@ -173,10 +181,10 @@ export default function InventarioPage() {
         setSortConfig({ key, direction });
     };
 
-     // --- Função para obter a classe CSS do cabeçalho de ordenação ---
-     const getSortDirectionClass = (key: keyof Product) => {
+    // --- Função para obter a classe CSS do cabeçalho de ordenação ---
+    const getSortDirectionClass = (key: keyof Product) => {
         if (!sortConfig || sortConfig.key !== key) {
-            return ''; 
+            return '';
         }
         return sortConfig.direction === 'ascending' ? 'sort-asc' : 'sort-desc';
     };
@@ -184,26 +192,26 @@ export default function InventarioPage() {
 
     return (
         <>
-            <div className="page-header-inventario"> 
+            <div className="page-header-inventario">
                 <h1 className="page-title-inventario">Fazer Inventário</h1>
-                 {Object.keys(editedQuantities).length > 0 && (
-                    <button 
-                        className="btn-primary btn-save-inventory" 
-                        onClick={handleSaveChanges} 
+                {Object.keys(editedQuantities).length > 0 && (
+                    <button
+                        className="btn-primary btn-save-inventory"
+                        onClick={handleSaveChanges}
                         disabled={isSaving}
                     >
                         {isSaving ? 'Salvando...' : 'Salvar Inventário'}
                     </button>
-                 )}
+                )}
             </div>
-            
+
             {error && !isLoading && <p className="inventario-message inventario-error">{error}</p>}
-            {success && <p className="inventario-message inventario-success">{success}</p>} 
-            
+            {success && <p className="inventario-message inventario-success">{success}</p>}
+
             {isLoading && <p>Carregando inventário...</p>}
 
             {!isLoading && products.length === 0 && !error && (
-                 <div className="inventario-container">
+                <div className="inventario-container">
                     <h2 className="inventario-title">Inventário Vazio</h2>
                     <p>Nenhum produto encontrado para inventariar.</p>
                 </div>
@@ -215,8 +223,8 @@ export default function InventarioPage() {
                         <thead>
                             <tr>
                                 <th>
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         onClick={() => requestSort('nome')}
                                         className={`sort-button ${getSortDirectionClass('nome')}`}
                                     >
@@ -224,8 +232,8 @@ export default function InventarioPage() {
                                     </button>
                                 </th>
                                 <th>
-                                     <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         onClick={() => requestSort('marca')}
                                         className={`sort-button ${getSortDirectionClass('marca')}`}
                                     >
@@ -233,8 +241,8 @@ export default function InventarioPage() {
                                     </button>
                                 </th>
                                 <th>
-                                     <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         onClick={() => requestSort('unidade')}
                                         className={`sort-button ${getSortDirectionClass('unidade')}`}
                                     >
@@ -242,37 +250,37 @@ export default function InventarioPage() {
                                     </button>
                                 </th>
                                 <th>
-                                     <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         onClick={() => requestSort('quantidadeMin')}
                                         className={`sort-button ${getSortDirectionClass('quantidadeMin')}`}
                                     >
                                         Estoque Mínimo
                                     </button>
-                                </th> 
-                                <th>Quantidade Contada</th> 
+                                </th>
+                                <th>Quantidade Contada</th>
                             </tr>
                         </thead>
                         <tbody>
                             {sortedProducts.map((product) => {
                                 const currentQuantityValue = editedQuantities[product.id] ?? product.quantidadeEst.toString();
-                                const isEdited = editedQuantities[product.id] !== undefined; 
+                                const isEdited = editedQuantities[product.id] !== undefined;
 
                                 return (
-                                    <tr key={product.id} className={isEdited ? 'edited-row' : ''}> 
+                                    <tr key={product.id} className={isEdited ? 'edited-row' : ''}>
                                         {/* --- MUDANÇA: Adicionado data-label --- */}
                                         <td data-label="Nome">{product.nome}</td>
                                         <td data-label="Marca">{product.marca || '-'}</td>
                                         <td data-label="Unidade">{product.unidade}</td>
                                         <td data-label="Estoque Mínimo">{product.quantidadeMin}</td>
                                         <td data-label="Qtd. Contada">
-                                            <input 
-                                                type="text" 
-                                                inputMode="decimal" 
-                                                value={currentQuantityValue} 
+                                            <input
+                                                type="text"
+                                                inputMode="decimal"
+                                                value={currentQuantityValue}
                                                 onChange={(e) => handleQuantityChange(product.id, e.target.value)}
-                                                className="quantity-input" 
-                                                placeholder={product.quantidadeEst.toString()} 
+                                                className="quantity-input"
+                                                placeholder={product.quantidadeEst.toString()}
                                             />
                                         </td>
                                     </tr>
