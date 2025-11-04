@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 // Usando caminho de alias padrão
-import { useAuth } from '@/app/context/AuthContext'; 
+import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
@@ -23,7 +23,7 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'
 
 export default function RelatoriosPage() {
     const router = useRouter();
-    const { user } = useAuth(); 
+    const { user } = useAuth();
 
     // --- Estados para os dados dos gráficos e KPIs ---
     const [totalStockValue, setTotalStockValue] = useState<number | null>(null);
@@ -31,7 +31,7 @@ export default function RelatoriosPage() {
     const [lowStockCount, setLowStockCount] = useState<number | null>(null);
     const [stockValueData, setStockValueData] = useState<StockValue[]>([]);
     const [purchaseHistoryData, setPurchaseHistoryData] = useState<PurchaseHistory[]>([]);
-    
+
     // Estados de feedback
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -40,13 +40,14 @@ export default function RelatoriosPage() {
 
     // --- Funções para buscar dados dos relatórios ---
     const fetchReportData = async () => {
-        setIsLoading(true); 
-        setError(null); 
+        setIsLoading(true);
+        setError(null);
         const token = localStorage.getItem('token');
         if (!token) {
             router.push('/login');
             return;
         }
+
 
         try {
             // Exemplo: Buscar múltiplos dados de relatórios em paralelo
@@ -60,7 +61,7 @@ export default function RelatoriosPage() {
             if (!overviewRes.ok) throw new Error(`Erro ao buscar visão geral: ${overviewRes.statusText}`);
             if (!stockValueRes.ok) throw new Error(`Erro ao buscar valor de estoque: ${stockValueRes.statusText}`);
             if (!purchaseHistoryRes.ok) throw new Error(`Erro ao buscar histórico de compras: ${purchaseHistoryRes.statusText}`);
-            
+
 
             const overviewData = await overviewRes.json();
             const stockValueChartData: StockValue[] = await stockValueRes.json();
@@ -72,18 +73,35 @@ export default function RelatoriosPage() {
             setLowStockCount(overviewData.lowStockCount);
             setStockValueData(stockValueChartData);
             setPurchaseHistoryData(purchaseHistoryChartData);
-            
+
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Ocorreu um erro ao carregar os relatórios.');
         } finally {
-             setIsLoading(false);
+            setIsLoading(false);
         }
     };
 
-    // Busca inicial
     useEffect(() => {
-        fetchReportData();
-    }, [router]); // Adicionado router como dependência
+        if (user) {
+            if (!user.funcoes.some(f => f === 'GESTOR')) {
+                setError("Acesso negado. Você precisa ser um gestor para ver os relatórios.");
+                setIsLoading(false);
+
+                setTimeout(() => router.push('/inicio'));
+                return;
+            }
+
+            fetchReportData();
+
+        } else {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                router.push('/login');
+            }
+        }
+
+    }, [user, router]);
+
 
     // --- Função para lidar com o download de XLSX ---
     const handleDownloadXLSX = async (reportType: 'inventario' | 'compras') => {
@@ -92,7 +110,7 @@ export default function RelatoriosPage() {
         const token = localStorage.getItem('token');
         if (!token) {
             router.push('/login');
-             setIsDownloading(false); // Para o loading se não houver token
+            setIsDownloading(false); // Para o loading se não houver token
             return;
         }
 
@@ -103,18 +121,18 @@ export default function RelatoriosPage() {
             });
 
             if (!response.ok) {
-                 let errorMsg = `Falha ao gerar o relatório ${reportType}.`;
-                try { 
-                    const errorData = await response.json(); 
-                    errorMsg = errorData.message || errorMsg; 
-                } catch (e) { 
+                let errorMsg = `Falha ao gerar o relatório ${reportType}.`;
+                try {
+                    const errorData = await response.json();
+                    errorMsg = errorData.message || errorMsg;
+                } catch (e) {
                     errorMsg = `${errorMsg} (Status: ${response.status} ${response.statusText})`;
                 }
                 throw new Error(errorMsg);
             }
 
             const blob = await response.blob();
-             if (blob.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+            if (blob.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
                 console.error('Tipo de conteúdo recebido inesperado:', blob.type);
                 throw new Error(`O servidor não retornou um ficheiro XLSX válido para ${reportType}.`);
             }
@@ -123,15 +141,15 @@ export default function RelatoriosPage() {
             const a = document.createElement('a');
             a.style.display = 'none'; // Esconde o link
             a.href = url;
-            a.download = `${reportType}_${new Date().toISOString().split('T')[0]}.xlsx`; 
+            a.download = `${reportType}_${new Date().toISOString().split('T')[0]}.xlsx`;
             document.body.appendChild(a);
             a.click();
-            
-            window.URL.revokeObjectURL(url); 
+
+            window.URL.revokeObjectURL(url);
             a.remove();
 
         } catch (err) {
-             setError(err instanceof Error ? err.message : `Erro ao baixar o relatório ${reportType}.`);
+            setError(err instanceof Error ? err.message : `Erro ao baixar o relatório ${reportType}.`);
         } finally {
             setIsDownloading(false);
         }
@@ -140,16 +158,16 @@ export default function RelatoriosPage() {
 
     return (
         <>
-            <div className="page-header-relatorios"> 
+            <div className="page-header-relatorios">
                 <h1 className="page-title-relatorios">Relatórios de Estoque</h1>
             </div>
-            
+
             {error && !isLoading && <p className="relatorios-message relatorios-error">{error}</p>}
             {isLoading && <p>Carregando relatórios...</p>}
 
             {!isLoading && !error && (
                 <div className="relatorios-container">
-                    
+
                     {/* --- 1. Secção Visão Geral (KPIs) --- */}
                     <section className="report-section">
                         <h2 className="section-title">Visão Geral</h2>
@@ -169,16 +187,38 @@ export default function RelatoriosPage() {
                         </div>
                     </section>
 
+                    {/* --- 3. Secção Downloads --- */}
+                    <section className="report-section">
+                        <h2 className="section-title">Downloads (XLSX)</h2>
+                        <div className="download-buttons">
+                            <button
+                                className="btn-secondary"
+                                onClick={() => handleDownloadXLSX('inventario')}
+                                disabled={isDownloading}
+                            >
+                                {isDownloading ? 'Gerando...' : 'Baixar Inventário Completo'}
+                            </button>
+                            <button
+                                className="btn-secondary"
+                                onClick={() => handleDownloadXLSX('compras')}
+                                disabled={isDownloading}
+                            >
+                                {isDownloading ? 'Gerando...' : 'Baixar Histórico de Compras'}
+                            </button>
+                        </div>
+                    </section>
+
                     {/* --- 2. Secção Gráficos --- */}
                     <section className="report-section">
-                         <h2 className="section-title">Gráficos</h2>
-                         <div className="charts-grid">
-                            
+                        <h2 className="section-title">Gráficos</h2>
+                        <div className="charts-grid">
+
+
                             {/* --- MUDANÇA: Gráfico 1 (Barras para Pizza) --- */}
                             <div className="chart-container">
                                 <h3>Valor do Estoque por Produto (Top 10)</h3>
                                 {stockValueData.length > 0 ? (
-                                    <ResponsiveContainer width="100%" height={300}>
+                                    <ResponsiveContainer width="100%" height={400}>
                                         <PieChart>
                                             <Pie
                                                 data={stockValueData.slice(0, 10)} // Pega os 10 primeiros
@@ -186,7 +226,7 @@ export default function RelatoriosPage() {
                                                 nameKey="name"  // O nome para a legenda/tooltip
                                                 cx="50%" // Centro X
                                                 cy="50%" // Centro Y
-                                                outerRadius={100} // Raio do gráfico
+                                                outerRadius={120} // Raio do gráfico
                                                 fill="#03e20eff" // Cor base (será sobrescrita por Cell)
                                             >
                                                 {/* Mapeia os dados para criar uma fatia colorida para cada item */}
@@ -197,16 +237,17 @@ export default function RelatoriosPage() {
                                             {/* Tooltip que aparece ao passar o rato */}
                                             <Tooltip formatter={(value: number, name: string, props) => [`R$ ${value.toFixed(2)}`, props.payload.name]} />
                                             {/* Legenda (em baixo, para mobile) */}
-                                            <Legend 
-                                                layout="horizontal" 
-                                                verticalAlign="bottom" 
-                                                align="center" 
-                                                wrapperStyle={{ 
-                                                    paddingTop: '10px', 
-                                                    overflow: 'hidden', 
-                                                    textOverflow: 'ellipsis', 
-                                                    whiteSpace: 'nowrap' 
-                                                }} 
+                                            <Legend
+                                                layout="horizontal"
+                                                verticalAlign="bottom"
+                                                align="center"
+                                                wrapperStyle={{
+                                                    paddingTop: '30px',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'wrap',
+                                                    lineHeight: '1.5rem'
+                                                }}
                                                 iconType="circle"
                                             />
                                         </PieChart>
@@ -215,14 +256,14 @@ export default function RelatoriosPage() {
                                     <p className="no-data-message">Sem dados para exibir o gráfico de valor.</p>
                                 )}
                             </div>
-                            {/* --- FIM DA MUDANÇA --- */}
 
 
-                             {/* Gráfico 2: Histórico de Compras */}
+
+                            {/* Gráfico 2: Histórico de Compras */}
                             <div className="chart-container">
                                 <h3>Valor Gasto em Compras (Mensal)</h3>
-                                 {purchaseHistoryData.length > 0 ? (
-                                    <ResponsiveContainer width="100%" height={300}>
+                                {purchaseHistoryData.length > 0 ? (
+                                    <ResponsiveContainer width="100%" height={400}>
                                         <BarChart data={purchaseHistoryData} margin={{ top: 5, right: 0, left: 0, bottom: 5 }}>
                                             <CartesianGrid strokeDasharray="3 3" />
                                             <XAxis dataKey="month" />
@@ -232,33 +273,12 @@ export default function RelatoriosPage() {
                                             <Bar dataKey="totalSpent" name="Gasto Total (R$)" fill="#00ccffff" />
                                         </BarChart>
                                     </ResponsiveContainer>
-                                 ) : (
+                                ) : (
                                     <p className="no-data-message">Sem dados para exibir o histórico de compras.</p>
-                                 )}
+                                )}
                             </div>
 
-                         </div>
-                    </section>
-
-                    {/* --- 3. Secção Downloads --- */}
-                     <section className="report-section">
-                         <h2 className="section-title">Downloads (XLSX)</h2>
-                         <div className="download-buttons">
-                             <button 
-                                className="btn-secondary" 
-                                onClick={() => handleDownloadXLSX('inventario')}
-                                disabled={isDownloading}
-                             >
-                                 {isDownloading ? 'Gerando...' : 'Baixar Inventário Completo'}
-                             </button>
-                              <button 
-                                className="btn-secondary" 
-                                onClick={() => handleDownloadXLSX('compras')}
-                                disabled={isDownloading}
-                              >
-                                  {isDownloading ? 'Gerando...' : 'Baixar Histórico de Compras'}
-                             </button>
-                         </div>
+                        </div>
                     </section>
 
                 </div>

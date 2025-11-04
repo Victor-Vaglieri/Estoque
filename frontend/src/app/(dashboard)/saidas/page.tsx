@@ -59,6 +59,13 @@ export default function SaidasEstoquePage() {
             return;
         }
 
+        if (user){
+            if (!user.funcoes.some(f => f === 'FUNCIONARIO' || f === 'GESTOR')) {
+            router.push('/inicio');
+            return;
+        }
+        }
+
         const loadData = async () => {
             setIsLoading(true);
             setError(null);
@@ -93,7 +100,7 @@ export default function SaidasEstoquePage() {
         };
 
         loadData();
-    }, [router]); // Adicionado router como dependência
+    }, [user,router]); // Adicionado router como dependência
 
     const getProductById = (id: number) => produtos.find(p => p.id === id); // ATUALIZADO
 

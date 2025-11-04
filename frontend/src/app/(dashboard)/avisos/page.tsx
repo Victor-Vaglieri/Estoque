@@ -16,6 +16,13 @@ enum Importancia {
     ALTA = 'ALTA',
 }
 
+interface User {
+    id: number;
+    nome: string;
+    login: string;
+    role: string; // O backend já formata isto como string
+}
+
 // Interface para um Alerta (vindo do backend)
 interface Alerta {
     id: number;
@@ -52,6 +59,7 @@ export default function AvisosPage() {
     const { user } = useAuth();
 
     const [alertas, setAlertas] = useState<Alerta[]>([]);
+    const [usuariosList, setUsuariosList] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
@@ -91,9 +99,41 @@ export default function AvisosPage() {
         }
     };
 
+    const fetchUsuarios = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) { return; }
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/usuarios`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            });
+
+            if (!response.ok) {
+                // Não bloqueia a página, apenas loga o erro
+                console.error('Falha ao carregar lista de usuários.');
+                return;
+            }
+
+            const data: User[] = await response.json();
+            setUsuariosList(data);
+        } catch (err) {
+            console.error(err);
+            // Informa o erro, mas não para a funcionalidade principal
+            setError(prev => (prev ? (prev + " | Falha ao carregar usuários.") : "Falha ao carregar lista de usuários."));
+        }
+    };
+
     useEffect(() => {
+        if (user) {
+            if (!user.funcoes.some(f => f === 'GESTOR')) {
+                router.push('/inicio');
+                return;
+            }
+        }
         fetchAlertas();
-    }, [router]); // Dependência ajustada
+        fetchUsuarios();
+    }, [user, router]); // Dependência ajustada
 
     // --- FUNÇÕES CRUD COMPLETAS ---
 
@@ -315,8 +355,15 @@ export default function AvisosPage() {
                                 </select>
                             </label>
                             <label>
-                                Destinado Para (ID Usuário, opcional):
-                                <input name="destinadoPara" type="number" value={formData.destinadoPara} onChange={handleFormChange} min="1" step="1" />
+                                Destinado Para (Opcional):
+                                <select name="destinadoPara" value={formData.destinadoPara} onChange={handleFormChange}>
+                                    <option value="">-- Público (Para Todos) --</option>
+                                    {usuariosList.map((usuario) => (
+                                        <option key={usuario.id} value={usuario.id}>
+                                            {usuario.nome}
+                                        </option>
+                                    ))}
+                                </select>
                             </label>
                         </div>
                         <div className="form-actions">

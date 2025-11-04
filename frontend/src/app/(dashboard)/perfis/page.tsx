@@ -22,7 +22,7 @@ interface CadastroRequest {
     id: number;
     nome: string;
     login: string;
-    responsavelId: number | null; 
+    responsavelId: number | null;
     createdAt: string;
     responsavelNome?: string | null; // O nome do aprovador
 }
@@ -37,21 +37,21 @@ interface User {
 
 export default function PerfisPage() {
     const router = useRouter();
-    const { user } = useAuth(); 
+    const { user } = useAuth();
     const currentUserId = user?.sub;
 
     const [solicitacoes, setSolicitacoes] = useState<CadastroRequest[]>([]);
     const [usuarios, setUsuarios] = useState<User[]>([]);
     const [solicitacoesConfirmadas, setSolicitacoesConfirmadas] = useState<CadastroRequest[]>([]);
-    
+
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
-    const [isSubmitting, setIsSubmitting] = useState<number | null>(null); 
+    const [isSubmitting, setIsSubmitting] = useState<number | null>(null);
 
     const [showApproveModal, setShowApproveModal] = useState(false);
     const [solicitacaoParaAprovar, setSolicitacaoParaAprovar] = useState<CadastroRequest | null>(null);
-    const [selectedFuncoes, setSelectedFuncoes] = useState<Funcao[]>([Funcao.FUNCIONARIO]); 
+    const [selectedFuncoes, setSelectedFuncoes] = useState<Funcao[]>([Funcao.FUNCIONARIO]);
 
     const [showEditModal, setShowEditModal] = useState(false);
     const [usuarioParaEditar, setUsuarioParaEditar] = useState<User | null>(null);
@@ -62,13 +62,14 @@ export default function PerfisPage() {
 
     // 1. Função para buscar TODAS as listas
     const fetchData = async () => {
-        setIsLoading(true); 
-        clearFeedback(); 
+        setIsLoading(true);
+        clearFeedback();
         const token = localStorage.getItem('token');
         if (!token) {
             router.push('/login');
             return;
         }
+
 
         try {
             const results = await Promise.allSettled([
@@ -76,11 +77,11 @@ export default function PerfisPage() {
                     method: 'GET',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 }),
-                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/usuarios`, {
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/usuarios`, {
                     method: 'GET',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 }),
-                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/confirmados`, {
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/confirmados`, {
                     method: 'GET',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 })
@@ -98,18 +99,18 @@ export default function PerfisPage() {
 
             // Processa Utilizadores Atuais (índice 1)
             if (results[1].status === 'fulfilled' && results[1].value.ok) {
-                 const usuariosData: User[] = await results[1].value.json();
-                 setUsuarios(usuariosData);
+                const usuariosData: User[] = await results[1].value.json();
+                setUsuarios(usuariosData);
             } else {
                 console.error("Falha ao carregar usuários:", results[1].status === 'rejected' ? results[1].reason : 'Resposta não OK');
                 setError(prev => (prev ? `${prev} | Falha ao carregar usuários.` : 'Falha ao carregar usuários.'));
                 setUsuarios([]);
             }
-            
+
             // Processa Solicitações Confirmadas (índice 2)
             if (results[2].status === 'fulfilled' && results[2].value.ok) {
-                 const confirmadasData: CadastroRequest[] = await results[2].value.json();
-                 setSolicitacoesConfirmadas(confirmadasData);
+                const confirmadasData: CadastroRequest[] = await results[2].value.json();
+                setSolicitacoesConfirmadas(confirmadasData);
             } else {
                 console.error("Falha ao carregar confirmados:", results[2].status === 'rejected' ? results[2].reason : 'Resposta não OK');
                 setError(prev => (prev ? `${prev} | Falha ao carregar confirmados.` : 'Falha ao carregar confirmados.'));
@@ -119,19 +120,28 @@ export default function PerfisPage() {
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Ocorreu um erro ao carregar os dados.');
         } finally {
-             setIsLoading(false);
+            setIsLoading(false);
         }
     };
 
     useEffect(() => {
-         fetchData();
-    }, [router, user]); 
+
+        if (user) {
+            if (!user.funcoes.some(f => f === 'GESTOR')) {
+                router.push('/inicio');
+                return;
+            }
+
+        }
+
+        fetchData();
+    }, [router, user]);
 
     // --- FUNÇÕES DE APROVAÇÃO E REJEIÇÃO (Solicitações) ---
     const handleAprovarClick = (solicitacao: CadastroRequest) => {
-        setSolicitacaoParaAprovar(solicitacao); 
-        setSelectedFuncoes([Funcao.FUNCIONARIO]); 
-        setShowApproveModal(true); 
+        setSolicitacaoParaAprovar(solicitacao);
+        setSelectedFuncoes([Funcao.FUNCIONARIO]);
+        setShowApproveModal(true);
         clearFeedback();
     };
 
@@ -141,54 +151,54 @@ export default function PerfisPage() {
             setError("Selecione pelo menos uma função para o novo usuário.");
             return;
         }
-        setIsSubmitting(solicitacaoParaAprovar.id); 
+        setIsSubmitting(solicitacaoParaAprovar.id);
         clearFeedback();
         const token = localStorage.getItem('token');
         if (!token) { router.push('/login'); return; }
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/aprovar/${solicitacaoParaAprovar.id}`, { 
-                method: 'POST', 
-                headers: { 
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/aprovar/${solicitacaoParaAprovar.id}`, {
+                method: 'POST',
+                headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json' 
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ funcoes: selectedFuncoes }) 
+                body: JSON.stringify({ funcoes: selectedFuncoes })
             });
-             if (!response.ok) {
-                 const errData = await response.json();
+            if (!response.ok) {
+                const errData = await response.json();
                 throw new Error(errData.message || 'Falha ao aprovar usuário.');
             }
             setSuccess('Utilizador aprovado e criado com sucesso!');
-            setShowApproveModal(false); 
-            await fetchData(); 
+            setShowApproveModal(false);
+            await fetchData();
         } catch (err) {
-             setError(err instanceof Error ? err.message : 'Ocorreu um erro ao aprovar.');
+            setError(err instanceof Error ? err.message : 'Ocorreu um erro ao aprovar.');
         } finally {
-            setIsSubmitting(null); 
+            setIsSubmitting(null);
         }
     };
-    
+
     const handleRejeitar = async (cadastroId: number) => {
-         if (!window.confirm('Tem certeza que deseja rejeitar esta solicitação? Ela será removida permanentemente.')) return;
-        setIsSubmitting(cadastroId); 
+        if (!window.confirm('Tem certeza que deseja rejeitar esta solicitação? Ela será removida permanentemente.')) return;
+        setIsSubmitting(cadastroId);
         clearFeedback();
         const token = localStorage.getItem('token');
         if (!token) { router.push('/login'); return; }
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/rejeitar/${cadastroId}`, { 
-                method: 'DELETE', 
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/rejeitar/${cadastroId}`, {
+                method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` },
             });
-             if (!response.ok) {
-                 const errData = await response.json();
+            if (!response.ok) {
+                const errData = await response.json();
                 throw new Error(errData.message || 'Falha ao rejeitar usuário.');
             }
             setSuccess('Solicitação rejeitada com sucesso.');
-            await fetchData(); 
+            await fetchData();
         } catch (err) {
-             setError(err instanceof Error ? err.message : 'Ocorreu um erro ao rejeitar.');
+            setError(err instanceof Error ? err.message : 'Ocorreu um erro ao rejeitar.');
         } finally {
-            setIsSubmitting(null); 
+            setIsSubmitting(null);
         }
     };
 
@@ -228,33 +238,33 @@ export default function PerfisPage() {
     const handleConfirmEdit = async () => {
         if (!usuarioParaEditar) return;
         if (selectedEditFuncoes.length === 0) {
-            setError("O usuário deve ter pelo menos uma função."); 
+            setError("O usuário deve ter pelo menos uma função.");
             return;
         }
-        setIsSubmitting(usuarioParaEditar.id); 
+        setIsSubmitting(usuarioParaEditar.id);
         clearFeedback();
         const token = localStorage.getItem('token');
         if (!token) { router.push('/login'); return; }
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/usuario/${usuarioParaEditar.id}`, { 
-                method: 'PATCH', 
-                headers: { 
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/usuario/${usuarioParaEditar.id}`, {
+                method: 'PATCH',
+                headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json' 
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ funcoes: selectedEditFuncoes }) 
+                body: JSON.stringify({ funcoes: selectedEditFuncoes })
             });
-             if (!response.ok) {
-                 const errData = await response.json();
+            if (!response.ok) {
+                const errData = await response.json();
                 throw new Error(errData.message || 'Falha ao atualizar usuário.');
             }
             setSuccess('Usuário atualizado com sucesso!');
-            setShowEditModal(false); 
-            await fetchData(); 
+            setShowEditModal(false);
+            await fetchData();
         } catch (err) {
-             setError(err instanceof Error ? err.message : 'Ocorreu um erro ao atualizar.');
+            setError(err instanceof Error ? err.message : 'Ocorreu um erro ao atualizar.');
         } finally {
-            setIsSubmitting(null); 
+            setIsSubmitting(null);
         }
     };
 
@@ -263,42 +273,42 @@ export default function PerfisPage() {
             setError("Você não pode remover a si mesmo.");
             return;
         }
-        setIsSubmitting(userId); 
+        setIsSubmitting(userId);
         clearFeedback();
         const token = localStorage.getItem('token');
         if (!token) { router.push('/login'); return; }
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/usuario/${userId}`, { 
-                method: 'DELETE', 
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/usuario/${userId}`, {
+                method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` },
             });
-             if (!response.ok) {
-                 const errData = await response.json();
+            if (!response.ok) {
+                const errData = await response.json();
                 throw new Error(errData.message || 'Falha ao remover usuário.');
             }
             setSuccess('Usuário removido com sucesso.');
-            await fetchData(); 
+            await fetchData();
         } catch (err) {
-             setError(err instanceof Error ? err.message : 'Ocorreu um erro ao remover.');
+            setError(err instanceof Error ? err.message : 'Ocorreu um erro ao remover.');
         } finally {
-            setIsSubmitting(null); 
+            setIsSubmitting(null);
         }
     };
 
 
     return (
         <>
-            <div className="page-header-perfis"> 
+            <div className="page-header-perfis">
                 <h1 className="page-title-perfis">Gestão de Perfis e Cadastros</h1>
             </div>
-            
+
             {error && <p className="perfis-message perfis-error">{error}</p>}
             {success && <p className="perfis-message perfis-success">{success}</p>}
             {isLoading && <p>Carregando dados...</p>}
 
-            {!isLoading && ( 
+            {!isLoading && (
                 <div className="perfis-container">
-                    
+
                     {/* --- Secção 1: Solicitações Pendentes --- */}
                     <section className="perfis-section">
                         <h2 className="section-title">Solicitações de Cadastro Pendentes</h2>
@@ -330,15 +340,15 @@ export default function PerfisPage() {
                                                 <td data-label="Data Solicitação">{new Date(req.createdAt).toLocaleDateString()}</td>
                                                 <td data-label="Ações">
                                                     <div className="perfis-actions">
-                                                        <button 
-                                                            className="btn-action btn-rejeitar" 
+                                                        <button
+                                                            className="btn-action btn-rejeitar"
                                                             onClick={() => handleRejeitar(req.id)}
                                                             disabled={isSubmitting === req.id}
                                                         >
-                                                             {isSubmitting === req.id ? '...' : 'Rejeitar'}
+                                                            {isSubmitting === req.id ? '...' : 'Rejeitar'}
                                                         </button>
-                                                        <button 
-                                                            className="btn-action btn-aprovar" 
+                                                        <button
+                                                            className="btn-action btn-aprovar"
                                                             onClick={() => handleAprovarClick(req)}
                                                             disabled={isSubmitting === req.id}
                                                         >
@@ -355,16 +365,16 @@ export default function PerfisPage() {
                     </section>
 
                     {/* --- Secção 2: Utilizadores Atuais --- */}
-                     <section className="perfis-section">
+                    <section className="perfis-section">
                         <h2 className="section-title">Utilizadores Atuais</h2>
-                         {error && !isLoading && !usuarios.length && <p className="no-data-message">Não foi possível carregar os usuários.</p>}
-                         {!error && !isLoading && usuarios.length === 0 && (
+                        {error && !isLoading && !usuarios.length && <p className="no-data-message">Não foi possível carregar os usuários.</p>}
+                        {!error && !isLoading && usuarios.length === 0 && (
                             <p className="no-data-message">Nenhum utilizador encontrado.</p>
                         )}
                         {usuarios.length > 0 && (
                             <div className="perfis-table-container">
                                 <table className="perfis-table">
-                                     <thead>
+                                    <thead>
                                         <tr>
                                             <th>ID Utilizador</th>
                                             <th>Nome</th>
@@ -380,14 +390,14 @@ export default function PerfisPage() {
                                                 <td data-label="ID Utilizador">{u.id}</td>
                                                 <td data-label="Nome">{u.nome}</td>
                                                 <td data-label="Login">{u.login}</td>
-                                                
+
                                                 {/* --- MUDANÇA: Lógica para Múltiplas Roles --- */}
                                                 <td data-label="Permissão (Role)">
                                                     <div className="role-badge-container">
                                                         {u.role && u.role !== 'N/D' ? (
                                                             u.role.split(', ').map((role) => (
-                                                                <span 
-                                                                    key={role} 
+                                                                <span
+                                                                    key={role}
                                                                     className={`role-badge role-${role.toLowerCase()}`}
                                                                 >
                                                                     {role}
@@ -401,7 +411,7 @@ export default function PerfisPage() {
 
                                                 <td data-label="Ações">
                                                     <div className="perfis-actions">
-                                                        <button 
+                                                        <button
                                                             className="btn-action btn-rejeitar"
                                                             onClick={() => handleDeleteUser(u.id)}
                                                             disabled={isSubmitting !== null || u.id === currentUserId}
@@ -409,9 +419,9 @@ export default function PerfisPage() {
                                                         >
                                                             Remover
                                                         </button>
-                                                        <button 
+                                                        <button
                                                             className="btn-action btn-editar"
-                                                            onClick={() => handleEditUserClick(u)} 
+                                                            onClick={() => handleEditUserClick(u)}
                                                             disabled={isSubmitting !== null || u.id === currentUserId}
                                                             title={u.id === currentUserId ? "Não pode editar a si mesmo" : "Editar Funções"}
                                                         >
@@ -428,7 +438,7 @@ export default function PerfisPage() {
                     </section>
 
                     {/* --- Secção 3: Solicitações Confirmadas --- */}
-                     <section className="perfis-section">
+                    <section className="perfis-section">
                         <h2 className="section-title">Histórico de Solicitações (Confirmadas)</h2>
                         {error && !isLoading && !solicitacoesConfirmadas.length && <p className="no-data-message">Não foi possível carregar o histórico.</p>}
                         {!error && !isLoading && solicitacoesConfirmadas.length === 0 ? (
@@ -436,12 +446,12 @@ export default function PerfisPage() {
                         ) : (
                             <div className="perfis-table-container">
                                 <table className="perfis-table">
-                                     <thead>
+                                    <thead>
                                         <tr>
                                             <th>ID Solicitação</th>
                                             <th>Nome</th>
                                             <th>Login (Criado)</th>
-                                            <th>Aprovado por (Nome)</th> 
+                                            <th>Aprovado por (Nome)</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -470,11 +480,11 @@ export default function PerfisPage() {
                     <div className="perfis-modal-content">
                         <h3 className="modal-title">Aprovar Novo Utilizador</h3>
                         <p>Selecione as funções para <strong>{solicitacaoParaAprovar.nome}</strong> (Login: {solicitacaoParaAprovar.login}):</p>
-                        
+
                         <div className="funcoes-checkbox-group">
                             {Object.values(Funcao).map((funcao) => (
                                 <label key={funcao} className="funcao-checkbox">
-                                    <input 
+                                    <input
                                         type="checkbox"
                                         value={funcao}
                                         checked={selectedFuncoes.includes(funcao)}
@@ -488,16 +498,16 @@ export default function PerfisPage() {
                         {error && <p className="perfis-message perfis-error modal-error">{error}</p>}
 
                         <div className="modal-actions">
-                            <button 
-                                className="btn-secondary" 
-                                onClick={() => setShowApproveModal(false)} 
+                            <button
+                                className="btn-secondary"
+                                onClick={() => setShowApproveModal(false)}
                                 disabled={isSubmitting === solicitacaoParaAprovar.id}
                             >
                                 Cancelar
                             </button>
-                             <button 
-                                className="btn-primary" 
-                                onClick={handleConfirmAprovacao} 
+                            <button
+                                className="btn-primary"
+                                onClick={handleConfirmAprovacao}
                                 disabled={isSubmitting === solicitacaoParaAprovar.id || selectedFuncoes.length === 0}
                             >
                                 {isSubmitting === solicitacaoParaAprovar.id ? 'Aprovando...' : 'Confirmar Aprovação'}
@@ -507,17 +517,17 @@ export default function PerfisPage() {
                 </div>
             )}
 
-             {/* --- NOVO: Modal de Edição de Funções --- */}
+            {/* --- NOVO: Modal de Edição de Funções --- */}
             {showEditModal && usuarioParaEditar && (
                 <div className="perfis-modal-overlay">
                     <div className="perfis-modal-content">
                         <h3 className="modal-title">Editar Funções</h3>
                         <p>Editando funções para <strong>{usuarioParaEditar.nome}</strong> (Login: {usuarioParaEditar.login}):</p>
-                        
+
                         <div className="funcoes-checkbox-group">
                             {Object.values(Funcao).map((funcao) => (
                                 <label key={funcao} className="funcao-checkbox">
-                                    <input 
+                                    <input
                                         type="checkbox"
                                         value={funcao}
                                         checked={selectedEditFuncoes.includes(funcao)}
@@ -531,16 +541,16 @@ export default function PerfisPage() {
                         {error && <p className="perfis-message perfis-error modal-error">{error}</p>}
 
                         <div className="modal-actions">
-                            <button 
-                                className="btn-secondary" 
-                                onClick={() => setShowEditModal(false)} 
+                            <button
+                                className="btn-secondary"
+                                onClick={() => setShowEditModal(false)}
                                 disabled={isSubmitting === usuarioParaEditar.id}
                             >
                                 Cancelar
                             </button>
-                             <button 
-                                className="btn-primary" 
-                                onClick={handleConfirmEdit} 
+                            <button
+                                className="btn-primary"
+                                onClick={handleConfirmEdit}
                                 disabled={isSubmitting === usuarioParaEditar.id || selectedEditFuncoes.length === 0}
                             >
                                 {isSubmitting === usuarioParaEditar.id ? 'Salvando...' : 'Salvar Alterações'}

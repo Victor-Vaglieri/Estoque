@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import './compras.css';
 
 // Interface do Produto (baseada na resposta do backend)
-interface ProductToBuy { 
+interface ProductToBuy {
     nome: string;
     id: number;
     unidade: string;
@@ -17,12 +17,12 @@ interface ProductToBuy {
     quantidadeMin: number;
     quantidadeEst: number;
     quantidadeNec: number;
-    quantidadePendenteFaltante: number; 
+    quantidadePendenteFaltante: number;
 }
 
 export default function ComprasPage() {
     const router = useRouter();
-    const { user } = useAuth(); 
+    const { user } = useAuth();
 
     const [productsToBuy, setProductsToBuy] = useState<ProductToBuy[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -43,14 +43,17 @@ export default function ComprasPage() {
             router.push('/login');
             return;
         }
+
+
+
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/to_buy_products`, {
                 method: 'GET',
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
             });
             if (!response.ok) throw new Error('Falha ao carregar a lista de compras.');
-            const data: ProductToBuy[] = await response.json(); 
-            setProductsToBuy(data); 
+            const data: ProductToBuy[] = await response.json();
+            setProductsToBuy(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Ocorreu um erro.');
         } finally {
@@ -59,16 +62,22 @@ export default function ComprasPage() {
     };
 
     useEffect(() => {
+        if (user) {
+            if (!user.funcoes.some(f => f === 'COMPRAS' || f === 'GESTOR')) {
+                router.push('/inicio');
+                return;
+            }
+        }
         fetchProductsToBuy();
-    }, [router]);
+    }, [user, router]);
 
-    const handleRegisterPurchase = async (event: React.FormEvent<HTMLFormElement>, productId: number, productName: string) => { 
+    const handleRegisterPurchase = async (event: React.FormEvent<HTMLFormElement>, productId: number, productName: string) => {
         event.preventDefault();
         // --- CORREÇÃO AQUI: Captura o form ANTES das chamadas async ---
-        const formElement = event.currentTarget; 
-        
+        const formElement = event.currentTarget;
+
         clearFeedback();
-        setIsSubmittingMap(prev => ({ ...prev, [productId]: true })); 
+        setIsSubmittingMap(prev => ({ ...prev, [productId]: true }));
 
         const token = localStorage.getItem('token');
         if (!token) {
@@ -80,17 +89,17 @@ export default function ComprasPage() {
         const formData = new FormData(formElement); // Usa a referência guardada
         const purchaseData = {
             productId: productId,
-            quantidade: parseFloat(formData.get('quantidade') as string), 
+            quantidade: parseFloat(formData.get('quantidade') as string),
             preco: parseFloat(formData.get('preco') as string),
         };
 
         if (!purchaseData.quantidade || purchaseData.quantidade <= 0) {
-            setError(`[${productName}] Quantidade inválida.`); 
+            setError(`[${productName}] Quantidade inválida.`);
             setIsSubmittingMap(prev => ({ ...prev, [productId]: false }));
             return;
         }
         if (purchaseData.preco === null || purchaseData.preco < 0) {
-            setError(`[${productName}] Preço inválido.`); 
+            setError(`[${productName}] Preço inválido.`);
             setIsSubmittingMap(prev => ({ ...prev, [productId]: false }));
             return;
         }
@@ -103,30 +112,30 @@ export default function ComprasPage() {
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || `[${productName}] Falha ao registrar.`); 
+                throw new Error(errorData.message || `[${productName}] Falha ao registrar.`);
             }
-            
-            setSuccess(`[${productName}] Compra registrada!`); 
-            
+
+            setSuccess(`[${productName}] Compra registrada!`);
+
             // --- CORREÇÃO AQUI: Reseta o form ANTES de recarregar os dados ---
             // (Isto garante que o form ainda existe quando .reset() é chamado)
-            formElement.reset(); 
-            
+            formElement.reset();
+
             await fetchProductsToBuy(); // Recarrega a lista (o card vai desaparecer)
 
         } catch (err) {
-            setError(err instanceof Error ? err.message : `[${productName}] Ocorreu um erro.`); 
+            setError(err instanceof Error ? err.message : `[${productName}] Ocorreu um erro.`);
         } finally {
-            setIsSubmittingMap(prev => ({ ...prev, [productId]: false })); 
+            setIsSubmittingMap(prev => ({ ...prev, [productId]: false }));
         }
     };
 
     return (
         <>
-            <div className="page-header-produtos"> 
+            <div className="page-header-produtos">
                 <h1 className="page-title-produtos">Lista de Compras</h1>
             </div>
-            
+
             {error && <p className="compras-message compras-error">{error}</p>}
             {success && <p className="compras-message compras-success">{success}</p>}
 
@@ -143,7 +152,7 @@ export default function ComprasPage() {
                 {productsToBuy.map((product) => {
                     const isSubmitting = isSubmittingMap[product.id] || false;
                     const neededQuantity = Math.max(0, product.quantidadeNec - product.quantidadeEst - product.quantidadePendenteFaltante);
-                    
+
                     return (
                         <div key={product.id} className="compras-container">
                             <h2 className="compras-title">{product.nome}</h2>
@@ -151,8 +160,8 @@ export default function ComprasPage() {
                                 <p><strong>Marca:</strong> {product.marca || 'N/A'}</p>
                                 <p><strong>Estoque Atual:</strong> {product.quantidadeEst} {product.unidade}</p>
                                 <p><strong>Estoque Necessário:</strong> {product.quantidadeNec} {product.unidade}</p>
-                                
-                                <div className="compras-pending-info"> 
+
+                                <div className="compras-pending-info">
                                     {product.quantidadePendenteFaltante > 0 && (
                                         <p style={{ color: '#eea811', fontWeight: 'bold' }}>
                                             (Já comprado/Pendente: {product.quantidadePendenteFaltante} {product.unidade})
@@ -162,13 +171,13 @@ export default function ComprasPage() {
 
                                 <p className="compras-needed">
                                     <strong>
-                                        Precisa Comprar:{' '} 
+                                        Precisa Comprar:{' '}
                                         {neededQuantity}{' '}
-                                         {product.unidade}
+                                        {product.unidade}
                                     </strong>
                                 </p>
                             </div>
-                            
+
                             <div className="compras-action-area">
                                 {neededQuantity > 0 && (
                                     <form onSubmit={(e) => handleRegisterPurchase(e, product.id, product.nome)} className="compras-form">
@@ -177,10 +186,10 @@ export default function ComprasPage() {
                                             <input
                                                 name="quantidade"
                                                 type="number"
-                                                step="any" 
-                                                placeholder={`Ex: ${neededQuantity}`} 
+                                                step="any"
+                                                placeholder={`Ex: ${neededQuantity}`}
                                                 required
-                                                min="0.01" 
+                                                min="0.01"
                                             />
                                         </label>
                                         <label>
@@ -188,10 +197,10 @@ export default function ComprasPage() {
                                             <input
                                                 name="preco"
                                                 type="number"
-                                                step="0.01" 
+                                                step="0.01"
                                                 placeholder="Ex: 15.50"
                                                 required
-                                                min="0.01" 
+                                                min="0.01"
                                             />
                                         </label>
                                         <div className="form-actions">
@@ -202,11 +211,11 @@ export default function ComprasPage() {
                                     </form>
                                 )}
                                 {neededQuantity <= 0 && product.quantidadePendenteFaltante > 0 && (
-                                    <p className="compras-waiting-message"> 
+                                    <p className="compras-waiting-message">
                                         Aguardando confirmação das compras pendentes.
                                     </p>
                                 )}
-                            </div> 
+                            </div>
                         </div>
                     );
                 })}

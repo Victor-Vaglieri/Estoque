@@ -373,8 +373,8 @@
 }
 .btn-primary { background-color: var(--primary); color: var(--text-on-primary-button); }
 .btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); }
-.btn-secondary { background-color: var(--background-surface); color: var(--text-tertiary); border: 1px solid var(--border-color); }
-.btn-secondary:hover:not(:disabled) { background-color: var(--background-page); }
+.btn-secondary { background-color: var(--error-color); color: var(--text-on-primary-button); border: 1px solid var(--border-color); }
+.btn-secondary:hover:not(:disabled) { background-color: #8d1d1d; }
 .btn-primary:disabled, .btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; }
 
 
