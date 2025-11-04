@@ -1,7 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Prisma } from '@prisma/estoque-client';
-import { EstoqueDbService } from '../prisma/estoque-db.service'; // Ajuste o caminho
-// Importe a biblioteca XLSX (precisa instalar: npm install xlsx)
+import { EstoqueDbService } from '../prisma/estoque-db.service'; 
 import * as XLSX from 'xlsx'; 
 
 // --- CORREÇÃO: Adicionar 'export' ---
@@ -23,6 +22,7 @@ export class ReportsService {
 
     async getOverview(userId: number) {
         const products = await this.estoqueDb.produto.findMany({
+            where: {ativo: true},
             include: {
                 historicoPreco: {
                      orderBy: { data: 'desc' },
@@ -78,33 +78,21 @@ export class ReportsService {
         return stockValues; // O frontend pegará o top 10
     }
 
-     /**
-     * Prepara os dados para o gráfico de Histórico de Compras.
-     * Exemplo: Agrupando por mês.
-     */
+
     async getPurchaseHistoryData(userId: number): Promise<PurchaseHistory[]> {
-        // Esta consulta pode precisar de ajustes dependendo do seu banco de dados
-        // Prisma pode ter limitações com agregações complexas por data formatada.
-        // Uma alternativa é buscar todos e agrupar no código ou usar Raw Query.
-        
-        // Exemplo Simplificado (buscar tudo e agrupar no código):
         const allPurchases = await this.estoqueDb.historicoCompra.findMany({
             orderBy: { data: 'asc' },
             select: { data: true, precoTotal: true }
         });
 
-        const monthlyTotals: Record<string, number> = {}; // Ex: { "2025-09": 150.50, "2025-10": 200.00 }
-
+        const monthlyTotals: Record<string, number> = {}; 
         allPurchases.forEach(purchase => {
-            // Formata a data como "YYYY-MM"
             const monthKey = purchase.data.toISOString().substring(0, 7); 
             if (!monthlyTotals[monthKey]) {
                 monthlyTotals[monthKey] = 0;
             }
             monthlyTotals[monthKey] += purchase.precoTotal;
         });
-
-        // Converte para o formato que o frontend espera
         const purchaseHistory: PurchaseHistory[] = Object.entries(monthlyTotals).map(([month, total]) => ({
             month: month,
             totalSpent: total,
@@ -114,12 +102,8 @@ export class ReportsService {
     }
 
 
-    /**
-     * Gera um buffer de ficheiro XLSX para o Inventário Completo.
-     */
     async generateInventoryXlsx(userId: number): Promise<Buffer> {
          const products = await this.estoqueDb.produto.findMany({
-            // Seleciona os campos desejados para o relatório
             select: {
                 id: true,
                 nome: true,
@@ -129,12 +113,10 @@ export class ReportsService {
                 quantidadeMin: true,
                 quantidadeNec: true,
                 observacoes: true,
-                // Poderia incluir último preço/preço médio aqui se necessário
             },
              orderBy: { nome: 'asc'} // Ordena por nome
         });
 
-        // Mapeia para um formato simples antes de criar a planilha
         const dataForSheet = products.map(p => ({
             'ID': p.id,
             'Nome': p.nome,
@@ -151,7 +133,6 @@ export class ReportsService {
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, 'Inventário');
 
-            // Gera o buffer do ficheiro XLSX
             const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
             return buffer;
         } catch (error) {
@@ -160,30 +141,25 @@ export class ReportsService {
         }
     }
 
-    /**
-     * Gera um buffer de ficheiro XLSX para o Histórico de Compras.
-     */
     async generateComprasXlsx(userId: number): Promise<Buffer> {
         const compras = await this.estoqueDb.historicoCompra.findMany({
-            where: { responsavelId: userId }, // Assumindo responsavelId
+            where: { responsavelId: userId },
             include: {
-                produto: { select: { nome: true, unidade: true } }, // Inclui nome do produto
+                produto: { select: { nome: true, unidade: true } },
             },
-            orderBy: { data: 'desc' } // Ordena pelas mais recentes
+            orderBy: { data: 'desc' }
         });
 
          const dataForSheet = compras.map(c => ({
             'ID Compra': c.id,
-            'Data': c.data.toLocaleDateString('pt-BR'), // Formata a data
+            'Data': c.data.toLocaleDateString('pt-BR'),
             'Produto': c.produto.nome,
             'Quantidade': c.quantidade,
             'Unidade': c.produto.unidade,
             'Preço Total (R$)': c.precoTotal,
-             // Calcula Preço Unitário (evita divisão por zero)
             'Preço Unitário (R$)': c.quantidade > 0 ? (c.precoTotal / c.quantidade).toFixed(2) : 'N/A',
             'Fornecedor': c.fornecedor ?? '',
             'Status Entrada': c.confirmadoEntrada,
-             // Poderia incluir o nome do responsável se fizesse um include no User
             'ID Resp. Confirmação': c.responsavelConfirmacaoId ?? '', 
         }));
 
@@ -192,7 +168,6 @@ export class ReportsService {
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, 'Histórico de Compras');
             
-            // Ajusta a largura das colunas (opcional, mas melhora a leitura)
             worksheet['!cols'] = [
                 { wch: 10 }, // ID Compra
                 { wch: 12 }, // Data

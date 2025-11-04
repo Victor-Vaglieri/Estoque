@@ -20,6 +20,7 @@ model Produto {
   quantidadeNec  Int
   fornecedor     String?
   observacoes    String?
+  ativo Boolean @default(true)
 
   entradas       Entrada[]
   saidas         Saida[]
@@ -68,9 +69,9 @@ model HistoricoCompra{
   precoTotal  Float
   data        DateTime @default(now())
   fornecedor  String?
-  responsavelId Int    // referência ao id de usuário (vindo do outro banco)
+  responsavelId Int    
   confirmadoEntrada EstadoEntrada @default(PENDENTE)
-  responsavelConfirmacaoId Int? // referência ao id de usuário que confirmou a entrada
+  responsavelConfirmacaoId Int? 
 }
 
 

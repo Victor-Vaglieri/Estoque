@@ -22,10 +22,6 @@ export class WarningsService {
         return this.prisma.alertas.findMany({
             where: {
                 concluido: false, // Busca apenas os não concluídos
-                OR: [
-                    { destinadoPara: userId },     // Destinado ao usuário
-                    { destinadoPara: null }        // Público
-                ]
             },
             orderBy: [
                 // Ordena por importância (ALTA primeiro) e depois por data (mais recentes primeiro)
@@ -45,11 +41,6 @@ export class WarningsService {
 
         if (!alerta) {
             throw new NotFoundException(`Alerta com ID ${id} não encontrado.`);
-        }
-
-        // Verifica se o usuário pode ver este alerta
-        if (alerta.destinadoPara !== userId && alerta.destinadoPara !== null) {
-             throw new ForbiddenException("Você não tem permissão para acessar este alerta.");
         }
 
         return alerta;
