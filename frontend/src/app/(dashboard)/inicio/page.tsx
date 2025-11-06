@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react';
 // import { useAuth } from '@/app/context/AuthContext'; // <-- REMOVIDO (não estava sendo usado)
 import { useRouter } from 'next/navigation';
 
-// Importe seu novo arquivo CSS aqui
-import './inicio.css'; // Corrigido para corresponder ao nome do arquivo
+import './inicio.css'; 
 
 // Componente para os cards de estatísticas
 const StatCard = ({ title, value }: { title: string; value: string }) => (

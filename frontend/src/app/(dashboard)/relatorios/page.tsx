@@ -11,7 +11,7 @@ import "./relatorios.css";
 interface StockValue {
     name: string;
     value: number;
-    [key: string]: any;
+    [key: string]: string | number | boolean;
 }
 interface PurchaseHistory {
     month: string;
