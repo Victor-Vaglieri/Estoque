@@ -36,7 +36,6 @@ export default function DashboardHomePage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
   const [alerts, setAlerts] = useState<Alert[]>([]);
 
   useEffect(() => {

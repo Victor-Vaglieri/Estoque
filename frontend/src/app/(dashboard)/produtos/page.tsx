@@ -68,7 +68,7 @@ export default function ProductsHomePage() {
             }
         }
         fetchProductsData();
-    }, [user,router]); // Adicione 'router' ao array de dependências
+    }, [user,router,fetchProductsData]); // Adicione 'router' ao array de dependências
 
     const handleToggleEdit = (productId: number) => {
         setEditingProductId(prevId => (prevId === productId ? null : productId));

@@ -100,7 +100,7 @@ export default function RelatoriosPage() {
             }
         }
 
-    }, [user, router]);
+    }, [user, router,fetchReportData]);
 
 
     // --- Função para lidar com o download de XLSX ---

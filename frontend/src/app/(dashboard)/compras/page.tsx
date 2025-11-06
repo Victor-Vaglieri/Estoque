@@ -69,7 +69,7 @@ export default function ComprasPage() {
             }
         }
         fetchProductsToBuy();
-    }, [user, router]);
+    }, [user, router,fetchProductsToBuy]);
 
     const handleRegisterPurchase = async (event: React.FormEvent<HTMLFormElement>, productId: number, productName: string) => {
         event.preventDefault();
