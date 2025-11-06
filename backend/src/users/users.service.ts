@@ -3,7 +3,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UsuariosDbService } from 'src/prisma/usuarios-db.service'; // Ajuste o caminho para o seu serviço Prisma
+import { UsuariosDbService } from '../prisma/usuarios-db.service'; // Ajuste o caminho para o seu serviço Prisma
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import * as bcrypt from 'bcrypt';
 
