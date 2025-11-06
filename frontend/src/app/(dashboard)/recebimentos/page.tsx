@@ -100,7 +100,7 @@ export default function RecebimentosPage() {
             }
         }
         fetchPendingReceipts();
-    }, [user,router]);
+    }, [user,router,fetchPendingReceipts]);
 
     // Função para lidar com a mudança no input de preço
     const handlePriceChange = (receiptId: number, value: string) => {

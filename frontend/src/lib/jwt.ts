@@ -1,6 +1,6 @@
 // lib/jwt.ts 
 
-import { Funcao, UserData } from "./types";
+import { UserData } from "./types";
 
 export function decodeToken(token: string | null): UserData | null {
   if (!token || typeof token !== 'string') {

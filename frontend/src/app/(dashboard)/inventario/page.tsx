@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, ChangeEvent, useMemo } from 'react'; // Adicionado useMemo
+import { useState, useEffect, useMemo } from 'react'; // Adicionado useMemo
 // Usando caminho relativo
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -86,7 +86,7 @@ export default function InventarioPage() {
         }
 
         fetchProducts();
-    }, [user, router]);
+    }, [user, router,fetchProducts]);
 
     const handleQuantityChange = (productId: number, value: string) => {
         const sanitizedValue = value.replace(/[^0-9.]/g, '');
@@ -149,7 +149,7 @@ export default function InventarioPage() {
 
     // --- Lógica de Ordenação ---
     const sortedProducts = useMemo(() => {
-        let sortableProducts = [...products];
+        const sortableProducts = [...products];
         if (sortConfig !== null) {
             sortableProducts.sort((a, b) => {
                 if (!sortConfig.key) return 0;
