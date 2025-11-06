@@ -4,23 +4,30 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./alertas.db"
+
+    // provider = "sqlite"
+  // url      = "file:./cadastros.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["alertas"]
 }
 
 model Alertas {
-  id       Int      @id @default(autoincrement())
-  titulo String
-  descricao String
-  importancia Importancia
-  concluido Boolean @default(false)
-  createdAt DateTime @default(now())
-  destinadoPara Int? // referência ao id de usuário, pode ser nulo 
-  finishedAt DateTime?
+  id            Int          @id @default(autoincrement())
+  titulo        String
+  descricao     String
+  importancia   Importancia
+  concluido     Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+  destinadoPara Int?
+  finishedAt    DateTime?
+
+  @@schema("alertas")
 }
 
 enum Importancia {
   BAIXA
   MEDIA
   ALTA
+  @@schema("alertas")
 }

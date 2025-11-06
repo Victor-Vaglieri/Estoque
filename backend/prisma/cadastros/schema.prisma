@@ -4,16 +4,20 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./cadastros.db"
+  // provider = "sqlite"
+  // url      = "file:./cadastros.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["cadastros"]
 }
 
 model Cadastro {
-  id       Int      @id @default(autoincrement())
-  nome     String
-  login    String   @unique
-  senha    String
-  responsavelId  Int?  // referência ao id de usuário (vindo do outro banco, manual)
-  createdAt DateTime @default(now())
-  ativo Boolean @default(true)
+  id            Int      @id @default(autoincrement())
+  nome          String
+  login         String   @unique
+  senha         String
+  responsavelId Int? // referência ao id de usuário (vindo do outro banco, manual)
+  createdAt     DateTime @default(now())
+  ativo         Boolean  @default(true)
+  @@schema("cadastros")
 }
