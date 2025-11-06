@@ -4,32 +4,41 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./usuarios.db"
+  // provider = "sqlite"
+  // url      = "file:./usuarios.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["usuarios"]
 }
 
 model Usuario {
-  id       Int      @id @default(autoincrement())
-  nome     String
-  funcoes  UsuarioFuncao[]
-  login    String   @unique
-  senha    String
-  ativo    Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id        Int             @id @default(autoincrement())
+  nome      String
+  funcoes   UsuarioFuncao[]
+  login     String          @unique
+  senha     String
+  ativo     Boolean         @default(true)
+  createdAt DateTime        @default(now())
+
+  @@schema("usuarios")
 }
 
 model UsuarioFuncao {
-  id       Int      @id @default(autoincrement())
-  usuario  Usuario  @relation(fields: [usuarioId], references: [id])
+  id        Int     @id @default(autoincrement())
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
   usuarioId Int
-  funcao   Funcao
+  funcao    Funcao
+
+  @@schema("usuarios")
 }
 
 enum Funcao {
-  CADASTRO     // Responsável A
-  COMPRAS      // Responsável B
-  RECEBIMENTO  // Responsável C
-  FUNCIONARIO  // Responsável D
+  CADASTRO // Responsável A
+  COMPRAS // Responsável B
+  RECEBIMENTO // Responsável C
+  FUNCIONARIO // Responsável D
   EMPREGADA
   GESTOR
+
+  @@schema("usuarios")
 }

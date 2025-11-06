@@ -4,8 +4,11 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./controle.db"
+  // provider = "sqlite"
+  // url      = "file:./controle.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+    schemas  = ["controle"]
 }
 
 model CosturaRegistro {
@@ -21,24 +24,26 @@ model CosturaRegistro {
   itens                   CosturaItem[] // Relacionamento com Itens
   createdAt               DateTime      @default(now())
   updatedAt               DateTime      @updatedAt
+  @@schema("controle")
 }
 
 model CosturaItem {
-  id                    Int            @id @default(autoincrement())
-  ticket                String?
-  peca                  String?
-  descricao_do_servico  String?
-  custo                 Float?
-  cobrado               Float?
-  registro              CosturaRegistro @relation(fields: [registroId], references: [id], onDelete: Cascade)
-  registroId            Int
+  id                   Int             @id @default(autoincrement())
+  ticket               String?
+  peca                 String?
+  descricao_do_servico String?
+  custo                Float?
+  cobrado              Float?
+  registro             CosturaRegistro @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  registroId           Int
+  @@schema("controle")
 }
 
 // --- MODELOS DE TINGIMENTO ---
 
 model TingimentoRegistro {
-  id                      Int               @id @default(autoincrement())
-  rol                     Int               @unique // ROL único para Tingimento
+  id                      Int              @id @default(autoincrement())
+  rol                     Int              @unique // ROL único para Tingimento
   cliente                 String?
   meio_de_contato_inicial String?
   data_de_entrada         DateTime?
@@ -47,27 +52,29 @@ model TingimentoRegistro {
   data_da_entrega         DateTime?
   metodo_de_entrega       String?
   itens                   TingimentoItem[] // Relacionamento com Itens
-  createdAt               DateTime          @default(now())
-  updatedAt               DateTime          @updatedAt
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+  @@schema("controle")
 }
 
 model TingimentoItem {
-  id                    Int                @id @default(autoincrement())
-  strip_tag             String?
-  numero_washtec        String?
-  peca                  String?
-  cor_desejada          String?
-  valor_washtec         Float?
-  valor_cobrado         Float?
-  registro              TingimentoRegistro @relation(fields: [registroId], references: [id], onDelete: Cascade)
-  registroId            Int
+  id             Int                @id @default(autoincrement())
+  strip_tag      String?
+  numero_washtec String?
+  peca           String?
+  cor_desejada   String?
+  valor_washtec  Float?
+  valor_cobrado  Float?
+  registro       TingimentoRegistro @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  registroId     Int
+  @@schema("controle")
 }
 
 // --- MODELOS DE TAPETE ---
 
 model TapeteRegistro {
-  id                      Int           @id @default(autoincrement())
-  rol                     Int           @unique // ROL único para Tapete
+  id                      Int          @id @default(autoincrement())
+  rol                     Int          @unique // ROL único para Tapete
   os_master               String?
   cliente                 String?
   meio_de_contato_inicial String?
@@ -77,17 +84,18 @@ model TapeteRegistro {
   data_da_entrega         DateTime?
   metodo_de_entrega       String?
   itens                   TapeteItem[] // Relacionamento com Itens
-  createdAt               DateTime      @default(now())
-  updatedAt               DateTime      @updatedAt
+  createdAt               DateTime     @default(now())
+  updatedAt               DateTime     @updatedAt
+  @@schema("controle")
 }
 
 model TapeteItem {
-  id                    Int            @id @default(autoincrement())
-  strip_tag_dryclean    String?
-  strip_tag_master      String?
-  valor_master          Float?
-  valor_cobrado         Float?
-  registro              TapeteRegistro @relation(fields: [registroId], references: [id], onDelete: Cascade)
-  registroId            Int
+  id                 Int            @id @default(autoincrement())
+  strip_tag_dryclean String?
+  strip_tag_master   String?
+  valor_master       Float?
+  valor_cobrado      Float?
+  registro           TapeteRegistro @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  registroId         Int
+  @@schema("controle")
 }
-

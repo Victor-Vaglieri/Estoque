@@ -5,79 +5,92 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./estoque.db"
+  // provider = "sqlite"
+  // url      = "file:./estoque.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["estoque"]
 }
 
 model Produto {
-  id             Int      @id @default(autoincrement())
-  nome           String
-  marca          String?
-  categoria      String?
-  unidade        String    // ex: "kg", "L", "unid"
-  quantidadeMin  Int
-  quantidadeEst  Int      @default(0)
-  quantidadeNec  Int
-  fornecedor     String?
-  observacoes    String?
-  ativo Boolean @default(true)
+  id            Int     @id @default(autoincrement())
+  nome          String
+  marca         String?
+  categoria     String?
+  unidade       String // ex: "kg", "L", "unid"
+  quantidadeMin Int
+  quantidadeEst Int     @default(0)
+  quantidadeNec Int
+  fornecedor    String?
+  observacoes   String?
+  ativo         Boolean @default(true)
 
-  entradas       Entrada[]
-  saidas         Saida[]
-  historicoPreco HistoricoPreco[]
+  entradas        Entrada[]
+  saidas          Saida[]
+  historicoPreco  HistoricoPreco[]
   historicoCompra HistoricoCompra[]
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@schema("estoque")
 }
 
 model Entrada {
-  id             Int      @id @default(autoincrement())
-  produtoId      Int
-  produto        Produto  @relation(fields: [produtoId], references: [id])
-  quantidade     Int
-  data           DateTime @default(now())
-  fornecedor     String?
-  precoPago      Float
-  responsavelId  Int      // referência ao id de usuário (vindo do outro banco, manual)
+  id            Int      @id @default(autoincrement())
+  produtoId     Int
+  produto       Produto  @relation(fields: [produtoId], references: [id])
+  quantidade    Int
+  data          DateTime @default(now())
+  fornecedor    String?
+  precoPago     Float
+  responsavelId Int // referência ao id de usuário (vindo do outro banco, manual)
+
+  @@schema("estoque")
 }
 
 model Saida {
-  id             Int      @id @default(autoincrement())
-  produtoId      Int
-  produto        Produto  @relation(fields: [produtoId], references: [id])
-  quantidade     Int
-  data           DateTime @default(now())
-  responsavelId  Int      // referência ao id de usuário (vindo do outro banco)
-  motivo         String?
+  id            Int      @id @default(autoincrement())
+  produtoId     Int
+  produto       Produto  @relation(fields: [produtoId], references: [id])
+  quantidade    Int
+  data          DateTime @default(now())
+  responsavelId Int // referência ao id de usuário (vindo do outro banco)
+  motivo        String?
+
+  @@schema("estoque")
 }
 
 model HistoricoPreco {
-  id          Int      @id @default(autoincrement())
-  produtoId   Int
-  produto     Produto  @relation(fields: [produtoId], references: [id])
-  preco       Float
-  data        DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  produtoId Int
+  produto   Produto  @relation(fields: [produtoId], references: [id])
+  preco     Float
+  data      DateTime @default(now())
+
+  @@schema("estoque")
 }
 
+model HistoricoCompra {
+  id                       Int           @id @default(autoincrement())
+  produtoId                Int
+  produto                  Produto       @relation(fields: [produtoId], references: [id])
+  quantidade               Int
+  precoTotal               Float
+  data                     DateTime      @default(now())
+  fornecedor               String?
+  responsavelId            Int
+  confirmadoEntrada        EstadoEntrada @default(PENDENTE)
+  responsavelConfirmacaoId Int?
 
-model HistoricoCompra{
-  id          Int      @id @default(autoincrement())
-  produtoId   Int
-  produto     Produto  @relation(fields: [produtoId], references: [id])
-  quantidade  Int
-  precoTotal  Float
-  data        DateTime @default(now())
-  fornecedor  String?
-  responsavelId Int    
-  confirmadoEntrada EstadoEntrada @default(PENDENTE)
-  responsavelConfirmacaoId Int? 
+  @@schema("estoque")
 }
-
 
 enum EstadoEntrada {
   PENDENTE
   CONFIRMADO
   FALTANTE
   CANCELADO
+
+  @@schema("estoque")
 }
