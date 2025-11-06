@@ -19,7 +19,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   // 4. Define a porta em que a aplicação vai rodar
-  const port = process.env.PORT || 3001;
+  const port = process.env.PORT || 10000;
   await app.listen(port,'0.0.0.0');
 
   // Mensagem útil para sabermos que o servidor subiu e em qual porta
