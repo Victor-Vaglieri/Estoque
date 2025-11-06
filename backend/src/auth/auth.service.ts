@@ -3,7 +3,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 // 1. Importe o serviço correto para o banco de usuários
-import { UsuariosDbService } from 'src/prisma/usuarios-db.service';
+import { UsuariosDbService } from '../prisma/usuarios-db.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
