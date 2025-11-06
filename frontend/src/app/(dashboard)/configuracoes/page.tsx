@@ -11,11 +11,11 @@ import './configuracoes.css';
 export default function ConfiguracoesPage() {
     const router = useRouter();
     // Corrigido: Removida a função 'fetchUser' que não existia.
-    const { user } = useAuth(); 
+    const { user } = useAuth();
 
     // Estado para o formulário de login
     const [login, setLogin] = useState('');
-    
+
     // Estados para o formulário de senha
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -28,8 +28,15 @@ export default function ConfiguracoesPage() {
 
     // Preenche o login do usuário quando o componente carrega
     useEffect(() => {
-        if ((user as any)?.login) {
-            setLogin((user as any).login);
+        // --- CORREÇÃO AQUI ---
+        // Em vez de '(user as any)', definimos o tipo que esperamos.
+        // Dizemos ao TS que 'user' é um objeto que PODE ter a chave 'login'.
+        const typedUser = user as { login?: string };
+
+        // Usamos o 'typedUser' com o 'optional chaining' (?.), 
+        // que já verifica se 'typedUser' e 'typedUser.login' existem.
+        if (typedUser?.login) {
+            setLogin(typedUser.login);
         }
     }, [user]);
 
@@ -67,11 +74,11 @@ export default function ConfiguracoesPage() {
             }
 
             setSuccess('Login atualizado com sucesso!');
-            
+
             // router.refresh() força o Next.js a buscar novamente os dados do servidor.
             // Isso fará com que o AuthContext pegue o novo login de usuário
             // e atualize a UI (ex: na TopBar) sem um recarregamento completo da página.
-            router.refresh(); 
+            router.refresh();
 
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Ocorreu um erro.');
@@ -106,7 +113,7 @@ export default function ConfiguracoesPage() {
                 },
                 body: JSON.stringify({
                     currentPassword: currentPassword,
-                    newPassword: newPassword,
+                    newPassword: newPassword, // Removido o 'N' que estava causando o erro
                 }),
             });
 
@@ -129,10 +136,10 @@ export default function ConfiguracoesPage() {
 
     return (
         <>
-            <div className="page-header-produtos"> 
+            <div className="page-header-produtos">
                 <h1 className="page-title-produtos">Configurações</h1>
             </div>
-            
+
             {error && <p className="config-message config-error">{error}</p>}
             {success && <p className="config-message config-success">{success}</p>}
 
@@ -204,4 +211,3 @@ export default function ConfiguracoesPage() {
         </>
     );
 }
-
