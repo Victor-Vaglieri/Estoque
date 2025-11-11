@@ -133,7 +133,7 @@ export default function AvisosPage() {
         }
         fetchAlertas();
         fetchUsuarios();
-    }, [user, router,fetchAlertas,fetchUsuarios]); // Dependência ajustada
+    }, [user, router]); // Dependência ajustada
 
     // --- FUNÇÕES CRUD COMPLETAS ---
 
@@ -233,7 +233,7 @@ export default function AvisosPage() {
     };
 
     // REMOVER alerta
-    const handleDelete = async (id: number) => {
+    const handleDelete = async (id: number, creatorId?: number) => {
 
         clearFeedback();
         const token = localStorage.getItem('token');
@@ -416,7 +416,7 @@ export default function AvisosPage() {
                                             {/* Botão Remover */}
                                             <button
                                                 className="btn-aviso btn-remover"
-                                                onClick={() => handleDelete(alerta.id)}
+                                                onClick={() => handleDelete(alerta.id, alerta.userId)}
                                                 disabled={showForm}
                                                 title="Remover Aviso"
                                             >

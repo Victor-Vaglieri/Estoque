@@ -11,7 +11,9 @@ async function bootstrap() {
   // 2. [IMPORTANTE] Habilita o CORS (Cross-Origin Resource Sharing)
   // Isso permite que seu frontend (rodando em localhost:3000) possa fazer
   // requisições para o seu backend (rodando em localhost:3001). Sem isso, o navegador bloquearia.
-  app.enableCors();
+  app.enableCors({
+    origin: '*', // Permite que QUALQUER origem acesse seu backend
+  });
 
   // 3. [IMPORTANTE] Configura um "Pipe" de validação global
   // Isso garante que todas as requisições que chegam nos seus controllers
@@ -19,7 +21,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   // 4. Define a porta em que a aplicação vai rodar
-  const port = process.env.PORT || 10000;
+  const port = process.env.PORT || 3001;
   await app.listen(port,'0.0.0.0');
 
   // Mensagem útil para sabermos que o servidor subiu e em qual porta

@@ -4,46 +4,41 @@ generator client {
 }
 
 datasource db {
-  // provider = "sqlite"
-  // url      = "file:./controle.db"
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-    schemas  = ["controle"]
+  provider = "sqlite"
+  url      = "file:./controle.db"
 }
 
 model CosturaRegistro {
   id                      Int           @id @default(autoincrement())
-  rol                     Int           @unique // ROL único para Costura
-  cliente                 String?
-  meio_de_contato_inicial String?
-  data_de_entrada         DateTime?
-  data_de_confirmacao     DateTime?
-  previsao_de_entrega     DateTime?
-  data_da_entrega         DateTime?
-  metodo_de_entrega       String?
-  itens                   CosturaItem[] // Relacionamento com Itens
+  rol                     Int           @unique
+  cliente                 String?  // mudar nome_cliente e para obrigatorio
+  meio_de_contato_inicial String?  // ser uma lista tendo: google, rede social, amigos, loja ou outros
+  data_de_entrada         DateTime? // mudar para data_recebimento
+  data_de_confirmacao     DateTime?  // remover
+  previsao_de_entrega     DateTime?  // remover
+  data_da_entrega         DateTime?  
+  metodo_de_entrega       String?  // remover?
+  itens                   CosturaItem[]
   createdAt               DateTime      @default(now())
   updatedAt               DateTime      @updatedAt
-  @@schema("controle")
 }
 
 model CosturaItem {
-  id                   Int             @id @default(autoincrement())
-  ticket               String?
-  peca                 String?
-  descricao_do_servico String?
-  custo                Float?
-  cobrado              Float?
-  registro             CosturaRegistro @relation(fields: [registroId], references: [id], onDelete: Cascade)
-  registroId           Int
-  @@schema("controle")
+  id                    Int            @id @default(autoincrement())
+  ticket                String? // tornar obrigatorio
+  peca                  String? // tornar obrigatorio
+  descricao_do_servico  String? // tornar obrigatorio
+  custo                 Float? 
+  cobrado               Float? // tornar obrigatorio
+  registro              CosturaRegistro @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  registroId            Int
 }
 
 // --- MODELOS DE TINGIMENTO ---
 
 model TingimentoRegistro {
-  id                      Int              @id @default(autoincrement())
-  rol                     Int              @unique // ROL único para Tingimento
+  id                      Int               @id @default(autoincrement())
+  rol                     Int               @unique // ROL único para Tingimento
   cliente                 String?
   meio_de_contato_inicial String?
   data_de_entrada         DateTime?
@@ -52,50 +47,59 @@ model TingimentoRegistro {
   data_da_entrega         DateTime?
   metodo_de_entrega       String?
   itens                   TingimentoItem[] // Relacionamento com Itens
-  createdAt               DateTime         @default(now())
-  updatedAt               DateTime         @updatedAt
-  @@schema("controle")
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
 }
 
 model TingimentoItem {
-  id             Int                @id @default(autoincrement())
-  strip_tag      String?
-  numero_washtec String?
-  peca           String?
-  cor_desejada   String?
-  valor_washtec  Float?
-  valor_cobrado  Float?
-  registro       TingimentoRegistro @relation(fields: [registroId], references: [id], onDelete: Cascade)
-  registroId     Int
-  @@schema("controle")
+  id                    Int                @id @default(autoincrement())
+  strip_tag             String? // tornar obrigatorio
+  numero_washtec        String?
+  peca                  String?
+  cor_desejada          String?
+  valor_washtec         Float? // tornar obrigatorio
+  valor_cobrado         Float? // tornar obrigatorio
+  registro              TingimentoRegistro @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  registroId            Int
 }
 
 // --- MODELOS DE TAPETE ---
 
+// mudar a ordem para melhor entendimento
+// 0. id Int
+// 1. ROL Int
+// 2. data_de_recebimento DateTime
+// 3. nome_cliente String
+// 4. os_master String
+// 5. envio_a_master (nome melhor) DateTime
+// 6. retorno_da_master (nome melhor) DateTime
+// 7. data_da_entrega DateTime
+
 model TapeteRegistro {
-  id                      Int          @id @default(autoincrement())
-  rol                     Int          @unique // ROL único para Tapete
+  id                      Int           @id @default(autoincrement())
+  rol                     Int           @unique // ROL único para Tapete
   os_master               String?
-  cliente                 String?
-  meio_de_contato_inicial String?
-  data_de_entrada         DateTime?
-  data_de_confirmacao     DateTime?
-  previsao_de_entrega     DateTime?
-  data_da_entrega         DateTime?
-  metodo_de_entrega       String?
+  cliente                 String? // mudar para nome_cliente
+  meio_de_contato_inicial String? // ser uma lista tendo: google, rede social, amigos, loja ou outros
+  data_de_entrada         DateTime? // mudar para data_recebimento
+  data_de_confirmacao     DateTime? // remover
+  previsao_de_entrega     DateTime? // remover
+  data_da_entrega         DateTime? 
+  metodo_de_entrega       String? // remover
   itens                   TapeteItem[] // Relacionamento com Itens
-  createdAt               DateTime     @default(now())
-  updatedAt               DateTime     @updatedAt
-  @@schema("controle")
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
 }
 
 model TapeteItem {
-  id                 Int            @id @default(autoincrement())
-  strip_tag_dryclean String?
-  strip_tag_master   String?
-  valor_master       Float?
-  valor_cobrado      Float?
-  registro           TapeteRegistro @relation(fields: [registroId], references: [id], onDelete: Cascade)
-  registroId         Int
-  @@schema("controle")
+  id                    Int            @id @default(autoincrement())
+  strip_tag_dryclean    String? // tornar obrigatorio
+  strip_tag_master      String? 
+  valor_master          Float? // tornar obrigatorio
+  valor_cobrado         Float? // tornar obrigatorio
+  registro              TapeteRegistro @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  registroId            Int
 }
+
+
+// criar modelo MalaRegistro e MalaItem, com mesmos campos do tapete 

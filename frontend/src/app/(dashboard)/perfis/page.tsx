@@ -135,7 +135,7 @@ export default function PerfisPage() {
         }
 
         fetchData();
-    }, [router, user,fetchData]);
+    }, [router, user]);
 
     // --- FUNÇÕES DE APROVAÇÃO E REJEIÇÃO (Solicitações) ---
     const handleAprovarClick = (solicitacao: CadastroRequest) => {

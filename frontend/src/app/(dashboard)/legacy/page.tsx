@@ -27,7 +27,7 @@ type RegistroCompleto = {
     cliente: string;
     data_de_entrada: string;
     previsao_de_entrega: string; // Adicionado para a tabela
-    [key: string]: string | number | boolean;
+    [key: string]: any;
 };
 
 

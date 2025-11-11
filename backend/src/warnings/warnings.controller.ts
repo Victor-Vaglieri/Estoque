@@ -1,4 +1,3 @@
-// --- MUDANÇA: Renomear ficheiro para avisos.controller.ts seria ideal ---
 import { 
     Controller, 
     Get, 
@@ -16,12 +15,10 @@ import { WarningsService } from './warnings.service';
 import { CreateAlertaDto } from './dto/create-alerta.dto';
 import { UpdateAlertaDto } from './dto/update-alerta.dto';
 
-// --- MUDANÇA: Rota base para /avisos ---
 @Controller('avisos') 
 export class WarningsController {
   constructor(private readonly warningsService: WarningsService) {}
 
-  // --- POST /avisos ---
   @UseGuards(AuthGuard('jwt'))
   @Post()
   create(@Request() req, @Body() createAlertaDto: CreateAlertaDto) {
@@ -29,16 +26,13 @@ export class WarningsController {
     return this.warningsService.create(userId, createAlertaDto);
   }
 
-  // --- GET /avisos ---
   @UseGuards(AuthGuard('jwt'))
   @Get()
   findAll(@Request() req) {
     const userId = req.user.sub;
-    // Retorna a lista de alertas relevantes para o usuário
     return this.warningsService.findAll(userId); 
   }
 
-  // --- GET /avisos/:id --- (Opcional, se precisar buscar um específico)
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   findOne(@Request() req, @Param('id', ParseIntPipe) id: number) {
@@ -46,7 +40,6 @@ export class WarningsController {
      return this.warningsService.findOne(userId, id);
   }
 
-  // --- PATCH /avisos/:id ---
   @UseGuards(AuthGuard('jwt'))
   @Patch(':id')
   update(
@@ -58,7 +51,6 @@ export class WarningsController {
     return this.warningsService.update(userId, id, updateAlertaDto);
   }
 
-  // --- DELETE /avisos/:id ---
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   remove(@Request() req, @Param('id', ParseIntPipe) id: number) {

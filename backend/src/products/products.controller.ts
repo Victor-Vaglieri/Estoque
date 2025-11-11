@@ -35,12 +35,11 @@ export class ProductsController {
   }
 
 
-  // Endpoint para CRIAR um novo produto
   @UseGuards(AuthGuard('jwt'))
-  @Post() // 2. Use o decorador @Post
+  @Post()
   async addProduct(
     @Request() req,
-    @Body() createProductDto: CreateProductDto, // 3. Use o DTO de criação
+    @Body() createProductDto: CreateProductDto,
   ) {
     const userId = req.user.sub;
     return this.productsService.addProduct(userId, createProductDto);
@@ -55,8 +54,6 @@ export class ProductsController {
     @Body() updateProductDto: UpdateProductDto,
   ) {
     const userId = req.user.sub;
-    
-    // 3. Passe o ID do produto para o seu serviço
     return this.productsService.modifyProduct(userId, productId, updateProductDto);
   }
 }

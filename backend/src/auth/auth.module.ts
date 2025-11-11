@@ -3,9 +3,9 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { PrismaModule } from '../prisma/prisma.module';
+import { PrismaModule } from 'src/prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './jwt.strategy'; // 1. IMPORTE A ESTRATÉGIA
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
@@ -17,7 +17,6 @@ import { JwtStrategy } from './jwt.strategy'; // 1. IMPORTE A ESTRATÉGIA
     }),
   ],
   controllers: [AuthController],
-  // 2. ADICIONE A ESTRATÉGIA AOS PROVIDERS
   providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {}

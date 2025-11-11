@@ -1,13 +1,12 @@
 // src/dashboard/dashboard.service.ts
 
 import { Injectable, NotFoundException } from '@nestjs/common';
-// 1. Importe o serviço correto que existe no seu módulo Prisma
 import { EstoqueDbService } from '../prisma/estoque-db.service';
-import { Prisma } from '@prisma/estoque-client'; // Importe o Prisma para ter acesso ao `Prisma.sql` se precisar 
+import { Prisma } from '@prisma/estoque-client';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 
-export interface Product {
+export interface Product { // TODO espelhar com o novo esquema
   nome: string;
   id: number;
   unidade: string;
@@ -25,7 +24,7 @@ export interface Product {
 export class ProductsService {
   constructor(private estoqueDb: EstoqueDbService) { }
 
-  async getProducts(userId: number): Promise<Product[]> {
+  async getProducts(userId: number): Promise<Product[]> { // TODO espelhar com o novo esquema, aqui não precisa de exclusão por loja, se deve listar de todas
     const produtos = await this.estoqueDb.produto.findMany({});
     const produtos_list: Product[] = [];
     for (let produto of produtos) {
@@ -54,7 +53,7 @@ export class ProductsService {
     return produtos_list;
   }
 
-  async getProductsInventory(userId: number): Promise<Product[]> {
+  async getProductsInventory(userId: number): Promise<Product[]> { // TODO espelhar com o novo esquema, aqui sim se deve excluir por loja do usuario
     const produtos = await this.estoqueDb.produto.findMany({
       where: {
         ativo: true
@@ -90,12 +89,12 @@ export class ProductsService {
   async modifyProduct(
     userId: number,
     productId: number,
-    productData: UpdateProductDto // Use o DTO que criamos
+    productData: UpdateProductDto
   ) {
     try {
       const updatedProduct = await this.estoqueDb.produto.update({
         where: {
-          id: productId, // <-- ESSA É A VERIFICAÇÃO DE SEGURANÇA CRUCIAL
+          id: productId,
         },
         data: productData,
       });
@@ -122,7 +121,6 @@ export class ProductsService {
       }
     });
 
-    // Retorna o produto recém-criado
     return newProduct;
   }
 

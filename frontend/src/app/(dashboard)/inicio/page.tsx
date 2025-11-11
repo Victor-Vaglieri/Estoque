@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-// import { useAuth } from '@/app/context/AuthContext'; // <-- REMOVIDO (não estava sendo usado)
+// Usando caminho relativo para corrigir o erro de importação
+import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
-import './inicio.css'; 
+// Importe seu novo arquivo CSS aqui
+import './inicio.css'; // Corrigido para corresponder ao nome do arquivo
 
 // Componente para os cards de estatísticas
 const StatCard = ({ title, value }: { title: string; value: string }) => (
@@ -21,15 +23,6 @@ interface DashboardStats {
   nome_ultimo_produto_chego: string;
 }
 
-// --- CORREÇÃO AQUI ---
-// Interface para o alerta vindo da API
-interface ApiAlert {
-  id: number;
-  titulo: string;
-  descricao: string;
-}
-
-// Interface para o alerta formatado
 interface Alert {
   id: number;
   titulo: string;
@@ -43,6 +36,7 @@ export default function DashboardHomePage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
   const [alerts, setAlerts] = useState<Alert[]>([]);
 
   useEffect(() => {
@@ -74,40 +68,36 @@ export default function DashboardHomePage() {
         });
 
         if (!responseDashboards.ok) {
-          throw new Error('Falha ao buscar os dados de estatísticas.');
+            throw new Error('Falha ao buscar os dados de estatísticas.');
         }
-        if (!responseAlerts.ok) {
-          throw new Error('Falha ao buscar os dados de alertas.');
-        }
+         if (!responseAlerts.ok) {
+             throw new Error('Falha ao buscar os dados de alertas.');
+         }
 
         const alertsData = await responseAlerts.json();
-
+        
         const allAlerts: Alert[] = [];
 
         // Transforma os dados recebidos no formato que precisamos
-        // --- CORREÇÃO AQUI ---
-        alertsData.alerta_alto.forEach((alert: ApiAlert) => allAlerts.push({
+        alertsData.alerta_alto.forEach((alert: any) => allAlerts.push({
           id: alert.id,
           titulo: `🚨 ${alert.titulo}`, // Adiciona um ícone ao título
           descricao: alert.descricao,
           importancia: 'ALTA'
         }));
-        // --- CORREÇÃO AQUI ---
-        alertsData.alerta_medio.forEach((alert: ApiAlert) => allAlerts.push({
+        alertsData.alerta_medio.forEach((alert: any) => allAlerts.push({
           id: alert.id,
           titulo: `⚠️ ${alert.titulo}`,
           descricao: alert.descricao,
           importancia: 'MEDIA'
         }));
-        // --- CORREÇÃO AQUI ---
-        alertsData.alerta_baixo.forEach((alert: ApiAlert) => allAlerts.push({
+        alertsData.alerta_baixo.forEach((alert: any) => allAlerts.push({
           id: alert.id,
           titulo: `ℹ️ ${alert.titulo}`,
           descricao: alert.descricao,
           importancia: 'BAIXA'
         }));
-        // --- CORREÇÃO AQUI ---
-        alertsData.aviso_ao_usuario.forEach((alert: ApiAlert) => allAlerts.push({
+        alertsData.aviso_ao_usuario.forEach((alert: any) => allAlerts.push({
           id: alert.id,
           titulo: `🔔 ${alert.titulo}`,
           descricao: alert.descricao,
@@ -137,7 +127,7 @@ export default function DashboardHomePage() {
       {/* Grid de Estatísticas */}
       {isLoading && <p>Carregando estatísticas...</p>}
       {error && <p className="dash-message dash-error">{error}</p>}
-
+      
       {!isLoading && stats && (
         <div className="stats-grid">
           <StatCard title="Itens com Estoque Baixo" value={stats?.quantidade_itens_abaixo_min.toString() || '0'} />
@@ -152,10 +142,10 @@ export default function DashboardHomePage() {
       <div className="section-header">
         <h1 className="section-title">Alertas e Avisos</h1>
       </div>
-
+      
       {/* Lista de Alertas com novo estilo */}
       {!isLoading && alerts.length === 0 && !error && (
-        <p className="no-alerts-message">Nenhum alerta no momento.</p>
+         <p className="no-alerts-message">Nenhum alerta no momento.</p>
       )}
 
       {/* --- MUDANÇA: Usando .table-list e .table-container --- */}
@@ -174,3 +164,4 @@ export default function DashboardHomePage() {
     </>
   );
 }
+

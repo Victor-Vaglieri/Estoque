@@ -4,41 +4,34 @@ generator client {
 }
 
 datasource db {
-  // provider = "sqlite"
-  // url      = "file:./usuarios.db"
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  schemas  = ["usuarios"]
+  provider = "sqlite"
+  url      = "file:./usuarios.db"
 }
 
+// adicionar loja, talvez um enum com tayrona, dryclean, (não lembro o nome) e (não lembro o nome)
+// devido essa fator ausente seria bom ser numeros e somente no front eu pensar nisso 
 model Usuario {
-  id        Int             @id @default(autoincrement())
-  nome      String
-  funcoes   UsuarioFuncao[]
-  login     String          @unique
-  senha     String
-  ativo     Boolean         @default(true)
-  createdAt DateTime        @default(now())
-
-  @@schema("usuarios")
+  id       Int      @id @default(autoincrement())
+  nome     String
+  funcoes  UsuarioFuncao[]
+  login    String   @unique
+  senha    String
+  ativo    Boolean  @default(true)
+  createdAt DateTime @default(now())
 }
 
 model UsuarioFuncao {
-  id        Int     @id @default(autoincrement())
-  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  id       Int      @id @default(autoincrement())
+  usuario  Usuario  @relation(fields: [usuarioId], references: [id])
   usuarioId Int
-  funcao    Funcao
-
-  @@schema("usuarios")
+  funcao   Funcao
 }
 
-enum Funcao {
-  CADASTRO // Responsável A
-  COMPRAS // Responsável B
-  RECEBIMENTO // Responsável C
-  FUNCIONARIO // Responsável D
+enum Funcao { // só existe a diferenciação de funcionario e gestor
+  CADASTRO
+  COMPRAS
+  RECEBIMENTO
+  FUNCIONARIO
   EMPREGADA
   GESTOR
-
-  @@schema("usuarios")
 }

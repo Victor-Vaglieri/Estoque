@@ -3,15 +3,13 @@ import { Prisma } from '@prisma/estoque-client';
 import { EstoqueDbService } from '../prisma/estoque-db.service'; 
 import * as XLSX from 'xlsx'; 
 
-// --- CORREÇÃO: Adicionar 'export' ---
 export interface StockValue {
     name: string;
     value: number;
 }
 
-// --- CORREÇÃO: Adicionar 'export' ---
 export interface PurchaseHistory {
-    month: string; // Ex: "2025-10"
+    month: string;
     totalSpent: number;
 }
 
@@ -36,8 +34,8 @@ export class ReportsService {
         const totalItems = products.length;
 
         products.forEach(p => {
-            const lastPrice = p.historicoPreco[0]?.preco ?? 0; // Usa último preço ou 0
-            totalValue += p.quantidadeEst * lastPrice; // Calcula valor estimado
+            const lastPrice = p.historicoPreco[0]?.preco ?? 0;
+            totalValue += p.quantidadeEst * lastPrice;
             if (p.quantidadeEst < p.quantidadeMin) {
                 lowStockCount++;
             }
@@ -51,9 +49,7 @@ export class ReportsService {
         };
     }
 
-    /**
-     * Prepara os dados para o gráfico de Valor do Estoque por Produto.
-     */
+    // TODO mudar porque esse grafico deve ser alterado para de barras por loja
     async getStockValueData(userId: number): Promise<StockValue[]> {
          const products = await this.estoqueDb.produto.findMany({
              include: {
@@ -72,10 +68,9 @@ export class ReportsService {
              };
         });
         
-        // Ordena por valor decrescente
         stockValues.sort((a, b) => b.value - a.value);
 
-        return stockValues; // O frontend pegará o top 10
+        return stockValues;
     }
 
 
@@ -102,6 +97,10 @@ export class ReportsService {
     }
 
 
+    // TODO todos os arquivos para ser exportados para xlsx:
+    // 1. lista de compras (por fornecedor) onde retorna todo item com quantidade = max - min
+    // 2. registros de controle (escolhendo o serviço e periodo)
+    // 3. inventario (por loja) 
     async generateInventoryXlsx(userId: number): Promise<Buffer> {
          const products = await this.estoqueDb.produto.findMany({
             select: {

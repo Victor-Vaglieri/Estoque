@@ -130,7 +130,7 @@ export default function SaidasEstoquePage() {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
-        let processedValue: string | number = value;
+        let processedValue: any = value;
         if (type === 'number') {
             processedValue = parseFloat(value);
         }
@@ -140,7 +140,7 @@ export default function SaidasEstoquePage() {
 
 
         // Permite limpar o campo de número (evita NaN)
-        if ((type === 'number' || name === 'produtoId') && isNaN(processedValue as number)) {
+        if ((type === 'number' || name === 'produtoId') && isNaN(processedValue)) {
             processedValue = ''; // Seta como string vazia se a conversão falhar (ex: campo vazio)
         }
 
