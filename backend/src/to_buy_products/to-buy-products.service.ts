@@ -1,10 +1,8 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-// Assumindo que você tem um enum EstadoEntrada no seu schema.prisma
 import { Prisma, EstadoEntrada } from '@prisma/estoque-client'; 
-import { EstoqueDbService } from '../prisma/estoque-db.service'; // Ajuste o caminho se necessário
+import { EstoqueDbService } from '../prisma/estoque-db.service';
 import { CreateHistoricBuyDto } from './dto/create-historic-buy.dto';
 
-// Interface atualizada para incluir a contagem de compras pendentes/faltantes
 export interface ProductToBuy {
     nome: string;
     id: number;
@@ -13,19 +11,13 @@ export interface ProductToBuy {
     quantidadeMin: number; 
     quantidadeEst: number;
     quantidadeNec: number;
-    quantidadePendenteFaltante: number; // Nova propriedade
+    quantidadePendenteFaltante: number;
 }
 
 @Injectable()
 export class ToBuyProductsService { 
     constructor(private estoqueDb: EstoqueDbService) {}
-
-    /**
-     * Lógica para o GET /to-buy-products
-     * Retorna a lista de produtos onde o estoque está abaixo do necessário.
-     */
     async getList(userId: number): Promise<ProductToBuy[]> {
-        // 1. Busca produtos que precisam ser comprados (estoque < necessário)
         const productsToBuyRaw = await this.estoqueDb.produto.findMany({
             where: {
                 quantidadeNec: {
@@ -74,10 +66,9 @@ export class ToBuyProductsService {
     }
 
 
+    // TODO lançar compras por fornecedor, não mais por produto
     async addBuy(userId: number, compraData: CreateHistoricBuyDto) {
         const { productId, quantidade, preco } = compraData;
-
-        // 1. Verificar se o produto existe e pertence ao usuário
         const produto = await this.estoqueDb.produto.findUnique({
             where: { 
                 id: productId, ativo: true

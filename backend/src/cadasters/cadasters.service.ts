@@ -48,7 +48,7 @@ export class PerfisService {
                 login: true,
                 responsavelId: true,
                 createdAt: true
-            }
+            } // TODO colocar qual loja foi designada
         });
 
         if (solicitacoes.length === 0) {
@@ -88,6 +88,7 @@ export class PerfisService {
     }
 
 
+    // TODO adicionar valor para designar a certa loja
     async aprovarSolicitacao(adminId: number, cadastroId: number, aprovarDto: AprovarSolicitacaoDto) {
         const cadastro = await this.cadastrosDb.cadastro.findUnique({
             where: { 
@@ -170,9 +171,8 @@ export class PerfisService {
     }
 
     async getUsuarios(userId: number) {
-         // ... (código existente)
         const usuarios = await this.usuariosDb.usuario.findMany({
-            select: { 
+            select: { // TODO mostrar loja designada
                 id: true,
                 nome: true,
                 login: true,

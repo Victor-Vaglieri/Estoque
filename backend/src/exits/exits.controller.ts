@@ -15,18 +15,10 @@ import { CreateSaidaDto } from './dto/create-saida.dto';
 import { UpdateSaidaDto } from './dto/update-saida.dto';
 import { AuthGuard } from '@nestjs/passport';
 
-// Protege todas as rotas deste controlador.
-// O usuário DEVE estar logado.
 @UseGuards(AuthGuard('jwt'))
 @Controller('saidas')
 export class ExitsController {
     constructor(private readonly saidasService: ExitsService) { }
-
-    /**
-     * (POST /saidas)
-     * Cria uma nova saída.
-     * O ID do responsável é pego automaticamente do usuário logado.
-     */
     @Post()
     create(@Body() createSaidaDto: CreateSaidaDto, @Req() req) {
         const userId = req.user.sub;

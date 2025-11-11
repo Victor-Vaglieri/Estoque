@@ -11,7 +11,7 @@ import "./relatorios.css";
 interface StockValue {
     name: string;
     value: number;
-    [key: string]: string | number | boolean;
+    [key: string]: any;
 }
 interface PurchaseHistory {
     month: string;
@@ -100,7 +100,7 @@ export default function RelatoriosPage() {
             }
         }
 
-    }, [user, router,fetchReportData]);
+    }, [user, router]);
 
 
     // --- Função para lidar com o download de XLSX ---

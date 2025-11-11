@@ -1,14 +1,13 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
-// Importe os tipos necessários do seu cliente Prisma
 import { Prisma, EstadoEntrada, Produto } from '@prisma/estoque-client'; 
-import { EstoqueDbService } from '../prisma/estoque-db.service'; // Ajuste o caminho
+import { EstoqueDbService } from '../prisma/estoque-db.service';
 import { UpdateRecebimentoDto } from './dto/update-recebimento.dto';
 
 @Injectable()
 export class RecebimentosService {
     constructor(private estoqueDb: EstoqueDbService) {}
 
-
+    // TODO separar poor exclusiva loja, caso seja para diversar lojas não listar
     async findPending(userId: number) {
         const pending = await this.estoqueDb.historicoCompra.findMany({
             where: {

@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 // --- CORREÇÃO: Usando caminhos relativos ---
-import { useAuth } from '../context/AuthContext'; 
+import { useAuth } from '../context/AuthContext';
 import { IconAlert } from './icons/IconAlert';
 import { IconBox } from './icons/IconBox';
 import { IconCart } from './icons/IconCart';
@@ -18,16 +18,16 @@ import { IconTable } from './icons/IconTable';
 
 const navLinks = [
   { name: 'Início', href: '/inicio', icon: <IconHome className="sidebar-icon" />, roles: ['GESTOR', 'CADASTRO', 'COMPRAS', 'RECEBIMENTO', 'FUNCIONARIO', 'EMPREGADA'] },
-  { name: 'Cadastro de Itens', href: '/produtos', icon: <IconBox className="sidebar-icon" />, roles: ['GESTOR', 'CADASTRO'] },
-  { name: 'Compras', href: '/compras', icon: <IconCart className="sidebar-icon" />, roles: ['GESTOR', 'COMPRAS'] },
-  { name: 'Recebimento', href: '/recebimentos', icon: <IconRecive className="sidebar-icon" />, roles: ['RECEBIMENTO', 'GESTOR'] },
+  { name: 'Terceiros', href: '/legacy', icon: <IconAlert className="sidebar-icon" />, roles: ['GESTOR', 'CADASTRO', 'COMPRAS', 'RECEBIMENTO', 'FUNCIONARIO', 'EMPREGADA'] },
   { name: 'Saída', href: '/saidas', icon: <IconOut className="sidebar-icon" />, roles: ['FUNCIONARIO', 'GESTOR'] },
-  { name: 'Fazer Inventário', href: '/inventario', icon: <IconTable className="sidebar-icon" />, roles: ['GESTOR', 'EMPREGADA'] },
-  { name: 'Modificar Usuários', href: '/perfis', icon: <IconModUsers className="sidebar-icon" />, roles: ['GESTOR'] },
-  { name: 'Modificar Avisos', href: '/avisos', icon: <IconAlert className="sidebar-icon" />, roles: ['GESTOR'] },
+  { name: 'Recebimento', href: '/recebimentos', icon: <IconRecive className="sidebar-icon" />, roles: ['RECEBIMENTO', 'GESTOR'] },
+  { name: 'Inventário', href: '/inventario', icon: <IconTable className="sidebar-icon" />, roles: ['GESTOR', 'EMPREGADA'] },
+  { name: 'Avisos', href: '/avisos', icon: <IconAlert className="sidebar-icon" />, roles: ['GESTOR'] },
+  { name: 'Cadastro', href: '/produtos', icon: <IconBox className="sidebar-icon" />, roles: ['GESTOR', 'CADASTRO'] },
+  { name: 'Lista', href: '/compras', icon: <IconCart className="sidebar-icon" />, roles: ['GESTOR', 'COMPRAS'] },
   { name: 'Relatórios', href: '/relatorios', icon: <IconGraph className="sidebar-icon" />, roles: ['GESTOR'] },
   { name: 'Configurações', href: '/configuracoes', icon: <IconConfig className="sidebar-icon" />, roles: ['GESTOR', 'CADASTRO', 'COMPRAS', 'RECEBIMENTO', 'FUNCIONARIO', 'EMPREGADA'] },
-  { name: 'Controle', href: '/legacy', icon: <IconConfig className="sidebar-icon" />, roles: ['GESTOR', 'CADASTRO', 'COMPRAS', 'RECEBIMENTO', 'FUNCIONARIO', 'EMPREGADA'] },
+  { name: 'Usuários', href: '/perfis', icon: <IconModUsers className="sidebar-icon" />, roles: ['GESTOR'] },
 ];
 
 // --- 1. Aceita a função 'closeSidebar' como prop ---

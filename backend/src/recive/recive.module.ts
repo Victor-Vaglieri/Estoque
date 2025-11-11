@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { RecebimentosController } from './recive.controller';
 import { RecebimentosService } from './recive.service';
-import { PrismaModule } from '../prisma/prisma.module'; // Importe seu módulo Prisma
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
-  imports: [PrismaModule], // Disponibiliza o EstoqueDbService
+  imports: [PrismaModule],
   controllers: [RecebimentosController],
   providers: [RecebimentosService],
 })

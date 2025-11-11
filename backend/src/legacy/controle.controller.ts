@@ -51,8 +51,6 @@ export class ControleController {
     @Query('rol') rol?: string,
   ) {
     const tipo = this.validateTipo(tipoParam);
-
-    // Se houver ROL na query (ex: /legacy/costura?rol=123), busca por ROL
     if (rol) {
       const rolNumerico = parseInt(rol, 10);
       if (isNaN(rolNumerico)) {
@@ -64,8 +62,6 @@ export class ControleController {
       }
       return data;
     }
-
-    // Se não houver ROL, busca todos (para a tabela)
     return this.legacyService.findAll(tipo);
   }
 }

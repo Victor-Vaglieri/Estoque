@@ -2,20 +2,17 @@
 
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-// 1. Importe o serviço correto para o banco de usuários
-import { UsuariosDbService } from '../prisma/usuarios-db.service';
+import { UsuariosDbService } from 'src/prisma/usuarios-db.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   constructor(
-    // 2. Injete o serviço específico aqui
     private usuariosDb: UsuariosDbService,
     private jwtService: JwtService,
   ) {}
 
   async login(login: string, pass: string): Promise<{ token: string }> {
-    // 3. Use o serviço de usuários para fazer a busca
     const user = await this.usuariosDb.usuario.findUnique({
       where: { login },
     });

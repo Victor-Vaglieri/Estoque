@@ -8,11 +8,8 @@ type TipoServico = 'costura' | 'tingimento' | 'tapete';
 export class ControleService {
   constructor(private controleDB: ControleDbService) { }
 
-  /**
-   * Busca todos os registros (de forma simplificada) para a tabela de listagem.
-   */
   async findAll(tipo: TipoServico) {
-    const selectFields = {
+    const selectFields = { // TODO listar melhor isso aqui
       id: true,
       rol: true,
       cliente: true,
@@ -30,10 +27,6 @@ export class ControleService {
     }
   }
 
-  /**
-   * Busca um registro completo (fixos + múltiplos) pelo ROL.
-   * Retorna no formato { fixos: {}, multiplos: [] } que o frontend espera.
-   */
   async findByRol(tipo: TipoServico, rol: number) {
     let registro;
     switch (tipo) {
@@ -61,7 +54,6 @@ export class ControleService {
       return null;
     }
 
-    // Separa os 'itens' do resto, que são os 'fixos'
     const { itens, ...fixos } = registro;
     return { fixos, multiplos: itens || [] };
   }
@@ -76,8 +68,8 @@ export class ControleService {
       case 'costura':
         return this.controleDB.costuraRegistro.create({
           data: {
-            rol: rol as number, // 2. Passamos o 'rol' explicitamente
-            ...outrosDadosFixos, // 3. Passamos o resto dos dados
+            rol: rol as number,
+            ...outrosDadosFixos,
             itens: {
               create: dadosMultiplos,
             },
@@ -87,8 +79,8 @@ export class ControleService {
       case 'tingimento':
         return this.controleDB.tingimentoRegistro.create({
           data: {
-            rol: rol as number, // 2. Passamos o 'rol' explicitamente
-            ...outrosDadosFixos, // 3. Passamos o resto dos dados
+            rol: rol as number,
+            ...outrosDadosFixos,
             itens: {
               create: dadosMultiplos,
             },
@@ -98,8 +90,8 @@ export class ControleService {
       case 'tapete':
         return this.controleDB.tapeteRegistro.create({
           data: {
-            rol: rol as number, // 2. Passamos o 'rol' explicitamente
-            ...outrosDadosFixos, // 3. Passamos o resto dos dados
+            rol: rol as number,
+            ...outrosDadosFixos,
             itens: {
               create: dadosMultiplos,
             },
@@ -116,7 +108,6 @@ export class ControleService {
       throw new NotFoundException('ROL não fornecido para atualização.');
     }
 
-    // Remove campos que não devem ser atualizados diretamente
     delete dadosFixos.id;
     delete dadosFixos.createdAt;
     delete dadosFixos.updatedAt;
@@ -125,7 +116,6 @@ export class ControleService {
       let registroAtualizado;
       let registroId: number;
 
-      // 1. Atualiza o registro principal (fixos)
       switch (tipo) {
         case 'costura':
           registroAtualizado = await tx.costuraRegistro.update({
@@ -133,9 +123,7 @@ export class ControleService {
             data: dadosFixos,
           });
           registroId = registroAtualizado.id;
-          // 2. Deleta os itens antigos
           await tx.costuraItem.deleteMany({ where: { registroId } });
-          // 3. Cria os novos itens (se houver)
           if (dadosMultiplos.length > 0) {
             await tx.costuraItem.createMany({
               data: dadosMultiplos.map((item) => ({ ...item, registroId })),
@@ -175,26 +163,15 @@ export class ControleService {
     });
   }
 
-  // --- HELPER FUNCTIONS ---
-
-  /**
-   * Converte campos de data (de string YYYY-MM-DD para Date)
-   * e ROL (de string para Int)
-   */
   private prepareFixedData(fixos: Record<string, any>): Record<string, any> {
     const dadosLimpos = { ...fixos };
 
     for (const key in dadosLimpos) {
       const value = dadosLimpos[key];
 
-      // Converte campos de data
       if (key.includes('data_') || key.includes('previsao_')) {
-        // new Date('2025-11-04') funciona
-        // new Date('') retorna data inválida. Tratamos como null.
         dadosLimpos[key] = value ? new Date(value) : null;
       }
-
-      // Converte ROL para número
       if (key === 'rol' && value) {
         dadosLimpos[key] = parseInt(value, 10);
       }
@@ -202,9 +179,6 @@ export class ControleService {
     return dadosLimpos;
   }
 
-  /**
-   * Converte campos numéricos (de string para Float) nos itens múltiplos.
-   */
   private prepareMultipleData(
     multiplos: Record<string, any>[],
   ): Record<string, any>[] {
@@ -214,19 +188,15 @@ export class ControleService {
       for (const key in itemLimpo) {
         const value = itemLimpo[key];
 
-        // Converte campos de valor
         if (
           key.includes('custo') ||
           key.includes('cobrado') ||
           key.includes('valor')
         ) {
-          // parseFloat('10.50') funciona
-          // parseFloat('') retorna NaN. Tratamos como null.
           const floatVal = parseFloat(value);
           itemLimpo[key] = isNaN(floatVal) ? null : floatVal;
         }
       }
-      // Remove o ID do item se ele existir, pois estamos recriando
       delete itemLimpo.id;
       delete itemLimpo.registroId;
       return itemLimpo;

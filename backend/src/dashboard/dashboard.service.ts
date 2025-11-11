@@ -1,14 +1,11 @@
 // src/dashboard/dashboard.service.ts
 
 import { Injectable } from '@nestjs/common';
-// 1. Importe o serviço correto que existe no seu módulo Prisma
 import { EstoqueDbService } from '../prisma/estoque-db.service';
-import { Prisma } from '@prisma/estoque-client'; // Importe o Prisma para ter acesso ao `Prisma.sql` se precisar 
+import { Prisma } from '@prisma/estoque-client';
 
 @Injectable()
 export class DashboardService {
-    // 2. Peça pela injeção do EstoqueDbService.
-    //    (Opcional, mas recomendado: renomeie a variável para clareza)
     constructor(private estoqueDb: EstoqueDbService) { }
 
     async getDashboardStats(userId: number) {

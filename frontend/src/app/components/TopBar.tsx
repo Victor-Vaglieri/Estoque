@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 // --- CORREÇÃO: Usando caminhos relativos ---
 import { useAuth } from "../context/AuthContext";
 import { IconSun } from './icons/IconSun';
