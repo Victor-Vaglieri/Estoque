@@ -8,30 +8,31 @@ datasource db {
   url      = "file:./usuarios.db"
 }
 
-// adicionar loja, talvez um enum com tayrona, dryclean, (não lembro o nome) e (não lembro o nome)
-// devido essa fator ausente seria bom ser numeros e somente no front eu pensar nisso 
 model Usuario {
-  id       Int      @id @default(autoincrement())
-  nome     String
-  funcoes  UsuarioFuncao[]
-  login    String   @unique
-  senha    String
-  ativo    Boolean  @default(true)
+  id        Int      @id @default(autoincrement())
+  nome      String
+  login     String   @unique
+  senha     String
+  ativo     Boolean  @default(true)
   createdAt DateTime @default(now())
+  lojaId    Int?
+  funcoes   UsuarioFuncao[]
 }
 
 model UsuarioFuncao {
-  id       Int      @id @default(autoincrement())
-  usuario  Usuario  @relation(fields: [usuarioId], references: [id])
+  id        Int      @id @default(autoincrement())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade) // Adicionado onDelete
   usuarioId Int
-  funcao   Funcao
+  funcao    Funcao
 }
 
-enum Funcao { // só existe a diferenciação de funcionario e gestor
-  CADASTRO
-  COMPRAS
+enum Funcao {
+  TERCEIROS
+  SAIDA
   RECEBIMENTO
-  FUNCIONARIO
-  EMPREGADA
+  INVENTARIO
+  AVISOS
+  CADASTRO
+  LISTA
   GESTOR
 }
