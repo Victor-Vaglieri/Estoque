@@ -1,41 +1,47 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import './saidas.css';
-import { useAuth } from '@/app/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import { IconPlus } from '../../components/icons/IconPlus'
-import { IconPencil } from '../../components/icons/IconPencil'
+import './saidas.css'; 
+import { useAuth } from '@/app/context/AuthContext'; 
+import { useRouter } from 'next/navigation'; 
+import { IconPlus } from '../../components/icons/IconPlus'; 
+import { IconPencil } from '../../components/icons/IconPencil'; 
 
-// --- Tipos (baseado no seu Prisma Schema e Interface) ---
+
+
 type Product = {
     id: number;
     nome: string;
-    unidade: string; // Garantido com base no schema
+    unidade: string; 
     marca: string | null;
+    codigo: string | null; 
     ultimoPreco: number | null;
     precoMedio: number | null;
     quantidadeMin: number;
     quantidadeEst: number;
-    quantidadeNec: number;
+    quantidadeMax: number; 
     observacoes: string | null;
 };
 
-type Responsavel = {
-    id: number;
-    nome: string;
-};
+
+
 
 type Saida = {
     id: number;
     produtoId: number;
-    produto?: Product; // Relação (opcional para o form) - ATUALIZADO
+    produto?: Product;
     quantidade: number;
     data: string;
-    responsavelId: number;
-    responsavel?: Responsavel; // Relação (opcional para o form)
+    responsavelId: number; 
+    
     motivo: string | null;
 };
+
+
+
+
+
+
 
 
 export default function SaidasEstoquePage() {
@@ -49,21 +55,25 @@ export default function SaidasEstoquePage() {
     const [isEditing, setIsEditing] = useState(false);
     const [currentSaida, setCurrentSaida] = useState<Partial<Saida>>({});
 
+    
     const { user } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) {
-            router.push('/login');
+            router.push('/login'); 
             return;
         }
 
+        
+        
         if (user){
-            if (!user.funcoes.some(f => f === 'FUNCIONARIO' || f === 'GESTOR')) {
-            router.push('/inicio');
-            return;
-        }
+            
+            if (!user.funcoes.some((f: string) => f === 'SAIDA' || f === 'GESTOR')) {
+                router.push('/inicio'); 
+                return;
+            }
         }
 
         const loadData = async () => {
@@ -75,7 +85,8 @@ export default function SaidasEstoquePage() {
                     'Content-Type': 'application/json',
                 };
 
-                const resProducts = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/withStock`, { headers });
+                
+                const resProducts = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, { headers });
                 const resSaidas = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/saidas`, { method: 'GET', headers });
 
                 if (!resProducts.ok) {
@@ -84,13 +95,11 @@ export default function SaidasEstoquePage() {
                 const productsData: Product[] = await resProducts.json();
                 setProdutos(productsData);
 
-                console.log(resSaidas);
                 if (!resSaidas.ok) {
                     throw new Error("Falha ao carregar dados das saidas registradas.");
                 }
-                console.log(resSaidas);
                 const saidasData = await resSaidas.json();
-                setSaidas(saidasData);
+                setSaidas(saidasData); 
 
             } catch (err) {
                 setError((err as Error).message || "Ocorreu um erro desconhecido.");
@@ -100,9 +109,9 @@ export default function SaidasEstoquePage() {
         };
 
         loadData();
-    }, [user,router]); // Adicionado router como dependência
+    }, [user,router]); 
 
-    const getProductById = (id: number) => produtos.find(p => p.id === id); // ATUALIZADO
+    const getProductById = (id: number) => produtos.find(p => p.id === id); 
 
     const resetForm = () => {
         setIsEditing(false);
@@ -131,19 +140,15 @@ export default function SaidasEstoquePage() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
         let processedValue: any = value;
-        if (type === 'number') {
-            processedValue = parseFloat(value);
+        
+        if (type === 'number' || name === 'produtoId') {
+            if (value === '') {
+                processedValue = ''; 
+            } else {
+                const numValue = (name === 'produtoId') ? parseInt(value, 10) : parseFloat(value);
+                processedValue = isNaN(numValue) ? '' : numValue;
+            }
         }
-        else if (name === 'produtoId') {
-            processedValue = parseInt(value, 10);
-        }
-
-
-        // Permite limpar o campo de número (evita NaN)
-        if ((type === 'number' || name === 'produtoId') && isNaN(processedValue)) {
-            processedValue = ''; // Seta como string vazia se a conversão falhar (ex: campo vazio)
-        }
-
 
         setCurrentSaida(prev => ({
             ...prev,
@@ -160,13 +165,13 @@ export default function SaidasEstoquePage() {
             return;
         }
 
-        // Validação Simples
+        
         if (!currentSaida.produtoId || !currentSaida.quantidade) {
             setError("Produto e Quantidade são obrigatórios.");
             return;
         }
 
-        // --- Lógica de API (AGORA COM API) ---
+        
         try {
             const token = localStorage.getItem('token');
             const headers = {
@@ -177,43 +182,38 @@ export default function SaidasEstoquePage() {
             const bodyParaApi = {
                 ...currentSaida,
                 data: new Date(currentSaida.data as string).toISOString(),
-                produtoId: Number(currentSaida.produtoId), // Garante que é número
-                quantidade: Number(currentSaida.quantidade) // Garante que é número
+                produtoId: Number(currentSaida.produtoId), 
+                quantidade: Number(currentSaida.quantidade) 
             };
-
-            // Remove o 'produto' do body se ele existir (não deve ser enviado)
+            
+            
             delete bodyParaApi.produto;
+            delete (bodyParaApi as Partial<Saida>).responsavelId;
 
             if (isEditing) {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/saidas/${currentSaida.id}`, {
-                    method: 'PATCH', // MUDANÇA: Usando PATCH como solicitado
+                    method: 'PATCH', 
                     headers: headers,
                     body: JSON.stringify(bodyParaApi)
                 });
-
                 if (!response.ok) throw new Error("Falha ao atualizar saída.");
-
+                
                 const updatedSaidaFromApi = await response.json();
-                // Popula os dados de relação manualmente para UI (caso a API não retorne)
                 const updatedSaida = {
                     ...updatedSaidaFromApi,
                     produto: getProductById(updatedSaidaFromApi.produtoId)
                 };
-
                 setSaidas(saidas.map(s => s.id === updatedSaida.id ? updatedSaida : s));
-
+            
             } else {
-                // --- Lógica de Create (POST) ---
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/saidas`, {
                     method: 'POST',
                     headers: headers,
                     body: JSON.stringify(bodyParaApi)
                 });
-
                 if (!response.ok) throw new Error("Falha ao registrar saída.");
-
+                
                 const newSaidaFromApi = await response.json();
-                // Popula os dados de relação manualmente para UI
                 const newSaida = {
                     ...newSaidaFromApi,
                     produto: getProductById(newSaidaFromApi.produtoId)
@@ -229,16 +229,25 @@ export default function SaidasEstoquePage() {
         }
     };
 
-    const getEstoqueAtual = (produtoId: number | undefined) => {
+    
+    const getEstoqueNumerico = (produtoId: number | undefined): number => {
         if (!produtoId) return 0;
+        const produto = getProductById(produtoId);
+        return produto ? produto.quantidadeEst : 0;
+    }
+
+    
+    const getEstoqueAtualFormatado = (produtoId: number | undefined) => {
+        if (!produtoId) return '0';
         const produto = getProductById(produtoId);
         return produto ? `${produto.quantidadeEst} ${produto.unidade || ''}` : '0';
     }
 
     return (
         <div className="main-container-saidas">
+            {}
 
-            {/* --- Cabeçalho da Página --- */}
+            {}
             <header className="page-header-saidas">
                 <h1 className="page-title-saidas">Gerenciar Saídas de Estoque</h1>
                 <button className="btn-primary" onClick={handleToggleForm}>
@@ -247,15 +256,15 @@ export default function SaidasEstoquePage() {
                 </button>
             </header>
 
-            {/* --- Mensagem de Erro --- */}
+            {}
             {error && <div className="form-error-message">{error}</div>}
 
-            {/* --- Formulário de Saída (Slide-down) --- */}
+            {}
             <div className={`saida-form-container ${isFormVisible ? 'visible' : ''}`}>
                 <form className="saida-form" onSubmit={handleSubmit}>
                     <h2 className="form-title">{isEditing ? 'Editar Saída' : 'Registrar Nova Saída'}</h2>
 
-                    {/* --- Linha 1: Produto e Responsável --- */}
+                    {}
                     <div className="form-group">
                         <label htmlFor="produtoId">Produto</label>
                         <select
@@ -266,18 +275,22 @@ export default function SaidasEstoquePage() {
                             required
                         >
                             <option value="" disabled>Selecione um produto...</option>
+                            {}
                             {produtos.map(p => (
-                                <option key={p.id} value={p.id}>{p.nome}</option>
+                                <option key={p.id} value={p.id}>
+                                    {p.codigo ? `(Cód: ${p.codigo}) ` : ''}{p.nome}
+                                </option>
                             ))}
                         </select>
                     </div>
 
-                    {/* --- Linha 2: Quantidade e Data --- */}
+                    {}
                     <div className="form-group">
                         <label htmlFor="quantidade">
                             Quantidade
                             <span className="stock-info">
-                                (Estoque: {getEstoqueAtual(currentSaida.produtoId)})
+                                {}
+                                (Estoque: {getEstoqueAtualFormatado(currentSaida.produtoId)})
                             </span>
                         </label>
                         <input
@@ -287,11 +300,13 @@ export default function SaidasEstoquePage() {
                             value={currentSaida.quantidade || ''}
                             onChange={handleChange}
                             min="1"
-                            max={getEstoqueAtual(currentSaida.produtoId)}
+                            
+                            max={getEstoqueNumerico(currentSaida.produtoId)}
                             required
                         />
                     </div>
 
+                    {}
                     <div className="form-group">
                         <label htmlFor="data">Data da Saída</label>
                         <input
@@ -304,7 +319,7 @@ export default function SaidasEstoquePage() {
                         />
                     </div>
 
-                    {/* --- Linha 3: Motivo (Full-width) --- */}
+                    {}
                     <div className="form-group full-width">
                         <label htmlFor="motivo">Motivo / Observação</label>
                         <textarea
@@ -317,7 +332,7 @@ export default function SaidasEstoquePage() {
                         ></textarea>
                     </div>
 
-                    {/* --- Ações do Formulário --- */}
+                    {}
                     <div className="form-actions full-width">
                         <button type="button" className="btn-secondary" onClick={handleToggleForm}>
                             Cancelar
@@ -329,7 +344,7 @@ export default function SaidasEstoquePage() {
                 </form>
             </div>
 
-            {/* --- Lista de Saídas --- */}
+            {}
             <div className="saida-list-container">
                 <h2 className="list-title">Histórico de Saídas Recentes</h2>
                 {isLoading ? (
@@ -350,24 +365,19 @@ export default function SaidasEstoquePage() {
                                 {saidas.length > 0 ? (
                                     saidas.map(saida => (
                                         <tr key={saida.id}>
-                                            {/* ADICIONADO: data-label="Produto" */}
                                             <td data-label="Produto">
                                                 {saida.produto?.nome || 'Produto não encontrado'}
                                             </td>
-                                            {/* ADICIONADO: data-label="Qtd." */}
                                             <td className="col-quantidade" data-label="Qtd.">
                                                 {saida.quantidade}
                                                 <span className="unidade-table">{saida.produto?.unidade}</span>
                                             </td>
-                                            {/* ADICIONADO: data-label="Data" */}
                                             <td className="col-data" data-label="Data">
                                                 {new Date(saida.data).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
                                             </td>
-                                            {/* ADICIONADO: data-label="Motivo" */}
                                             <td className="col-motivo" data-label="Motivo">
                                                 {saida.motivo}
                                             </td>
-                                            {/* O 'col-acoes' não precisa de label */}
                                             <td className="col-acoes">
                                                 <button
                                                     className="btn-aviso btn-editar"
@@ -394,4 +404,3 @@ export default function SaidasEstoquePage() {
         </div>
     );
 }
-
