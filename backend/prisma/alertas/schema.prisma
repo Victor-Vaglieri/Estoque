@@ -9,14 +9,23 @@ datasource db {
 }
 
 model Alertas {
-  id       Int      @id @default(autoincrement())
-  titulo String
-  descricao String
+  id          Int      @id @default(autoincrement())
+  titulo      String
+  descricao   String
   importancia Importancia
-  concluido Boolean @default(false)
-  createdAt DateTime @default(now())
-  destinadoPara Int? // precisa mudar para vazio = todos, poder ser uma lista de usuarios 
-  finishedAt DateTime?
+  concluido   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  finishedAt  DateTime?
+  destinatarios AlertaDestinatario[]
+}
+model AlertaDestinatario {
+  id        Int     @id @default(autoincrement())
+  alertaId  Int
+  alerta    Alertas @relation(fields: [alertaId], references: [id], onDelete: Cascade)
+  userId    Int
+
+  @@unique([alertaId, userId])
+  @@index([userId])
 }
 
 enum Importancia {
