@@ -1,27 +1,28 @@
 "use client";
 
-import { useState, useEffect, ChangeEvent, useMemo } from 'react'; // Adicionado useMemo
-// Usando caminho relativo
+import { useState, useEffect, ChangeEvent, useMemo } from 'react';
+
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
-// Importe o CSS específico para esta página
+
 import './inventario.css';
 
-// Interface do Produto
+
 interface Product {
     id: number;
     nome: string;
     unidade: string;
     marca: string | null;
-    quantidadeEst: number; // Quantidade atual vinda do DB
-    quantidadeMin: number; // Mantemos para referência, se necessário
+    codigo: string | null; 
+    quantidadeEst: number; 
+    quantidadeMin: number;
 }
 
-// Tipo para definir a configuração de ordenação
+
 type SortConfig = {
-    key: keyof Product | null; // A chave do produto para ordenar (ou null)
-    direction: 'ascending' | 'descending'; // Direção
+    key: keyof Product | null; 
+    direction: 'ascending' | 'descending'; 
 } | null;
 
 
@@ -36,7 +37,7 @@ export default function InventarioPage() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    // --- NOVO: Estado para Ordenação ---
+    
     const [sortConfig, setSortConfig] = useState<SortConfig>(null);
 
     const clearFeedback = () => {
@@ -44,49 +45,58 @@ export default function InventarioPage() {
         setSuccess(null);
     }
 
-    const fetchProducts = async () => {
-        setIsLoading(true);
-        clearFeedback();
-        setEditedQuantities({});
-
-        const token = localStorage.getItem('token');
-        if (!token) {
-            router.push('/login');
-            return;
-        }
-
-        try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/inventory`, {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-            });
-
-            if (!response.ok) {
-                let errorMsg = 'Falha ao carregar o inventário.';
-                try { const errorData = await response.json(); errorMsg = errorData.message || errorMsg; } catch (e) { /* Ignora */ }
-                throw new Error(errorMsg);
-            }
-            const data: Product[] = await response.json();
-            setProducts(data);
-
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Ocorreu um erro ao carregar o inventário.');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
     useEffect(() => {
-        if (user) {
-            if (!Array.isArray(user?.funcoes) || !user.funcoes.some(f => f === 'EMPREGADA' || f === 'GESTOR')) {
-                router.push('/inicio');
+        
+        const loadData = async () => {
+            
+            if (user) {
+                
+                if (!Array.isArray(user?.funcoes) || !user.funcoes.some(f => f === 'INVENTARIO' || f === 'GESTOR')) {
+                    router.push('/inicio');
+                    return;
+                }
+            } else {
+                
+                
                 return;
             }
 
-        }
+            
+            setIsLoading(true);
+            clearFeedback();
+            setEditedQuantities({});
 
-        fetchProducts();
-    }, [user, router]);
+            const token = localStorage.getItem('token');
+            if (!token) {
+                router.push('/login');
+                return;
+            }
+
+            try {
+                
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inventario`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                });
+
+                if (!response.ok) {
+                    let errorMsg = 'Falha ao carregar o inventário.';
+                    try { const errorData = await response.json(); errorMsg = errorData.message || errorMsg; } catch (e) {  }
+                    throw new Error(errorMsg);
+                }
+                const data: Product[] = await response.json();
+                setProducts(data);
+
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Ocorreu um erro ao carregar o inventário.');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        
+        loadData();
+    }, [user, router]); 
 
     const handleQuantityChange = (productId: number, value: string) => {
         const sanitizedValue = value.replace(/[^0-9.]/g, '');
@@ -125,7 +135,8 @@ export default function InventarioPage() {
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inventario/update`, {
+            
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inventario/ajuste`, {
                 method: 'PATCH',
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ updates }),
@@ -133,21 +144,38 @@ export default function InventarioPage() {
 
             if (!response.ok) {
                 let errorMsg = 'Falha ao salvar o inventário.';
-                try { const errorData = await response.json(); errorMsg = errorData.message || errorMsg; } catch (e) { /* Ignora */ }
+                try { const errorData = await response.json(); errorMsg = errorData.message || errorMsg; } catch (e) {  }
                 throw new Error(errorMsg);
             }
 
             setSuccess("Inventário atualizado com sucesso!");
-            await fetchProducts();
+
+            
+            
+            
+            
+            setIsLoading(true);
+            const refetchResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inventario`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            });
+            if (refetchResponse.ok) {
+                const data: Product[] = await refetchResponse.json();
+                setProducts(data);
+                setEditedQuantities({}); 
+            } else {
+                throw new Error("Sucesso ao salvar, mas falha ao recarregar dados.");
+            }
 
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Ocorreu um erro ao salvar.');
         } finally {
             setIsSaving(false);
+            setIsLoading(false); 
         }
     };
 
-    // --- Lógica de Ordenação ---
+    
     const sortedProducts = useMemo(() => {
         let sortableProducts = [...products];
         if (sortConfig !== null) {
@@ -172,7 +200,7 @@ export default function InventarioPage() {
         return sortableProducts;
     }, [products, sortConfig]);
 
-    // --- Função para Solicitar Ordenação ---
+    
     const requestSort = (key: keyof Product) => {
         let direction: 'ascending' | 'descending' = 'ascending';
         if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -181,7 +209,7 @@ export default function InventarioPage() {
         setSortConfig({ key, direction });
     };
 
-    // --- Função para obter a classe CSS do cabeçalho de ordenação ---
+    
     const getSortDirectionClass = (key: keyof Product) => {
         if (!sortConfig || sortConfig.key !== key) {
             return '';
@@ -268,7 +296,7 @@ export default function InventarioPage() {
 
                                 return (
                                     <tr key={product.id} className={isEdited ? 'edited-row' : ''}>
-                                        {/* --- MUDANÇA: Adicionado data-label --- */}
+                                        {}
                                         <td data-label="Nome">{product.nome}</td>
                                         <td data-label="Marca">{product.marca || '-'}</td>
                                         <td data-label="Unidade">{product.unidade}</td>
@@ -293,4 +321,3 @@ export default function InventarioPage() {
         </>
     );
 }
-

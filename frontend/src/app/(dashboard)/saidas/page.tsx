@@ -66,8 +66,6 @@ export default function SaidasEstoquePage() {
             return;
         }
 
-        
-        
         if (user){
             
             if (!user.funcoes.some((f: string) => f === 'SAIDA' || f === 'GESTOR')) {

@@ -17,16 +17,16 @@ import { IconRecive } from './icons/IconRecive';
 import { IconTable } from './icons/IconTable';
 
 const navLinks = [
-  { name: 'Início', href: '/inicio', icon: <IconHome className="sidebar-icon" />, roles: ['GESTOR', 'CADASTRO', 'COMPRAS', 'RECEBIMENTO', 'FUNCIONARIO', 'EMPREGADA'] },
-  { name: 'Terceiros', href: '/legacy', icon: <IconAlert className="sidebar-icon" />, roles: ['GESTOR', 'CADASTRO', 'COMPRAS', 'RECEBIMENTO', 'FUNCIONARIO', 'EMPREGADA'] },
-  { name: 'Saída', href: '/saidas', icon: <IconOut className="sidebar-icon" />, roles: ['FUNCIONARIO', 'GESTOR'] },
+  { name: 'Início', href: '/inicio', icon: <IconHome className="sidebar-icon" />, roles: ['GESTOR', 'SAIDA', 'RECEBIMENTO', 'INVENTARIO', 'CADASTRO', 'LISTA', 'TERCEIROS'] },
+  { name: 'Terceiros', href: '/legacy', icon: <IconAlert className="sidebar-icon" />, roles: ['GESTOR', 'TERCEIROS'] },
+  { name: 'Saída', href: '/saidas', icon: <IconOut className="sidebar-icon" />, roles: ['SAIDA', 'GESTOR'] },
   { name: 'Recebimento', href: '/recebimentos', icon: <IconRecive className="sidebar-icon" />, roles: ['RECEBIMENTO', 'GESTOR'] },
-  { name: 'Inventário', href: '/inventario', icon: <IconTable className="sidebar-icon" />, roles: ['GESTOR', 'EMPREGADA'] },
-  { name: 'Avisos', href: '/avisos', icon: <IconAlert className="sidebar-icon" />, roles: ['GESTOR'] },
+  { name: 'Inventário', href: '/inventario', icon: <IconTable className="sidebar-icon" />, roles: ['GESTOR', 'INVENTARIO'] },
+  { name: 'Avisos', href: '/avisos', icon: <IconAlert className="sidebar-icon" />, roles: ['GESTOR', 'AVISOS'] },
   { name: 'Cadastro', href: '/produtos', icon: <IconBox className="sidebar-icon" />, roles: ['GESTOR', 'CADASTRO'] },
-  { name: 'Lista', href: '/compras', icon: <IconCart className="sidebar-icon" />, roles: ['GESTOR', 'COMPRAS'] },
+  { name: 'Lista', href: '/compras', icon: <IconCart className="sidebar-icon" />, roles: ['GESTOR', 'LISTA'] },
   { name: 'Relatórios', href: '/relatorios', icon: <IconGraph className="sidebar-icon" />, roles: ['GESTOR'] },
-  { name: 'Configurações', href: '/configuracoes', icon: <IconConfig className="sidebar-icon" />, roles: ['GESTOR', 'CADASTRO', 'COMPRAS', 'RECEBIMENTO', 'FUNCIONARIO', 'EMPREGADA'] },
+  { name: 'Configurações', href: '/configuracoes', icon: <IconConfig className="sidebar-icon" />, roles: ['GESTOR', 'SAIDA', 'RECEBIMENTO', 'INVENTARIO', 'CADASTRO', 'LISTA', 'TERCEIROS'] },
   { name: 'Usuários', href: '/perfis', icon: <IconModUsers className="sidebar-icon" />, roles: ['GESTOR'] },
 ];
 
