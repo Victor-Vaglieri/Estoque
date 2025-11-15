@@ -1,6 +1,6 @@
 // Funções possíveis do usuário, DEVE ser igual ao Enum Funcao no Prisma
-export type Funcao = 'CADASTRO' | 'COMPRAS' | 'RECEBIMENTO' | 'FUNCIONARIO' | 'EMPREGADA' | 'GESTOR';
-
+export type Funcao = 'GESTOR' | 'SAIDA' | 'RECEBIMENTO' | 'INVENTARIO' | 'CADASTRO' | 'LISTA' | 'TERCEIROS' | 'AVISOS';
+['GESTOR', 'SAIDA', 'RECEBIMENTO', 'INVENTARIO', 'CADASTRO', 'LISTA']
 export interface UserData {
   sub: number;
   login: string;

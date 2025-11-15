@@ -1,30 +1,30 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-// Usando o caminho de alias padrão
+
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
 import "./recebimentos.css";
 
-// Interface para os dados recebidos do backend (GET /recebimentos/pendentes)
-// Inclui dados do HistoricoCompra e do Produto associado
+
+
 interface PendingReceipt {
-    id: number; // ID do HistoricoCompra
+    id: number;
     quantidade: number;
-    precoTotal: number; // Preço registado na compra
-    data: string; // Data da compra
-    confirmadoEntrada: 'PENDENTE' | 'FALTANTE'; // Status atual
+    precoTotal: number;
+    data: string;
+    confirmadoEntrada: 'PENDENTE' | 'FALTANTE';
     produto: {
         id: number;
         nome: string;
         unidade: string;
         marca: string | null;
     };
-    // Adicione mais campos se necessário (ex: fornecedor)
+
 }
 
-// Enum local para os possíveis status (deve corresponder ao backend)
+
 enum EstadoEntrada {
     PENDENTE = 'PENDENTE',
     CONFIRMADO = 'CONFIRMADO',
@@ -37,16 +37,16 @@ export default function RecebimentosPage() {
     const router = useRouter();
     const { user } = useAuth();
 
-    // Estado para a lista de recebimentos pendentes
+
     const [pendingReceipts, setPendingReceipts] = useState<PendingReceipt[]>([]);
-    // Estado para guardar os preços confirmados (por ID do recebimento)
+
     const [confirmedPrices, setConfirmedPrices] = useState<Record<number, string>>({});
 
-    // Estados de feedback
+
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
-    // Controla o estado de submissão para cada card individualmente
+
     const [isSubmittingMap, setIsSubmittingMap] = useState<Record<number, boolean>>({});
 
     const clearFeedback = () => {
@@ -54,7 +54,7 @@ export default function RecebimentosPage() {
         setSuccess(null);
     };
 
-    // 1. Busca a lista de recebimentos pendentes/faltantes
+
     const fetchPendingReceipts = async () => {
         setIsLoading(true);
         clearFeedback();
@@ -65,7 +65,7 @@ export default function RecebimentosPage() {
         }
 
         try {
-            // --- NOVO ENDPOINT ---
+
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/recebimentos/pendentes`, {
                 method: 'GET',
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -77,10 +77,10 @@ export default function RecebimentosPage() {
             const data: PendingReceipt[] = await response.json();
             setPendingReceipts(data);
 
-            // Inicializa os preços confirmados com os preços registados
+
             const initialPrices: Record<number, string> = {};
             data.forEach(receipt => {
-                initialPrices[receipt.id] = receipt.precoTotal.toFixed(2); // Formata como string com 2 casas decimais
+                initialPrices[receipt.id] = receipt.precoTotal.toFixed(2);
             });
             setConfirmedPrices(initialPrices);
 
@@ -91,7 +91,7 @@ export default function RecebimentosPage() {
         }
     };
 
-    // Busca os dados ao carregar a página
+
     useEffect(() => {
         if (user) {
             if (!user.funcoes.some(f => f === 'RECEBIMENTO' || f === 'GESTOR')) {
@@ -100,17 +100,17 @@ export default function RecebimentosPage() {
             }
         }
         fetchPendingReceipts();
-    }, [user,router]);
+    }, [user, router]);
 
-    // Função para lidar com a mudança no input de preço
+
     const handlePriceChange = (receiptId: number, value: string) => {
         setConfirmedPrices(prev => ({
             ...prev,
-            [receiptId]: value // Guarda como string, validação no envio
+            [receiptId]: value
         }));
     };
 
-    // 2. Função para CONFIRMAR/ATUALIZAR um recebimento
+
     const handleUpdateReceipt = async (receiptId: number, newStatus: EstadoEntrada) => {
         clearFeedback();
         setIsSubmittingMap(prev => ({ ...prev, [receiptId]: true }));
@@ -125,7 +125,7 @@ export default function RecebimentosPage() {
         const confirmedPriceStr = confirmedPrices[receiptId];
         const confirmedPriceNum = parseFloat(confirmedPriceStr);
 
-        // Validação do preço inserido
+
         if (isNaN(confirmedPriceNum) || confirmedPriceNum < 0) {
             setError(`[ID ${receiptId}] Preço confirmado inválido.`);
             setIsSubmittingMap(prev => ({ ...prev, [receiptId]: false }));
@@ -138,9 +138,9 @@ export default function RecebimentosPage() {
         };
 
         try {
-            // --- NOVO ENDPOINT ---
+
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/recebimentos/${receiptId}`, {
-                method: 'PATCH', // PATCH é mais adequado para atualizações parciais
+                method: 'PATCH',
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify(updateData),
             });
@@ -152,9 +152,9 @@ export default function RecebimentosPage() {
 
             setSuccess(`[ID ${receiptId}] Recebimento atualizado para ${newStatus}!`);
 
-            // Atualiza a lista removendo o item processado
-            // setPendingReceipts(prev => prev.filter(receipt => receipt.id !== receiptId));
-            // OU recarrega a lista completa
+
+
+
             await fetchPendingReceipts();
 
         } catch (err) {
@@ -202,7 +202,7 @@ export default function RecebimentosPage() {
                             </div>
 
                             <div className="recebimentos-actions">
-                                {/* Input para Preço Confirmado */}
+                                { }
                                 <label className="price-label">
                                     Preço Confirmado (NF):
                                     <input
@@ -217,7 +217,7 @@ export default function RecebimentosPage() {
                                     />
                                 </label>
 
-                                {/* Botões de Ação */}
+                                { }
                                 <div className="action-buttons">
                                     <button
                                         className="btn-danger"
@@ -230,7 +230,7 @@ export default function RecebimentosPage() {
                                     <button
                                         className="btn-warning"
                                         onClick={() => handleUpdateReceipt(receipt.id, EstadoEntrada.FALTANTE)}
-                                        disabled={isSubmitting || receipt.confirmadoEntrada === 'FALTANTE'} // Desabilita se já for FALTANTE
+                                        disabled={isSubmitting || receipt.confirmadoEntrada === 'FALTANTE'}
                                     >
                                         {isSubmitting ? '...' : 'Marcar Faltante'}
                                     </button>

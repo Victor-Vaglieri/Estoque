@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, ChangeEvent } from 'react';
+import { useAuth } from '@/app/context/AuthContext'; 
+import { useRouter } from 'next/navigation'; 
 
 import './legacy.css';
 
@@ -159,7 +161,16 @@ export default function LegacyFormPage() {
     }, []);
 
 
+    const { user } = useAuth();
+    const router = useRouter();
+
     useEffect(() => {
+        if (user) {
+            if (!user.funcoes.some((f: string) => f === 'TERCEIROS' || f === 'GESTOR')) {
+                router.push('/inicio');
+                return;
+            }
+        }
         resetForm();
         fetchAllRegistros(tipoAtual);
     }, [tipoAtual, resetForm, fetchAllRegistros]);
