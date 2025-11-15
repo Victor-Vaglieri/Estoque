@@ -3,7 +3,8 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UsuariosDbService } from 'src/prisma/usuarios-db.service';
+
+import { UsuariosDbService } from '../prisma/usuarios-db.service'; 
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import * as bcrypt from 'bcrypt';
 
@@ -54,5 +55,19 @@ export class UsersService {
     });
 
     return { message: 'Senha atualizada com sucesso' };
+  }
+
+  
+  
+  async findByLojaId(lojaId: number) {
+    return this.prisma.usuario.findMany({
+      where: {
+        lojaId: lojaId,
+        ativo: true, 
+      },
+      select: {
+        id: true, 
+      },
+    });
   }
 }

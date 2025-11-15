@@ -9,84 +9,79 @@ datasource db {
 }
 
 model Fornecedor {
-  id     Int    @id @default(autoincrement())
-  nome   String @unique
-  
+  id   Int    @id @default(autoincrement())
+  nome String @unique
+
   produtos Produto[]
   entradas Entrada[]
   compras  HistoricoCompra[]
 }
 
 model Loja {
-  id     Int    @id @default(autoincrement())
-  nome   String @unique
+  id   Int    @id @default(autoincrement())
+  nome String @unique
 
   necessidades LojaNecessitaProduto[]
-  
-  estoque      EstoqueLoja[]
+
+  estoque             EstoqueLoja[]
+  compraDistribuicaos CompraDistribuicao[]
 }
 
 model LojaNecessitaProduto {
-  id        Int     @id @default(autoincrement())
-  
+  id Int @id @default(autoincrement())
+
   produtoId Int
   produto   Produto @relation(fields: [produtoId], references: [id], onDelete: Cascade)
-  
-  lojaId    Int
-  loja      Loja    @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+
+  lojaId Int
+  loja   Loja @relation(fields: [lojaId], references: [id], onDelete: Cascade)
 
   @@unique([produtoId, lojaId])
 }
 
-
-
 model EstoqueLoja {
-  id            Int     @id @default(autoincrement())
-  
-  produtoId     Int
-  produto       Produto @relation(fields: [produtoId], references: [id], onDelete: Cascade)
-  
-  lojaId        Int
-  loja          Loja    @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  id Int @id @default(autoincrement())
 
-  
-  quantidadeEst Int     @default(0)
+  produtoId Int
+  produto   Produto @relation(fields: [produtoId], references: [id], onDelete: Cascade)
 
-  @@unique([produtoId, lojaId]) 
+  lojaId Int
+  loja   Loja @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+
+  quantidadeEst Int @default(0)
+
+  @@unique([produtoId, lojaId])
 }
 
-
 model Produto {
-  id             Int     @id @default(autoincrement())
-  nome           String
-  codigo         String? @unique
-  corredor       String?
-  producao       Boolean @default(false)
-  
-  marca          String?
-  categoria      String?
-  unidade        String
-  quantidadeMin  Int
-  
-  
-  quantidadeMax  Int     
-  observacoes    String?
-  ativo          Boolean @default(true)
+  id       Int     @id @default(autoincrement())
+  nome     String
+  codigo   String? @unique
+  corredor String?
+  producao Boolean @default(false)
 
-  fornecedorId   Int
-  fornecedor     Fornecedor @relation(fields: [fornecedorId], references: [id])
+  marca         String?
+  categoria     String?
+  unidade       String
+  quantidadeMin Int
 
-  entradas       Entrada[]
-  saidas         Saida[]
-  historicoPreco HistoricoPreco[]
+  quantidadeMax Int
+  observacoes   String?
+  ativo         Boolean @default(true)
+
+  fornecedorId Int
+  fornecedor   Fornecedor @relation(fields: [fornecedorId], references: [id])
+
+  entradas        Entrada[]
+  saidas          Saida[]
+  historicoPreco  HistoricoPreco[]
   historicoCompra HistoricoCompra[]
-  lojas          LojaNecessitaProduto[]
+  lojas           LojaNecessitaProduto[]
 
-  
-  estoqueLojas   EstoqueLoja[]
+  estoqueLojas EstoqueLoja[]
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Entrada {
@@ -96,13 +91,12 @@ model Entrada {
   quantidade    Int
   data          DateTime @default(now())
   precoPago     Float
-  responsavelId Int      
+  responsavelId Int
 
-  fornecedorId  Int?
-  fornecedor    Fornecedor? @relation(fields: [fornecedorId], references: [id])
+  fornecedorId Int?
+  fornecedor   Fornecedor? @relation(fields: [fornecedorId], references: [id])
 
-  
-  lojaId        Int
+  lojaId Int
 }
 
 model Saida {
@@ -111,11 +105,10 @@ model Saida {
   produto       Produto  @relation(fields: [produtoId], references: [id])
   quantidade    Int
   data          DateTime @default(now())
-  responsavelId Int      
+  responsavelId Int
   motivo        String?
 
-  
-  lojaId        Int
+  lojaId Int
 }
 
 model HistoricoPreco {
@@ -126,22 +119,33 @@ model HistoricoPreco {
   data      DateTime @default(now())
 }
 
-
 model HistoricoCompra {
-  id                       Int           @id @default(autoincrement())
-  produtoId                Int
-  produto                  Produto       @relation(fields: [produtoId], references: [id])
-  quantidade               Int
-  precoTotal               Float
-  data                     DateTime      @default(now())
-  responsavelId            Int
-  confirmadoEntrada        EstadoEntrada @default(PENDENTE)
-  responsavelConfirmacaoId Int?
+  id            Int         @id @default(autoincrement())
+  produtoId     Int
+  produto       Produto     @relation(fields: [produtoId], references: [id])
+  quantidade    Int
+  precoTotal    Float
+  data          DateTime    @default(now())
+  responsavelId Int
+  fornecedorId  Int?
+  fornecedor    Fornecedor? @relation(fields: [fornecedorId], references: [id])
 
-  fornecedorId             Int?
-  fornecedor               Fornecedor?   @relation(fields: [fornecedorId], references: [id])
+  distribuicao CompraDistribuicao[]
 }
 
+model CompraDistribuicao {
+  id                       Int             @id @default(autoincrement())
+  historicoCompraId        Int
+  historicoCompra          HistoricoCompra @relation(fields: [historicoCompraId], references: [id], onDelete: Cascade)
+  lojaId                   Int
+  loja                     Loja            @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  quantidade               Int
+  confirmadoEntrada        EstadoEntrada   @default(PENDENTE)
+  responsavelConfirmacaoId Int?
+
+  @@unique([historicoCompraId, lojaId])
+  @@index([lojaId])
+}
 
 enum EstadoEntrada {
   PENDENTE

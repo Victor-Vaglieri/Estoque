@@ -1,139 +1,230 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
-import { Prisma, EstadoEntrada, Produto } from '@prisma/estoque-client'; 
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
+import { Prisma, EstadoEntrada } from '@prisma/estoque-client';
 import { EstoqueDbService } from '../prisma/estoque-db.service';
 import { UpdateRecebimentoDto } from './dto/update-recebimento.dto';
 
+
+type AuthUser = {
+  id: number;
+  lojaId: number;
+  
+};
+
 @Injectable()
 export class RecebimentosService {
-    constructor(private estoqueDb: EstoqueDbService) {}
+  constructor(private estoqueDb: EstoqueDbService) {}
 
-    // TODO separar poor exclusiva loja, caso seja para diversar lojas não listar
-    async findPending(userId: number) {
-        const pending = await this.estoqueDb.historicoCompra.findMany({
-            where: {
-                confirmadoEntrada: {
-                    in: [EstadoEntrada.PENDENTE, EstadoEntrada.FALTANTE],
-                },
-            },
-            include: {
-                produto: {
-                    select: {
-                        id: true,
-                        nome: true,
-                        unidade: true,
-                        marca: true,
-                    }
-                }, 
-            },
-            orderBy: {
-                data: 'asc',
-            }
-        });
-        return pending;
+  
+  async findPending(authUser: AuthUser) {
+    if (!authUser.lojaId) {
+      throw new ForbiddenException('Usuário não associado a uma loja.');
     }
 
+    
+    const distribuicoes = await this.estoqueDb.compraDistribuicao.findMany({
+      where: {
+        lojaId: authUser.lojaId,
+        confirmadoEntrada: {
+          in: [EstadoEntrada.PENDENTE, EstadoEntrada.FALTANTE],
+        },
+      },
+      include: {
+        
+        historicoCompra: {
+          include: {
+            
+            produto: {
+              select: {
+                id: true,
+                nome: true,
+                unidade: true,
+                marca: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        historicoCompra: { data: 'asc' }, 
+      },
+    });
 
-    async updateStatus(
-        userId: number,
-        historicoCompraId: number, 
-        updateDto: UpdateRecebimentoDto
-    ) {
-        const { status: newStatus, precoConfirmado } = updateDto;
+    
+    return distribuicoes.map((dist) => ({
+      id: dist.id, 
+      quantidade: dist.quantidade, 
+      precoTotal: dist.historicoCompra.precoTotal, 
+      data: dist.historicoCompra.data, 
+      confirmadoEntrada: dist.confirmadoEntrada, 
+      produto: dist.historicoCompra.produto,
+    }));
+  }
 
-        const compraOriginal = await this.estoqueDb.historicoCompra.findUnique({
-            where: { id: historicoCompraId },
-        });
+  
+  async updateStatus(
+    authUser: AuthUser,
+    distribuicaoId: number, 
+    updateDto: UpdateRecebimentoDto,
+  ) {
+    const { status: newStatus, precoConfirmado } = updateDto;
+    const { id: userId, lojaId } = authUser;
 
-        if (!compraOriginal) {
-            throw new NotFoundException(`Registro de compra com ID ${historicoCompraId} não encontrado.`);
-        }
+    
+    const distribuicaoOriginal = await this.estoqueDb.compraDistribuicao.findUnique({
+        where: { id: distribuicaoId },
+        include: { historicoCompra: true }, 
+      },
+    );
 
-        const oldStatus = compraOriginal.confirmadoEntrada;
-        const quantidadeComprada = compraOriginal.quantidade;
-        const produtoId = compraOriginal.produtoId;
+    if (!distribuicaoOriginal) {
+      throw new NotFoundException(
+        `Registro de distribuição com ID ${distribuicaoId} não encontrado.`,
+      );
+    }
 
-        try {
-            const [updatedHistorico, updatedProduto] = await this.estoqueDb.$transaction(async (prismaTx) => {
-                let updatedProdutoResult: Produto | null = null; 
-                const updatedHistoricoCompra = await prismaTx.historicoCompra.update({
-                    where: { id: historicoCompraId },
-                    data: {
-                        confirmadoEntrada: newStatus,
-                        precoTotal: precoConfirmado,
-                        responsavelConfirmacaoId: userId, 
-                    },
-                });
+    
+    if (distribuicaoOriginal.lojaId !== lojaId) {
+      throw new ForbiddenException(
+        'Você não tem permissão para confirmar esta entrada.',
+      );
+    }
 
-                if (newStatus === EstadoEntrada.CONFIRMADO && oldStatus !== EstadoEntrada.CONFIRMADO) {
+    const oldStatus = distribuicaoOriginal.confirmadoEntrada;
+    const quantidadeParaLoja = distribuicaoOriginal.quantidade;
+    const produtoId = distribuicaoOriginal.historicoCompra.produtoId;
+    const fornecedorId = distribuicaoOriginal.historicoCompra.fornecedorId;
+    const quantidadeTotalDaCompra = distribuicaoOriginal.historicoCompra.quantidade;
 
-                    updatedProdutoResult = await prismaTx.produto.update({
-                        where: { id: produtoId },
-                        data: {
-                            quantidadeEst: {
-                                increment: quantidadeComprada,
-                            },
-                        },
-                    });
-                    
-                    await prismaTx.entrada.create({
-                        data: {
-                            produtoId: produtoId,
-                            quantidade: quantidadeComprada,
-                            precoPago: precoConfirmado,
-                            fornecedor: compraOriginal.fornecedor,
-                            responsavelId: userId,
-                        }
-                    });
+    try {
+      const [updatedDistribuicao] = await this.estoqueDb.$transaction(
+        async (prismaTx) => {
+          
+          const updatedDistribuicao = await prismaTx.compraDistribuicao.update({
+            where: { id: distribuicaoId },
+            data: {
+              confirmadoEntrada: newStatus,
+              responsavelConfirmacaoId: userId,
+              
+              
+              
+            },
+          });
 
-                    if (quantidadeComprada > 0) { 
-                        const precoUnitario = precoConfirmado / quantidadeComprada;
-                        
-                        await prismaTx.historicoPreco.create({
-                            data: {
-                                produtoId: produtoId,
-                                preco: precoUnitario,
-                                data: new Date()
-                            }
-                        });
-                    }
-
-                } 
-                else if (newStatus !== EstadoEntrada.CONFIRMADO && oldStatus === EstadoEntrada.CONFIRMADO) {
-                     const produtoAtual = await prismaTx.produto.findUniqueOrThrow({ where: { id: produtoId } });
-                     updatedProdutoResult = await prismaTx.produto.update({
-                        where: { id: produtoId },
-                        data: {
-                            quantidadeEst: {
-                                decrement: Math.min(produtoAtual.quantidadeEst, quantidadeComprada), 
-                            },
-                        },
-                    });
-
-                     await prismaTx.saida.create({
-                        data: {
-                            produtoId: produtoId,
-                            quantidade: quantidadeComprada,
-                            responsavelId: userId, 
-                            motivo: `Reversão de Compra: Status da Compra ID ${historicoCompraId} alterado para ${newStatus}.`,
-                        }
-                    });
-                    
-                }
-                
-                return [updatedHistoricoCompra, updatedProdutoResult]; 
+          
+          if (
+            newStatus === EstadoEntrada.CONFIRMADO &&
+            oldStatus !== EstadoEntrada.CONFIRMADO
+          ) {
+            
+            await prismaTx.estoqueLoja.upsert({
+              where: {
+                produtoId_lojaId: {
+                  produtoId: produtoId,
+                  lojaId: lojaId, 
+                },
+              },
+              update: {
+                quantidadeEst: { increment: quantidadeParaLoja },
+              },
+              create: {
+                produtoId: produtoId,
+                lojaId: lojaId,
+                quantidadeEst: quantidadeParaLoja,
+              },
             });
 
-            return updatedHistorico;
-
-        } catch (error) {
-            console.error("Erro ao atualizar recebimento:", error);
-            if (error instanceof Prisma.PrismaClientKnownRequestError) {
-                 if (error.code === 'P2025') {
-                     throw new NotFoundException(`Erro ao encontrar registo relacionado durante a transação.`);
-                 }
+            let precoUnitarioReal = 0;
+            if (quantidadeTotalDaCompra > 0) {
+              // Preço total da NF dividido pela quantidade total comprada
+              precoUnitarioReal = precoConfirmado / quantidadeTotalDaCompra;
             }
-             throw new BadRequestException("Não foi possível atualizar o recebimento.");
-        }
-    }
-}
+            // Preço que esta loja pagou (proporcional)
+            const precoPagoParaEstaEntrada = precoUnitarioReal * quantidadeParaLoja;
 
+
+            
+            await prismaTx.entrada.create({
+              data: {
+                produtoId: produtoId,
+                quantidade: quantidadeParaLoja,
+                precoPago: precoConfirmado, 
+                fornecedorId: fornecedorId,
+                responsavelId: userId,
+                lojaId: lojaId,
+              },
+            });
+
+            
+            if (quantidadeParaLoja > 0) {
+              await prismaTx.historicoPreco.create({
+                data: {
+                  produtoId: produtoId,
+                  preco: precoUnitarioReal,
+                  data: new Date(),
+                },
+              });
+            }
+          }
+          
+          else if (
+            newStatus !== EstadoEntrada.CONFIRMADO &&
+            oldStatus === EstadoEntrada.CONFIRMADO
+          ) {
+            const estoqueLoja = await prismaTx.estoqueLoja.findUnique({
+              where: {
+                produtoId_lojaId: {
+                  produtoId: produtoId,
+                  lojaId: lojaId,
+                },
+              },
+            });
+
+            if (estoqueLoja) {
+              await prismaTx.estoqueLoja.update({
+                where: { id: estoqueLoja.id },
+                data: {
+                  quantidadeEst: {
+                    decrement: Math.min(
+                      estoqueLoja.quantidadeEst,
+                      quantidadeParaLoja,
+                    ),
+                  },
+                },
+              });
+            }
+
+            
+            await prismaTx.saida.create({
+              data: {
+                produtoId: produtoId,
+                quantidade: quantidadeParaLoja,
+                responsavelId: userId,
+                lojaId: lojaId,
+                motivo: `Reversão de Recebimento: Status da Distribuição ID ${distribuicaoId} alterado para ${newStatus}.`,
+              },
+            });
+          }
+
+          return [updatedDistribuicao];
+        },
+      );
+
+      return updatedDistribuicao;
+    } catch (error) {
+      console.error('Erro ao atualizar recebimento:', error);
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException(
+            `Erro ao encontrar registo relacionado durante a transação.`,
+          );
+        }
+      }
+      throw new BadRequestException('Não foi possível atualizar o recebimento.');
+    }
+  }
+}

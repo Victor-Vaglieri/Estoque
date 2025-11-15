@@ -1,19 +1,51 @@
-import { Controller, Patch, Body, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Patch,
+  Body,
+  UseGuards,
+  Req,
+  ForbiddenException,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { InventarioService } from './inventory.service';
-import { UpdateInventarioDto } from './dto/update-inventario.dto';
+import { AjusteInventarioDto } from './dto/update-inventario.dto';
 
-@Controller('inventario') // Rota base /inventario
+
+type AuthUser = {
+  id: number;
+  lojaId: number;
+};
+
+@UseGuards(AuthGuard('jwt'))
+@Controller('inventario') 
 export class InventarioController {
-    constructor(private readonly inventarioService: InventarioService) {}
+  constructor(private readonly inventarioService: InventarioService) {}
 
-    @UseGuards(AuthGuard('jwt'))
-    @Patch('update') // Rota PATCH /inventario/update
-    async updateInventario(
-        @Request() req,
-        @Body() updateInventarioDto: UpdateInventarioDto, // Recebe o DTO validado
-    ) {
-        const userId = req.user.sub; // Pega o ID do usuário logado
-        return this.inventarioService.updateQuantities(userId, updateInventarioDto);
+  
+  @Get()
+  findAll(@Req() req) {
+    const authUser = req.user as AuthUser;
+    if (!authUser?.lojaId) {
+      throw new ForbiddenException('Usuário não associado a uma loja.');
     }
+    return this.inventarioService.findAllByLoja(authUser.lojaId);
+  }
+
+  
+  @Patch('ajuste')
+  ajustarEstoque(
+    @Body() ajusteInventarioDto: AjusteInventarioDto,
+    @Req() req,
+  ) {
+    const authUser = req.user as AuthUser;
+    if (!authUser?.lojaId) {
+      throw new ForbiddenException('Usuário não associado a uma loja.');
+    }
+    return this.inventarioService.ajustarEstoque(
+      ajusteInventarioDto.updates,
+      authUser.lojaId,
+      authUser.id, 
+    );
+  }
 }

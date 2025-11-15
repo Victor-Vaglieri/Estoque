@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
 import { InventarioController } from './inventory.controller';
 import { InventarioService } from './inventory.service';
-import { PrismaModule } from '../prisma/prisma.module'; // Importe seu módulo Prisma
+import { EstoqueDbService } from '../prisma/estoque-db.service'; 
+// MUDANÇA: Importar o Event Emitter
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
-  imports: [PrismaModule], // Disponibiliza o EstoqueDbService
+
+  imports: [EventEmitterModule.forRoot()], 
   controllers: [InventarioController],
-  providers: [InventarioService],
+  providers: [InventarioService, EstoqueDbService], 
 })
 export class InventarioModule {}
