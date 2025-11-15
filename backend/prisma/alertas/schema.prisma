@@ -16,6 +16,10 @@ model Alertas {
   concluido   Boolean  @default(false)
   createdAt   DateTime @default(now())
   finishedAt  DateTime?
+  criadorId   Int
+  criadorNome String
+  lojaId      Int
+
   destinatarios AlertaDestinatario[]
 }
 model AlertaDestinatario {

@@ -1,52 +1,131 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
-import { Prisma } from '@prisma/estoque-client';
-import { EstoqueDbService } from '../prisma/estoque-db.service'; // Ajuste o caminho
-import { UpdateInventarioDto } from './dto/update-inventario.dto';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { EstoqueDbService } from '../prisma/estoque-db.service';
+
+import { EventEmitter2 } from '@nestjs/event-emitter';
+
+
+interface UpdateEstoqueItem {
+  produtoId: number;
+  newQuantity: number;
+}
+
+
+type AuthUser = {
+  id: number;
+  lojaId: number;
+};
 
 @Injectable()
 export class InventarioService {
-    constructor(private estoqueDb: EstoqueDbService) {}
-    // TODO caso valor novo seja abaixo do velho lançar alerta para todos da mesma loja
-    async updateQuantities(userId: number, updateDto: UpdateInventarioDto) {
-        const { updates } = updateDto;
-        if (!updates || updates.length === 0) {
-            throw new BadRequestException('Nenhuma atualização fornecida.');
+  
+  constructor(
+    private estoqueDb: EstoqueDbService,
+    private eventEmitter: EventEmitter2,
+  ) {}
+
+  
+  async findAllByLoja(lojaId: number) {
+    const estoqueLojas = await this.estoqueDb.estoqueLoja.findMany({
+      where: { lojaId },
+      include: {
+        produto: true, 
+      },
+    });
+
+    
+    return estoqueLojas.map((el) => ({
+      ...el.produto, 
+      id: el.produtoId, 
+      quantidadeEst: el.quantidadeEst, 
+    }));
+  }
+
+  
+  async ajustarEstoque(
+    updates: UpdateEstoqueItem[],
+    lojaId: number,
+    userId: number,
+  ) {
+    return this.estoqueDb.$transaction(async (tx) => {
+      for (const update of updates) {
+        const { produtoId, newQuantity } = update;
+
+        
+        
+        const estoqueAtual = await tx.estoqueLoja.findUnique({
+          where: { produtoId_lojaId: { produtoId, lojaId } },
+          include: {
+            produto: {
+              select: { nome: true, unidade: true },
+            },
+          },
+        });
+
+        if (!estoqueAtual) {
+          throw new NotFoundException(
+            `Produto ID ${produtoId} não encontrado no estoque desta loja.`,
+          );
         }
 
-        try {
-            const results = await this.estoqueDb.$transaction(async (prismaTx) => {
-                const updatePromises = updates.map(async (updateItem) => {
-                    const { productId, newQuantity } = updateItem;
-                    const product = await prismaTx.produto.findUnique({
-                        where: { id: productId }, // TODO adicionar somente a loja do usuario
-                    });
+        const diferenca = newQuantity - estoqueAtual.quantidadeEst;
 
-                    if (!product) {
-                        throw new NotFoundException(`Produto com ID ${productId} não encontrado.`);
-                    }
-
-                    return prismaTx.produto.update({
-                        where: { id: productId },
-                        data: { quantidadeEst: newQuantity },
-                        select: { id: true, quantidadeEst: true } 
-                    });
-                });
-
-                return Promise.all(updatePromises);
-            });
-            return {
-                message: `${results.length} produto(s) atualizado(s) com sucesso.`,
-                updatedProducts: results 
-            };
-
-        } catch (error) {
-             console.error("Erro ao atualizar inventário:", error);
-             if (error instanceof NotFoundException || error instanceof ForbiddenException || error instanceof BadRequestException) {
-                 throw error;
-             }
-             if (error instanceof Prisma.PrismaClientKnownRequestError) {
-             }
-             throw new BadRequestException("Não foi possível atualizar o inventário.");
+        if (diferenca === 0) {
+          continue; 
         }
-    }
+
+        
+        await tx.estoqueLoja.update({
+          where: { id: estoqueAtual.id },
+          data: { quantidadeEst: newQuantity },
+        });
+
+        
+        if (diferenca > 0) {
+          await tx.entrada.create({
+            data: {
+              produtoId: produtoId,
+              lojaId: lojaId,
+              quantidade: diferenca,
+              responsavelId: userId,
+              precoPago: 0, 
+              fornecedorId: null, 
+            },
+          });
+        }
+        
+        else if (diferenca < 0) {
+          
+          await tx.saida.create({
+            data: {
+              produtoId: produtoId,
+              lojaId: lojaId,
+              quantidade: Math.abs(diferenca), 
+              responsavelId: userId,
+              motivo: 'Ajuste de Inventário',
+            },
+          });
+
+          
+          
+          this.eventEmitter.emit('inventario.alerta', {
+            userId: userId, // Passa o ID de quem fez o ajuste
+            lojaId: lojaId,
+            titulo: 'Ajuste de Inventário',
+            descricao: `O estoque de "${
+              estoqueAtual.produto.nome
+            }" foi ajustado manualmente para ${newQuantity} ${
+              estoqueAtual.produto.unidade || 'un.'
+            }. (Estoque anterior: ${estoqueAtual.quantidadeEst})`,
+            importancia: 'MEDIA', 
+          });
+          
+        }
+      }
+      return { message: 'Inventário atualizado com sucesso' };
+    });
+  }
 }
