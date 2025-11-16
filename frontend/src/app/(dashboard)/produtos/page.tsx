@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { IconDown } from '@/app/components/icons/IconDown';
@@ -8,23 +8,42 @@ import { IconLeft } from '@/app/components/icons/IconLeft';
 
 import './produtos.css';
 
-interface Product {
-    nome: string;
+
+interface Fornecedor {
     id: number;
+    nome: string;
+}
+
+
+interface Product {
+    id: number;
+    nome: string;
     unidade: string;
     marca: string | null;
-    ultimoPreco: number | null;
-    precoMedio: number | null;
+    codigo: string | null; 
+    corredor: string | null; 
+    producao: boolean; 
+    
+    
+    quantidadeEst: number; 
+    
     quantidadeMin: number;
-    quantidadeEst: number;
-    quantidadeNec: number;
+    quantidadeMax: number; 
+    fornecedorId: number; 
     observacoes: string | null;
     ativo: boolean;
+
+    
+    fornecedor?: Fornecedor;
 }
+
 
 export default function ProductsHomePage() {
     const router = useRouter();
     const [products, setProducts] = useState<Product[]>([]);
+    
+    const [fornecedores, setFornecedores] = useState<Fornecedor[]>([]);
+    
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const { user } = useAuth();
@@ -41,18 +60,30 @@ export default function ProductsHomePage() {
             return;
         }
         try {
-            const responseListProducts = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-            if (!responseListProducts.ok) {
-                throw new Error(`Erro ao buscar produtos: ${responseListProducts.statusText}`);
+            
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            };
+            
+            const [resProducts, resFornecedores] = await Promise.all([
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, { headers }),
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/fornecedores`, { headers }) 
+            ]);
+
+            if (!resProducts.ok) {
+                throw new Error(`Erro ao buscar produtos: ${resProducts.statusText}`);
             }
-            const data = await responseListProducts.json();
-            setProducts(data);
+            if (!resFornecedores.ok) {
+                throw new Error(`Erro ao buscar fornecedores: ${resFornecedores.statusText}`);
+            }
+            
+            const productsData = await resProducts.json();
+            const fornecedoresData = await resFornecedores.json();
+            
+            setProducts(productsData);
+            setFornecedores(fornecedoresData); 
+
         } catch (err) {
             setError(err instanceof Error ? err.message : "Ocorreu um erro desconhecido.");
         } finally {
@@ -68,7 +99,7 @@ export default function ProductsHomePage() {
             }
         }
         fetchProductsData();
-    }, [user,router]); // Adicione 'router' ao array de dependências
+    }, [user,router]); 
 
     const handleToggleEdit = (productId: number) => {
         setEditingProductId(prevId => (prevId === productId ? null : productId));
@@ -77,7 +108,7 @@ export default function ProductsHomePage() {
 
     const handleUpdateProduct = async (event: React.FormEvent<HTMLFormElement>, productId: number) => {
         event.preventDefault();
-        setError(null); // Limpa erros anteriores
+        setError(null); 
         const token = localStorage.getItem('token');
         if (!token) {
             setError("Sua sessão expirou. Faça o login novamente.");
@@ -85,19 +116,27 @@ export default function ProductsHomePage() {
         }
 
         const formData = new FormData(event.currentTarget);
+        
+        
         const updatedData = {
             nome: formData.get('nome') as string,
             unidade: formData.get('unidade') as string,
             marca: formData.get('marca') as string,
+            codigo: formData.get('codigo') as string,
+            corredor: formData.get('corredor') as string,
+            producao: (event.currentTarget.elements.namedItem('producao') as HTMLInputElement).checked,
+            fornecedorId: parseInt(formData.get('fornecedorId') as string, 10),
             quantidadeMin: parseInt(formData.get('quantidadeMin') as string, 10),
-            quantidadeNec: parseInt(formData.get('quantidadeNec') as string, 10),
+            quantidadeMax: parseInt(formData.get('quantidadeMax') as string, 10), 
+            quantidadeEst: parseInt(formData.get('quantidadeEst') as string, 10), 
             observacoes: formData.get('observacoes') as string,
             ativo: (event.currentTarget.elements.namedItem('ativo') as HTMLInputElement).checked,
         };
 
         try {
+            
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${productId}`, {
-                method: 'PUT',
+                method: 'PATCH', 
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -110,7 +149,7 @@ export default function ProductsHomePage() {
                 throw new Error(errorData.message || "Falha ao atualizar o produto.");
             }
 
-            await fetchProductsData();
+            await fetchProductsData(); 
             setEditingProductId(null);
 
         } catch (err) {
@@ -129,12 +168,19 @@ export default function ProductsHomePage() {
         }
 
         const formData = new FormData(event.currentTarget);
+        
+        
         const createData = {
             nome: formData.get('nome') as string,
             unidade: formData.get('unidade') as string,
             marca: formData.get('marca') as string,
+            codigo: formData.get('codigo') as string,
+            corredor: formData.get('corredor') as string,
+            producao: (event.currentTarget.elements.namedItem('producao') as HTMLInputElement).checked,
+            fornecedorId: parseInt(formData.get('fornecedorId') as string, 10),
             quantidadeMin: parseInt(formData.get('quantidadeMin') as string, 10),
-            quantidadeNec: parseInt(formData.get('quantidadeNec') as string, 10),
+            quantidadeMax: parseInt(formData.get('quantidadeMax') as string, 10), 
+            quantidadeEst: parseInt(formData.get('quantidadeEst') as string, 10), 
             observacoes: formData.get('observacoes') as string,
             ativo: (event.currentTarget.elements.namedItem('ativo') as HTMLInputElement).checked,
         };
@@ -154,7 +200,7 @@ export default function ProductsHomePage() {
                 throw new Error(errorData.message || "Falha ao criar o produto.");
             }
 
-            await fetchProductsData();
+            await fetchProductsData(); 
             setShowCreateForm(false);
 
         } catch (err) {
@@ -178,34 +224,49 @@ export default function ProductsHomePage() {
                         className={`table-container-produtos ${!product.ativo ? 'produto-inativo' : ''}`}
                     >
                         <div className="section-header-produtos">
-                            <h2 className="section-title-produtos">{product.nome} ({product.unidade}) - {product.marca}</h2>
+                            
+                            <h2 className="section-title-produtos">
+                                {product.codigo ? `(${product.codigo}) ` : ''}{product.nome} ({product.unidade}) - {product.marca}
+                            </h2>
                             <button className="action-details" onClick={() => handleToggleEdit(product.id)}>
                                 {editingProductId === product.id ? <IconDown className='arrow-icon' /> : <IconLeft className='arrow-icon' />}
                             </button>
                         </div>
 
-                        <p><strong>Último Preço:</strong> {product.ultimoPreco?.toFixed(2)} | <strong>Preço Médio:</strong> {product.precoMedio?.toFixed(2)}</p>
-                        <p><strong>Estoque:</strong> {product.quantidadeEst} | <strong>Mínimo:</strong> {product.quantidadeMin} | <strong>Necessário:</strong> {product.quantidadeNec}</p>
+                        
+                        <p><strong>Estoque (Loja):</strong> {product.quantidadeEst} | <strong>Mínimo:</strong> {product.quantidadeMin} | <strong>Máximo:</strong> {product.quantidadeMax}</p>
                         {product.observacoes && <p><strong>Observações:</strong> {product.observacoes}</p>}
 
                         {editingProductId === product.id && (
                             <div className="form-divider-produtos">
                                 <h3 className="table-title-produtos">Editar Produto</h3>
                                 <form onSubmit={(e) => handleUpdateProduct(e, product.id)}>
+                                    
+                                    
                                     <label>Nome:<input type="text" name="nome" defaultValue={product.nome} required /></label>
                                     <label>Unidade:<input type="text" name="unidade" defaultValue={product.unidade} required /></label>
                                     <label>Marca:<input type="text" name="marca" defaultValue={product.marca ?? ''} /></label>
+                                    <label>Código:<input type="text" name="codigo" defaultValue={product.codigo ?? ''} /></label>
+                                    <label>Corredor:<input type="text" name="corredor" defaultValue={product.corredor ?? ''} /></label>
+                                    <label>Fornecedor:
+                                        <select name="fornecedorId" defaultValue={product.fornecedorId} required>
+                                            {fornecedores.map(f => <option key={f.id} value={f.id}>{f.nome}</option>)}
+                                        </select>
+                                    </label>
                                     <label>Min:<input type="number" name="quantidadeMin" defaultValue={product.quantidadeMin} required /></label>
-                                    <label>Nec:<input type="number" name="quantidadeNec" defaultValue={product.quantidadeNec} required /></label>
+                                    <label>Max (Nec):<input type="number" name="quantidadeMax" defaultValue={product.quantidadeMax} required /></label>
+                                    <label>Estoque (Loja):<input type="number" name="quantidadeEst" defaultValue={product.quantidadeEst} required /></label>
                                     <label>Observações:<textarea name="observacoes" defaultValue={product.observacoes ?? ''}></textarea></label>
+                                    
+                                    <label className="checkbox-label">
+                                        Produção:
+                                        <input type="checkbox" name="producao" defaultChecked={product.producao} />
+                                    </label>
                                     <label className="checkbox-label">
                                         Ativo:
-                                        <input
-                                            type="checkbox"
-                                            name="ativo"
-                                            defaultChecked={product.ativo}
-                                        />
+                                        <input type="checkbox" name="ativo" defaultChecked={product.ativo} />
                                     </label>
+                                    
                                     <div className="form-actions">
                                         <button type="submit" className="btn-primary">
                                             Salvar Alterações
@@ -220,6 +281,7 @@ export default function ProductsHomePage() {
                     </li>
                 ))}
 
+                
                 <li key="add-product-card" className="table-container-produtos">
                     <div className="section-header-produtos">
                         <h2 className="section-title-produtos">Adicionar Novo Produto</h2>
@@ -239,16 +301,25 @@ export default function ProductsHomePage() {
                             <label>Nome:<input type="text" name="nome" required /></label>
                             <label>Unidade:<input type="text" name="unidade" required /></label>
                             <label>Marca:<input type="text" name="marca" /></label>
+                            <label>Código:<input type="text" name="codigo" /></label>
+                            <label>Corredor:<input type="text" name="corredor" /></label>
+                            <label>Fornecedor:
+                                <select name="fornecedorId" defaultValue="" required>
+                                    <option value="" disabled>Selecione...</option>
+                                    {fornecedores.map(f => <option key={f.id} value={f.id}>{f.nome}</option>)}
+                                </select>
+                            </label>
                             <label>Min:<input type="number" name="quantidadeMin" defaultValue={0} required /></label>
-                            <label>Nec:<input type="number" name="quantidadeNec" defaultValue={0} required /></label>
+                            <label>Max (Nec):<input type="number" name="quantidadeMax" defaultValue={0} required /></label>
+                            <label>Estoque (Inicial Loja):<input type="number" name="quantidadeEst" defaultValue={0} required /></label>
                             <label>Observações:<textarea name="observacoes"></textarea></label>
                             <label className="checkbox-label">
+                                Produção:
+                                <input type="checkbox" name="producao" defaultChecked={false} />
+                            </label>
+                            <label className="checkbox-label">
                                 Ativo:
-                                <input
-                                    type="checkbox"
-                                    name="ativo"
-                                    defaultChecked={true}
-                                />
+                                <input type="checkbox" name="ativo" defaultChecked={true} />
                             </label>
 
                             <div className="form-actions">
@@ -264,4 +335,3 @@ export default function ProductsHomePage() {
         </>
     );
 }
-

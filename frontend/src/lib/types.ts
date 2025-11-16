@@ -2,6 +2,7 @@
 export type Funcao = 'GESTOR' | 'SAIDA' | 'RECEBIMENTO' | 'INVENTARIO' | 'CADASTRO' | 'LISTA' | 'TERCEIROS' | 'AVISOS';
 ['GESTOR', 'SAIDA', 'RECEBIMENTO', 'INVENTARIO', 'CADASTRO', 'LISTA']
 export interface UserData {
+  id: number;
   sub: number;
   login: string;
   funcoes: Funcao[];
