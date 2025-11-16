@@ -1,27 +1,44 @@
-import { Controller, Get, UseGuards, Request, Body, Post} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  ForbiddenException,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ToBuyProductsService } from './to-buy-products.service'; 
-import { CreateHistoricBuyDto } from './dto/create-historic-buy.dto';
+import { ComprasService } from './to-buy-products.service';
+import { RegisterPurchaseDto, ProductToBuy } from './dto/compras.dto';
 
-@Controller('to_buy_products')
-export class ToBuyProductsController { 
-  constructor(private readonly toBuyProductsService: ToBuyProductsService) {} 
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get() // Rota GET /to-buy-products
-  async getToBuyProducts(@Request() req) {
-    const userId = req.user.sub;
-    return this.toBuyProductsService.getList(userId);
+type AuthUser = {
+  id: number;
+  lojaId: number;
+};
+
+@UseGuards(AuthGuard('jwt'))
+@Controller('compras') 
+export class ComprasController {
+  constructor(private readonly comprasService: ComprasService) {}
+
+  
+  @Get('lista')
+  async getShoppingList(@Req() req): Promise<Record<string, ProductToBuy[]>> {
+    const authUser = req.user as AuthUser;
+    if (!authUser?.lojaId) {
+      throw new ForbiddenException('Usuário não associado a uma loja.');
+    }
+    return this.comprasService.findAllToBuy(authUser.lojaId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Post() 
-  async addProductBuy(
-    @Request() req,
-    @Body() createHistoricBuyDto: CreateHistoricBuyDto,
-  ) {
-    const userId = req.user.sub;
-    return this.toBuyProductsService.addBuy(userId, createHistoricBuyDto);
+  
+  @Post('registrar')
+  registerPurchase(@Body() dto: RegisterPurchaseDto, @Req() req) {
+    const authUser = req.user as AuthUser;
+    if (!authUser?.lojaId) {
+      throw new ForbiddenException('Usuário não associado a uma loja.');
+    }
+    return this.comprasService.registerPurchase(dto, authUser);
   }
 }
-

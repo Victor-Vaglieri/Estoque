@@ -1,55 +1,75 @@
-// src/dashboard/dashboard.service.ts
-
 import { Injectable } from '@nestjs/common';
 import { EstoqueDbService } from '../prisma/estoque-db.service';
-import { Prisma } from '@prisma/estoque-client';
+import { Prisma, EstadoEntrada } from '@prisma/estoque-client';
 
 @Injectable()
 export class DashboardService {
-    constructor(private estoqueDb: EstoqueDbService) { }
+  constructor(private estoqueDb: EstoqueDbService) {}
 
-    async getDashboardStats(userId: number) {
-        const quantidade_itens_abaixo_min = await this.estoqueDb.produto.count({
-        where: {
-            quantidadeEst: {
-                lt: this.estoqueDb.produto.fields.quantidadeMin 
-            }
-        }
+  async getStats(lojaId: number) {
+    
+    const rawResult: { count: number }[] = await this.estoqueDb.$queryRaw(
+      Prisma.sql`
+        SELECT COUNT(*) as count
+        FROM "EstoqueLoja" AS E
+        JOIN "Produto" AS P ON E."produtoId" = P."id"
+        WHERE E."lojaId" = ${lojaId}
+          AND P."ativo" = 1
+          AND E."quantidadeEst" < P."quantidadeMin"
+      `,
+    );
+
+    const itensAbaixoMin = Number(rawResult[0]?.count || 0);
+
+    
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0); 
+    const amanha = new Date(hoje);
+    amanha.setDate(hoje.getDate() + 1); 
+
+    const saidasHoje = await this.estoqueDb.saida.aggregate({
+      _sum: {
+        quantidade: true,
+      },
+      where: {
+        lojaId: lojaId,
+        data: {
+          gte: hoje,
+          lt: amanha,
+        },
+      },
     });
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-        const quantidade_saida = await this.estoqueDb.saida.count({
-            where: {
-                responsavelId: userId,
-                data: {
-                    gte: sevenDaysAgo,
-                },
-            },
-        });
+    
+    const comprasPendentes = await this.estoqueDb.compraDistribuicao.count({
+      where: {
+        lojaId: lojaId,
+        confirmadoEntrada: {
+          in: [EstadoEntrada.PENDENTE, EstadoEntrada.FALTANTE],
+        },
+      },
+    });
 
-        const historico_compra_pendente = await this.estoqueDb.historicoCompra.count({
-            where: {
-                confirmadoEntrada: { in: ["PENDENTE", "FALTANTE"] }
-            }
-        });
+    
+    const ultimaEntrada = await this.estoqueDb.entrada.findFirst({
+      where: {
+        lojaId: lojaId,
+      },
+      orderBy: {
+        data: 'desc',
+      },
+      include: {
+        produto: {
+          select: { nome: true },
+        },
+      },
+    });
 
-
-        const ultimo_produto_chego = await this.estoqueDb.entrada.findFirst({
-            orderBy: {
-                data: 'desc',
-            }, include: {
-                produto: true,
-            }
-        });
-
-        const nome_ultimo_produto_chego = ultimo_produto_chego?.produto.nome;
-
-        return {
-            quantidade_itens_abaixo_min,
-            quantidade_saida,
-            historico_compra_pendente,
-            nome_ultimo_produto_chego,
-        };
-    }
+    return {
+      quantidade_itens_abaixo_min: itensAbaixoMin,
+      quantidade_saida: saidasHoje._sum.quantidade || 0,
+      historico_compra_pendente: comprasPendentes,
+      nome_ultimo_produto_chego: ultimaEntrada?.produto.nome || 'Nenhum',
+    };
+  }
 }

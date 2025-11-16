@@ -1,13 +1,12 @@
-// src/dashboard/dashboard.module.ts
-
 import { Module } from '@nestjs/common';
 import { DashboardController } from './dashboard.controller';
 import { DashboardService } from './dashboard.service';
-import { PrismaModule } from '../prisma/prisma.module';
+// Importe o serviço Prisma do seu banco de estoque
+import { EstoqueDbService } from '../prisma/estoque-db.service'; 
 
 @Module({
-  imports: [PrismaModule],
+  imports: [],
   controllers: [DashboardController],
-  providers: [DashboardService],
+  providers: [DashboardService, EstoqueDbService],
 })
 export class DashboardModule {}

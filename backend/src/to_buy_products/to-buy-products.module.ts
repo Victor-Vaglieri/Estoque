@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
-import { ToBuyProductsController } from './to-buy-products.controller';
-import { ToBuyProductsService } from './to-buy-products.service';
-import { PrismaModule } from '../prisma/prisma.module'; // Importe o seu módulo Prisma
+import { ComprasController } from './to-buy-products.controller';
+import { ComprasService } from './to-buy-products.service';
+import { EstoqueDbService } from '../prisma/estoque-db.service'; 
 
 @Module({
-  imports: [PrismaModule], // Disponibiliza o EstoqueDbService para o ToBuyProductsService
-  controllers: [ToBuyProductsController],
-  providers: [ToBuyProductsService],
+  imports: [],
+  controllers: [ComprasController],
+  providers: [ComprasService, EstoqueDbService],
 })
-export class ToBuyProductsModule {}
-
+export class ComprasModule {}
