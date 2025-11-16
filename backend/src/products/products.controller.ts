@@ -1,59 +1,82 @@
-// src/products/products.controller.ts
-
-import { Controller, Get, UseGuards, Request, Body, Put, Param,ParseIntPipe,Post} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  ParseIntPipe,
+  UseGuards,
+  Req, 
+  ForbiddenException,
+  Patch, 
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ProductsService } from './products.service';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProdutoDto } from './dto/update-product.dto'; 
+import { CreateProdutoDto } from './dto/create-product.dto'; 
 
+
+type AuthUser = {
+  id: number;
+  lojaId: number;
+};
+
+@UseGuards(AuthGuard('jwt')) 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get('') 
-  async getProducts(@Request() req) {
-    const userId = req.user.sub;
-
-    return this.productsService.getProducts(userId);
+  
+  @Get()
+  async getProducts(@Req() req) {
+    const authUser = req.user as AuthUser;
+    if (!authUser?.lojaId) {
+      throw new ForbiddenException('Usuário não associado a uma loja.');
+    }
+    return this.productsService.findAll(authUser.lojaId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get('/withStock')
-  async getProductsWithStock(@Request() req) {
-    const userId = req.user.sub;
-
-    return this.productsService.getProductsWithStock(userId);
+  
+  @Get('withStock')
+  async getProductsWithStock(@Req() req) {
+    const authUser = req.user as AuthUser;
+    if (!authUser?.lojaId) {
+      throw new ForbiddenException('Usuário não associado a uma loja.');
+    }
+    return this.productsService.findWithStock(authUser.lojaId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get('/inventory')
-  async getProductsInventory(@Request() req) {
-    const userId = req.user.sub;
-
-    return this.productsService.getProductsInventory(userId);
-  }
-
-
-  @UseGuards(AuthGuard('jwt'))
+  
   @Post()
   async addProduct(
-    @Request() req,
-    @Body() createProductDto: CreateProductDto,
+    @Req() req,
+    @Body() createProductDto: CreateProdutoDto,
   ) {
-    const userId = req.user.sub;
-    return this.productsService.addProduct(userId, createProductDto);
+    const authUser = req.user as AuthUser;
+    if (!authUser?.lojaId) {
+      throw new ForbiddenException('Usuário não associado a uma loja.');
+    }
+    return this.productsService.create(createProductDto, authUser.lojaId);
   }
 
-
-  @UseGuards(AuthGuard('jwt'))
-  @Put(':id') 
+  
+  @Patch(':id') 
   async modifyProduct(
-    @Param('id', ParseIntPipe) productId: number, 
-    @Request() req,
-    @Body() updateProductDto: UpdateProductDto,
+    @Param('id', ParseIntPipe) productId: number,
+    @Req() req,
+    @Body() updateProductDto: UpdateProdutoDto, 
   ) {
-    const userId = req.user.sub;
-    return this.productsService.modifyProduct(userId, productId, updateProductDto);
+    const authUser = req.user as AuthUser;
+    if (!authUser?.lojaId) {
+      throw new ForbiddenException('Usuário não associado a uma loja.');
+    }
+    return this.productsService.update(
+      productId,
+      updateProductDto,
+      authUser.lojaId,
+    );
   }
+
+  
+  
 }
