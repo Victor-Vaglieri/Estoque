@@ -1,4 +1,4 @@
-// app/context/AuthContext.tsx
+
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -11,7 +11,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const [user, setUser] = useState<UserData | null>(null);
-  // RENOMEADO: de 'isLoading' para 'loading' para padronização
+  
   const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  }, []); // O array vazio [] garante que isso só rode uma vez
+  }, []); 
 
   const login = (token: string) => {
     localStorage.setItem('token', token);
@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log("Token recebido pelo AuthContext:", token);
     if (decodedUser) {
       setUser(decodedUser);
-      router.push('/'); // Redireciona para a página inicial do dashboard
+      router.push('/'); 
     } else {
       console.error("Token recebido no login é inválido.");
       localStorage.removeItem('token');
