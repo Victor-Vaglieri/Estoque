@@ -1,70 +1,112 @@
-import { Controller, Get, UseGuards, Request, Res, Header } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    UseGuards,
+    Req,
+    ForbiddenException,
+    Res,
+    Query,
+    StreamableFile,
+    BadRequestException,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ReportsService } from './reports.service';
-// --- CORREÇÃO AQUI: Usar 'import type' ---
-import { type Response } from 'express'; // Importa apenas o tipo Response
+import { RelatoriosService } from './reports.service';
+import type { Response } from 'express';
+import { Funcao } from '@prisma/usuarios-client';
+import { StockValueByLoja, PurchaseHistory } from './dto/relatorios.dto';
 
+
+type AuthUser = {
+    id: number;
+    lojaId: number;
+    funcoes: Funcao[];
+};
+
+@UseGuards(AuthGuard('jwt'))
 @Controller('relatorios')
-export class ReportsController {
-    constructor(private readonly reportsService: ReportsService) {}
+export class RelatoriosController {
+    constructor(private readonly relatoriosService: RelatoriosService) { }
 
-    @UseGuards(AuthGuard('jwt'))
+
+    private checkGestor(user: AuthUser) {
+        if (!user.funcoes.includes(Funcao.GESTOR)) {
+            throw new ForbiddenException('Acesso negado. Apenas Gestores.');
+        }
+    }
+
+
     @Get('overview')
-    async getOverview(@Request() req) {
-        const userId = req.user.sub;
-        return this.reportsService.getOverview(userId);
+    getOverview(@Req() req) {
+        const authUser = req.user as AuthUser;
+        if (!authUser?.lojaId) {
+            throw new ForbiddenException('Usuário não associado a uma loja.');
+        }
+
+        return this.relatoriosService.getOverview(authUser.lojaId);
     }
 
-    @UseGuards(AuthGuard('jwt'))
-    @Get('stock-value')
-    async getStockValueData(@Request() req) {
-        const userId = req.user.sub;
-        return this.reportsService.getStockValueData(userId);
+
+    @Get('stock-value-by-loja')
+    getStockValueByLoja(@Req() req): Promise<StockValueByLoja[]> {
+        this.checkGestor(req.user as AuthUser);
+        return this.relatoriosService.getStockValueByLoja();
     }
 
-    @UseGuards(AuthGuard('jwt'))
+
     @Get('purchase-history')
-    async getPurchaseHistoryData(@Request() req) {
-        const userId = req.user.sub;
-        return this.reportsService.getPurchaseHistoryData(userId);
+    getPurchaseHistory(@Req() req): Promise<PurchaseHistory[]> {
+        this.checkGestor(req.user as AuthUser);
+        return this.relatoriosService.getPurchaseHistory();
     }
 
-    // --- Endpoints para XLSX ---
-
-    @UseGuards(AuthGuard('jwt'))
-    @Get('inventario/xlsx')
-    @Header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    @Header('Content-Disposition', `attachment; filename="inventario_${new Date().toISOString().split('T')[0]}.xlsx"`)
-    // Usa o tipo Response importado com 'import type'
-    async downloadInventoryXlsx(@Request() req, @Res() res: Response) { 
-        const userId = req.user.sub;
-        try {
-            const buffer = await this.reportsService.generateInventoryXlsx(userId);
-            res.send(buffer); 
-        } catch (error) {
-             res.status(error.status || 500).json({
-                 message: error.message || 'Erro interno ao gerar o relatório.',
-                 statusCode: error.status || 500,
-             });
+    @Get('export/controle')
+    async exportControle(
+        @Req() req,
+        @Res({ passthrough: true }) res: Response,
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
+    ) {
+        this.checkGestor(req.user as AuthUser);
+        if (!startDate || !endDate) {
+            throw new BadRequestException('Data de início e fim são obrigatórias.');
         }
+
+        const fileBuffer = await this.relatoriosService.exportControle(
+            new Date(startDate),
+            new Date(endDate),
+        );
+
+        const fileName = `controle_${startDate}_a_${endDate}.xlsx`;
+        res.setHeader(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        );
+        res.setHeader(
+            'Content-Disposition',
+            `attachment; filename="${fileName}"`,
+        );
+        return new StreamableFile(fileBuffer);
     }
 
-    @UseGuards(AuthGuard('jwt'))
-    @Get('compras/xlsx')
-    @Header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    @Header('Content-Disposition', `attachment; filename="historico_compras_${new Date().toISOString().split('T')[0]}.xlsx"`)
-     // Usa o tipo Response importado com 'import type'
-    async downloadComprasXlsx(@Request() req, @Res() res: Response) {
-        const userId = req.user.sub;
-         try {
-            const buffer = await this.reportsService.generateComprasXlsx(userId);
-            res.send(buffer);
-        } catch (error) {
-             res.status(error.status || 500).json({
-                 message: error.message || 'Erro interno ao gerar o relatório.',
-                 statusCode: error.status || 500,
-             });
-        }
+
+    @Get('export/fornecedores')
+    async exportFornecedores(
+        @Req() req,
+        @Res({ passthrough: true }) res: Response,
+    ) {
+        this.checkGestor(req.user as AuthUser);
+
+        const fileBuffer = await this.relatoriosService.exportFornecedores();
+        const fileName = `estoque_por_fornecedor_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+        res.setHeader(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        );
+        res.setHeader(
+            'Content-Disposition',
+            `attachment; filename="${fileName}"`,
+        );
+        return new StreamableFile(fileBuffer);
     }
 }
-

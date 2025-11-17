@@ -1,12 +1,11 @@
-
 import { Module } from '@nestjs/common';
-import { ReportsController } from './reports.controller';
-import { ReportsService } from './reports.service';
-import { PrismaModule } from '../prisma/prisma.module'; // Importe seu módulo Prisma
+import { RelatoriosController } from './reports.controller';
+import { RelatoriosService } from './reports.service';
+// O PrismaModule (que criamos acima) é Global, 
+// então não precisamos importá-lo aqui.
 
 @Module({
-  imports: [PrismaModule], // Disponibiliza o EstoqueDbService
-  controllers: [ReportsController],
-  providers: [ReportsService],
+  controllers: [RelatoriosController],
+  providers: [RelatoriosService],
 })
-export class ReportsModule {}
+export class RelatoriosModule {}
