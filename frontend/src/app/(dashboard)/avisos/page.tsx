@@ -6,7 +6,7 @@ import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
 
-import './inicio.css'; 
+import './avisos.css'; 
 
 
 const StatCard = ({ title, value }: { title: string; value: string }) => (

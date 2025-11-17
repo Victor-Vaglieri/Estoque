@@ -103,6 +103,9 @@ export default function LegacyFormPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    
+    const { user } = useAuth();
+    const router = useRouter();
 
 
 
@@ -113,7 +116,7 @@ export default function LegacyFormPage() {
         setIsMenuOpen(false);
     }, [tipoAtual]);
 
-    const handleFixedChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleFixedChange = (e: ChangeEvent<HTMLInputElement| HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFixedData(prev => ({ ...prev, [name]: value }));
     };
@@ -135,34 +138,35 @@ export default function LegacyFormPage() {
         setMultipleData(prev => prev.filter((_, i) => i !== rowIndex));
     };
 
+    const token = localStorage.getItem('token');
 
     const fetchAllRegistros = useCallback(async (tipo: TipoServico) => {
         setIsListLoading(true);
-
+        
         const url = `${process.env.NEXT_PUBLIC_API_URL}/legacy/${tipo.toLowerCase()}`;
         try {
-
+            if (!token) {
+                router.push('/login');
+                return;
+            }
+            
             const res = await fetch(url, {
-                headers: {
+                headers: { 
                     'Content-Type': 'application/json',
-
+                    'Authorization': `Bearer ${token}` 
                 },
             });
             if (!res.ok) throw new Error('Falha ao buscar registros');
-
-
-            const data: RegistroCompleto[] = await res.json();
+            
+            
+            const data: RegistroCompleto[] = await res.json(); 
             setAllRegistros(data);
         } catch (err) {
             alert(`Erro ao carregar lista: ${err instanceof Error ? err.message : String(err)}`);
         } finally {
             setIsListLoading(false);
         }
-    }, []);
-
-
-    const { user } = useAuth();
-    const router = useRouter();
+    }, [router]); 
 
     useEffect(() => {
         if (user) {
@@ -209,7 +213,7 @@ export default function LegacyFormPage() {
 
         try {
             const res = await fetch(url, {
-                headers: { 'Content-Type': 'application/json', },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             });
 
             if (!res.ok) {
@@ -283,7 +287,7 @@ export default function LegacyFormPage() {
             const res = await fetch(url, {
                 method: method,
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` 
 
                 },
                 body: JSON.stringify(payload)
@@ -341,7 +345,6 @@ export default function LegacyFormPage() {
                                         type="number"
                                         id={key}
                                         name={key}
-                                        value={fixedData[key] || ''}
                                         onChange={handleFixedChange}
                                         disabled={isLoading || isEditing}
                                     />
@@ -391,7 +394,7 @@ export default function LegacyFormPage() {
                                 <tr key={rowIndex}>
                                     {currentMultipleLabels.map((label) => {
                                         const key = normalizeKey(label);
-                                        const isNumeric = label.includes("Custo") || label.includes("Cobrado") || label.includes("Valor") || label.includes("Ticket");
+                                        const isNumeric = label.includes("Custo") || label.includes("Cobrado") || label.includes("Valor") || label.includes("Ticket"); // TODO arrumar "Ticket"
                                         return (
                                             <td key={key} data-label={label}>
                                                 <input
