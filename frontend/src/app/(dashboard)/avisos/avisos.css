@@ -1,4 +1,6 @@
-/* Layout Geral e Cabeçalho */
+/* =========================================
+   LAYOUT E CABEÇALHO
+   ========================================= */
 .page-header-avisos {
     display: flex;
     justify-content: space-between;
@@ -10,22 +12,23 @@
 
 .page-title-avisos {
     color: var(--text-primary);
-    font-size: 1.875rem; /* 30px */
+    font-size: 1.875rem;
     font-weight: 700;
 }
 
-/* Botão Adicionar no cabeçalho */
 .page-header-avisos .btn-primary {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem; /* Espaço entre ícone e texto */
+    gap: 0.5rem;
 }
+
 .page-header-avisos .btn-primary svg {
-    font-size: 1.2em; /* Tamanho do ícone '+' */
+    font-size: 1.2em;
 }
 
-
-/* Mensagens de Feedback */
+/* =========================================
+   MENSAGENS DE FEEDBACK
+   ========================================= */
 .avisos-message {
     padding: 1rem;
     border-radius: 0.5rem;
@@ -35,17 +38,19 @@
 
 .avisos-error {
     background-color: #fef2f2;
-    color: var(--error-color);
-    border: 1px solid var(--error-color);
+    color: #dc2626; /* Vermelho mais legível que a var se for muito clara */
+    border: 1px solid #fca5a5;
 }
 
 .avisos-success {
     background-color: #f0fdf4;
-    color: var(--sucess-color);
-    border: 1px solid var(--sucess-color);
+    color: #16a34a;
+    border: 1px solid #86efac;
 }
 
-/* Container do Formulário */
+/* =========================================
+   FORMULÁRIO
+   ========================================= */
 .avisos-form-container {
     background-color: var(--background-surface);
     padding: 2rem;
@@ -62,7 +67,6 @@
     margin-bottom: 1.5rem;
 }
 
-/* Estilos do Formulário */
 .avisos-form {
     display: flex;
     flex-direction: column;
@@ -77,7 +81,7 @@
     font-size: 0.875rem;
 }
 
-.avisos-form input,
+.avisos-form input[type="text"],
 .avisos-form textarea,
 .avisos-form select {
     margin-top: 0.25rem;
@@ -89,305 +93,325 @@
     font-size: 0.875rem;
     font-family: inherit;
 }
+
 .avisos-form input:focus,
 .avisos-form textarea:focus,
 .avisos-form select:focus {
     outline: 2px solid var(--primary);
-    outline-offset: 2px;
+    outline-offset: -1px;
     border-color: var(--primary);
 }
+
 .avisos-form textarea {
-    resize: vertical; /* Permite redimensionar apenas verticalmente */
+    resize: vertical;
+    min-height: 100px;
 }
 
-/* Linha do formulário com múltiplos campos */
 .form-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 1.25rem;
 }
 
-/* Ações do Formulário (botões) */
+/* --- ESTILIZAÇÃO DOS CHECKBOXES (NOVO) --- */
+.destinatarios-section {
+    margin-top: 0.5rem;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    background-color: var(--background-page); /* Fundo levemente diferente */
+}
+
+.destinatarios-section > label {
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.checkbox-option {
+    display: flex;
+    flex-direction: row !important; /* Sobrescreve o column padrão do label */
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    font-weight: normal !important;
+    color: var(--text-secondary) !important;
+}
+
+.users-checklist {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 0.5rem;
+    padding-right: 0.5rem; /* Espaço para scrollbar */
+}
+
+.user-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    background-color: var(--background-surface);
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.user-checkbox-item:hover {
+    border-color: var(--primary);
+}
+
+.user-checkbox-item input {
+    margin: 0;
+    width: auto;
+}
+
+
+/* --- BOTÕES DO FORMULÁRIO --- */
 .form-actions {
     display: flex;
     gap: 0.75rem;
-    margin-top: 0.5rem;
-    justify-content: flex-end; /* Alinha botões à direita */
+    margin-top: 1rem;
+    justify-content: flex-end;
 }
 
-/* --- Container da Lista e Ordenação --- */
+.btn-primary, .btn-secondary {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: var(--text-on-primary-button);
+}
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+}
+
+/* Correção: Botão Cancelar deve ser neutro, não vermelho */
+.btn-secondary {
+    background-color: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+.btn-secondary:hover:not(:disabled) {
+    background-color: var(--background-page);
+    color: var(--text-primary);
+    border-color: var(--text-tertiary);
+}
+
+.btn-primary:disabled, .btn-secondary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   LISTA E ORDENAÇÃO
+   ========================================= */
 .avisos-list-container {
     margin-top: 1rem;
 }
 
-/* --- MUDANÇA: Seletor de Ordenação --- */
 .sort-selector-container {
-    /* display: flex; */ /* Removido para label ficar em cima */
-    /* align-items: center; */ /* Removido */
-    /* gap: 0.75rem; */ /* Removido */
     margin-bottom: 1.5rem;
-    /* Removemos fundo e sombra do container */
-    /* background-color: var(--background-surface); */
-    /* box-shadow: 0 1px 2px 0 var(--shadow-color); */
-    width: fit-content; /* Largura baseada no conteúdo */
+    width: fit-content;
 }
-/* Estilo da Label */
+
 .sort-selector-container label {
-    display: block; /* Garante que ocupe linha própria */
+    display: block;
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--text-secondary);
-    margin-bottom: 0.25rem; /* Pequeno espaço abaixo da label */
+    margin-bottom: 0.25rem;
 }
-/* Estilo do Select */
+
 .sort-selector {
-    /* Aparência customizada (remove padrão do navegador) */
     appearance: none;
     -webkit-appearance: none;
-    -moz-appearance: none;
-    
-    padding: 0.6rem 2.5rem 0.6rem 1rem; /* Padding: Cima/Baixo, Direita (para seta), Esquerda */
+    padding: 0.6rem 2.5rem 0.6rem 1rem;
     border: 1px solid var(--border-color);
-    border-radius: 0.375rem; /* 6px */
-    /* Cores como na imagem */
-    background-color: var(--background-surface); /* Usa a cor de fundo do card/superfície */
-    color: var(--text-primary); /* Usa a cor primária de texto */
-    font-size: 1rem; /* 16px - Tamanho maior como na imagem */
+    border-radius: 0.375rem;
+    background-color: var(--background-surface);
+    color: var(--text-primary);
+    font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
-    width: 250px; /* Largura fixa ou ajuste conforme necessário */
-
-    /* Seta customizada usando SVG como background */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23${(typeof getComputedStyle !== 'undefined' ? getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') : '6b7280').substring(1)}'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    min-width: 200px;
+    
+    /* Seta SVG */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='gray'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 0.75rem center; /* Posição da seta */
-    background-size: 1.2em; /* Tamanho da seta */
-}
-.sort-selector:focus {
-     outline: 2px solid var(--primary);
-    outline-offset: 2px;
-    border-color: var(--primary);
+    background-position: right 0.75rem center;
+    background-size: 1.2em;
 }
 
-
-/* Mensagem de "Nenhum aviso" */
 .no-avisos-message {
     text-align: center;
     color: var(--text-secondary);
-    padding: 2rem;
+    padding: 3rem;
+    background-color: var(--background-surface);
+    border-radius: 0.5rem;
     font-style: italic;
 }
 
-
-/* Grelha de Avisos */
+/* =========================================
+   CARDS DE AVISO
+   ========================================= */
 .avisos-grid {
     display: grid;
-    /* Adapta as colunas ao tamanho da tela */
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1.5rem;
-    align-items: stretch; /* Faz os cards terem a mesma altura na linha */
+    align-items: stretch;
 }
 
-/* Card Individual */
 .aviso-card {
     background-color: var(--background-surface);
-    border-radius: 0.375rem; /* Menor arredondamento */
-    box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px -1px var(--shadow-color);
-    padding: 1.25rem;
-    border-left: 5px solid; /* Mantém borda esquerda colorida */
-    border-color: transparent; /* Torna as bordas transparentes por padrão */
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 var(--shadow-color);
+    padding: 1.5rem;
+    border-left: 4px solid transparent;
     display: flex;
     flex-direction: column;
-    height: 100%; /* Ocupa toda a altura disponível na grelha */
-    transition: box-shadow 0.2s ease-in-out;
+    height: 100%;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
+
 .aviso-card:hover {
-     box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -2px var(--shadow-color);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px var(--shadow-color);
 }
 
-/* Cores das bordas (agora aplicadas a ambas) */
-.importancia-baixa { border-color: var(--primary); } /* Azul */
-.importancia-media { border-color: #f59e0b; } /* Âmbar */
-.importancia-alta { border-color: var(--error-color); } /* Vermelho */
+/* Cores das bordas */
+.importancia-baixa { border-left-color: #3b82f6; }
+.importancia-media { border-left-color: #f59e0b; }
+.importancia-alta  { border-left-color: #ef4444; }
 
-/* Estilo para cards concluídos */
+/* Estado Concluído */
 .aviso-card.concluido {
-    opacity: 0.7;
-    background-color: var(--background-page); /* Fundo mais apagado */
-    border-color: var(--text-tertiary); /* Borda cinza quando concluído */
+    opacity: 0.75;
+    background-color: var(--background-page);
+    border-left-color: var(--text-tertiary);
 }
 .aviso-card.concluido .aviso-title {
-    text-decoration: line-through; /* Título riscado */
+    text-decoration: line-through;
     color: var(--text-secondary);
 }
-
 
 /* Cabeçalho do Card */
 .aviso-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start; /* Alinha no topo */
-    margin-bottom: 0.75rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    gap: 1rem;
 }
 
 .aviso-title {
     color: var(--text-primary);
-    font-size: 1.1rem; /* Um pouco menor */
+    font-size: 1.15rem;
     font-weight: 600;
-    margin-right: 0.5rem; /* Espaço para o badge */
-     word-break: break-word; /* Quebra palavras longas */
+    line-height: 1.4;
+    margin: 0;
+    word-break: break-word;
 }
 
-/* Badge de Importância */
 .aviso-badge {
-    padding: 0.2rem 0.6rem;
-    border-radius: 9999px; 
-    font-size: 0.7rem; 
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
-    color: var(--text-on-primary-button);
+    color: white;
     white-space: nowrap;
-    flex-shrink: 0; /* Impede que encolha */
+    flex-shrink: 0;
 }
-.badge-baixa { background-color: var(--primary); } /* Azul */
-.badge-media { background-color: #dd8d03; } /* Âmbar */
-.badge-alta { background-color: var(--error-color); } /* Vermelho */
+.badge-baixa { background-color: #3b82f6; }
+.badge-media { background-color: #f59e0b; }
+.badge-alta  { background-color: #ef4444; }
 
-/* Descrição */
+/* Conteúdo */
 .aviso-descricao {
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     line-height: 1.6;
-    margin-bottom: 1rem;
-    white-space: pre-wrap; /* Preserva quebras de linha e espaços */
-    word-break: break-word;
-    flex-grow: 1; /* Faz a descrição crescer */
+    margin-bottom: 1.5rem;
+    white-space: pre-wrap;
+    flex-grow: 1;
 }
 
-/* Rodapé do Card */
+/* Metadados (Criador, Data, Destino) */
 .aviso-footer {
-    display: flex;
-    flex-wrap: wrap; /* Permite quebrar linha em telas pequenas */
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.75rem; /* Espaço entre data e botões */
+    margin-top: auto;
+    padding-top: 1rem;
     border-top: 1px solid var(--border-color);
-    padding-top: 0.75rem;
-    margin-top: auto; /* Empurra o rodapé para baixo */
 }
 
-.aviso-date, .aviso-finished-date {
+.aviso-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.8rem;
     color: var(--text-tertiary);
-    font-size: 0.75rem;
-    white-space: nowrap;
-}
-.aviso-finished-date {
-    display: block; /* Ocupa linha própria */
-    margin-top: 0.5rem;
-    text-align: right;
-    width: 100%;
+    margin-bottom: 1rem;
 }
 
+.aviso-creator strong {
+    color: var(--text-secondary);
+}
 
-/* Container dos Botões de Ação */
+.aviso-targets {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--primary); /* Destaque sutil */
+    font-weight: 500;
+}
+
+/* Botões de Ação do Card */
 .aviso-actions {
     display: flex;
-    gap: 0.5rem; /* Espaço menor entre botões */
+    gap: 0.5rem;
+    justify-content: flex-end;
 }
 
-/* Estilos para Botões de Ação (SÓLIDOS) */
 .btn-aviso {
-    background: none;
-    border: 1px solid transparent; 
-    padding: 0.3rem 0.6rem; 
-    border-radius: 0.25rem;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.3rem;
     cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem; 
-    font-size: 0.8rem; 
-    font-weight: 500;
-    transition: background-color 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
-    
-    /* --- MUDANÇA: Texto branco --- */
-    color: var(--text-on-primary-button);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+    transition: opacity 0.2s;
 }
 
-/* --- MUDANÇA: Cores e Hover dos botões SÓLIDOS --- */
-
-/* CONCLUIR (Verde) */
-.btn-concluir { 
-    background-color: var(--sucess-color);
-    border-color: var(--sucess-color); 
+.btn-aviso:hover:not(:disabled) {
+    opacity: 0.9;
 }
-.btn-concluir:hover:not(:disabled) { 
-    background-color: #15803d; /* Verde mais escuro */
-    border-color: #15803d;
-}
-
-/* REABRIR (Âmbar/Laranja) */
-.btn-reabrir { 
-    background-color: #f59e0b; /* Âmbar */
-    border-color: #f59e0b; 
-}
-.btn-reabrir:hover:not(:disabled) { 
-    background-color: #d97706; /* Âmbar mais escuro */
-    border-color: #d97706;
-}
-
-/* EDITAR (Azul) */
-.btn-editar { 
-    background-color: var(--primary);
-    border-color: var(--primary); 
-}
-.btn-editar:hover:not(:disabled) { 
-    background-color: var(--primary-hover); /* Variável já existe! */
-    border-color: var(--primary-hover);
-}
-
-/* REMOVER (Vermelho) */
-.btn-remover { 
-    background-color: var(--error-color);
-    border-color: var(--error-color); 
-}
-.btn-remover:hover:not(:disabled) { 
-    background-color: #dc2626; /* Vermelho mais escuro */
-    border-color: #dc2626;
-}
-
-/* --- MUDANÇA: Estado desabilitado para botões sólidos --- */
 .btn-aviso:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-/* Botões primários e secundários (usados no form) */
-.btn-primary, .btn-secondary {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.875rem;
+.btn-concluir { background-color: var(--sucess-color); }
+.btn-reabrir  { background-color: #f59e0b; }
+.btn-editar   { background-color: var(--primary); }
+.btn-remover  { background-color: var(--error-color); }
+
+.aviso-finished-date {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--sucess-color);
+    text-align: right;
+    margin-top: 0.5rem;
     font-weight: 500;
-    border: none;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: background-color 0.2s, opacity 0.2s;
-}
-.btn-primary { background-color: var(--primary); color: var(--text-on-primary-button); }
-.btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); }
-.btn-secondary { background-color: var(--error-color); color: var(--text-on-primary-button); border: 1px solid var(--border-color); }
-.btn-secondary:hover:not(:disabled) { background-color: #8d1d1d; }
-.btn-primary:disabled, .btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; }
-
-
-:root[data-theme="dark"] .btn-concluir:hover:not(:disabled) { 
-    background-color: #16a34a; /* Verde (escuro) 600 */
-    border-color: #16a34a;
-}
-:root[data-theme="dark"] .btn-reabrir:hover:not(:disabled) { 
-    /* Opcional: A cor âmbar pode ser diferente no escuro */
-    background-color: #d97706; /* Âmbar (escuro) 600 */
-    border-color: #d97706;
-}
-:root[data-theme="dark"] .btn-remover:hover:not(:disabled) { 
-    background-color: #ef4444; /* Vermelho (escuro) 500 */
-    border-color: #ef4444;
 }

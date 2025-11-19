@@ -237,6 +237,14 @@ button:disabled {
   background-color: var(--primary-hover);
 }
 
+#resetForm {
+  background-color: var(--error-color);
+  color: var(--text-on-primary-button);
+}
+#resetForm:not(:disabled):hover {
+  background-color: var(--error-hover);
+}
+
 .button-rol,
 .button-editar {
   background-color: var(--neutral-button-bg);
@@ -435,4 +443,20 @@ select:focus {
   outline: none;
   border-color: var(--primary-focus);
   box-shadow: 0 0 0 3px var(--primary-focus-shadow);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active,
+select:-webkit-autofill,
+textarea:-webkit-autofill {
+    /* A mágica: cria uma sombra interna da cor do seu fundo para cobrir o amarelo */
+    -webkit-box-shadow: 0 0 0 30px var(--background-surface) inset !important;
+    
+    /* Força a cor do texto para a cor padrão do seu tema */
+    -webkit-text-fill-color: var(--text-primary) !important;
+    
+    /* Opcional: Transição longa para evitar que a cor pisque */
+    transition: background-color 5000s ease-in-out 0s;
 }

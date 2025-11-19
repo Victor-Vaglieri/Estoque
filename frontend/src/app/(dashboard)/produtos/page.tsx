@@ -68,7 +68,7 @@ export default function ProductsHomePage() {
             
             const [resProducts, resFornecedores] = await Promise.all([
                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, { headers }),
-                fetch(`${process.env.NEXT_PUBLIC_API_URL}/fornecedores`, { headers }) 
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/fornecedores`, { headers }) 
             ]);
 
             if (!resProducts.ok) {

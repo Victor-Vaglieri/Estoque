@@ -1,4 +1,4 @@
-/* --- Início do CSS que você forneceu --- */
+
 .dashboard-layout {
     display: flex;
     min-height: 100vh;
@@ -49,19 +49,23 @@
     padding-bottom: 0.75rem;
 }
 
+/* O texto do título da seção */
 .section-title {
     color: var(--text-primary);
-    font-size: 1.5rem;
-    font-weight: 700; /* Alterado de 700 para 600 para corresponder ao estilo anterior */
+    font-size: 1.5rem;         /* 24px - Menor que o Page Title (30px), mas maior que texto comum */
+    font-weight: 600;          /* Levemente menos "gordo" que o título principal para hierarquia */
+    letter-spacing: -0.025em;  /* Deixa a fonte mais moderna e compacta */
+    line-height: 1.2;          /* Melhora o alinhamento vertical */
+    margin: 0;                 /* Importante: remove margens padrão do navegador (h1, h2) */
 }
 
-/* Componente StatCard */
+
 .stat-card {
     background-color: var(--background-surface);
     padding: 1.5rem;
     border-radius: 0.5rem;
     box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px -1px var(--shadow-color);
-     /* Adição para combinar com o estilo anterior */
+     
     border-left: 4px solid var(--primary);
 }
 
@@ -69,18 +73,18 @@
     color: var(--text-secondary);
     font-size: 0.875rem;
     font-weight: 500;
-     /* Adição para combinar com o estilo anterior */
+     
     text-transform: uppercase;
 }
 
 .stat-card-value {
     color: var(--text-primary);
-    font-size: 1.875rem; /* Reduzido de 2.25rem para corresponder */
+    font-size: 1.875rem; 
     font-weight: 600;
     margin-top: 0.25rem;
 }
 
-/* Layout da Página */
+
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -106,7 +110,7 @@
     margin-bottom: 2rem;
 }
 
-/* Botões */
+
 .btn-secondary {
     padding: 0.5rem 1rem;
     font-size: 0.875rem;
@@ -153,28 +157,28 @@
     text-decoration: underline;
 }
 
-/* Lista de Alertas (agora .table-list) */
+
 .table-list {
     display: flex;
     list-style-type: none;
     padding: 0;
     margin: 0 0 1.5rem 0;
     flex-direction: column;
-    gap: 1rem; /* Reduzido o gap para alertas */
+    gap: 1rem; 
 }
 
-/* Tabela (agora .table-container é o nosso card de alerta) */
+
 .table-container {
     background-color: var(--background-surface);
-    padding: 1.25rem 1.5rem; /* Ajustado o padding */
-    border-radius: 0.375rem; /* Reduzido o radius */
+    padding: 1.25rem 1.5rem; 
+    border-radius: 0.375rem; 
     box-shadow: 0 1px 2px 0 var(--shadow-color);
-     /* --- ESTILOS DE ALERTA ADICIONADOS --- */
-    border-left: 5px solid; /* Borda lateral colorida */
-    border-color: var(--border-color); /* Padrão cinza */
+     
+    border-left: 5px solid; 
+    border-color: var(--border-color); 
 }
 
-/* Estilos para o conteúdo do alerta dentro do .table-container */
+
 .table-container h2 {
     color: var(--text-primary);
     font-size: 1.1rem;
@@ -191,22 +195,22 @@
     line-height: 1.6;
 }
 
-/* Cores por Importância (aplicadas ao .table-container) */
+
 .table-container.importancia-baixa {
-    border-left-color: #3b82f6; /* Azul */
+    border-left-color: #3b82f6; 
 }
 .table-container.importancia-media {
-    border-left-color: #f59e0b; /* Âmbar/Laranja */
+    border-left-color: #f59e0b; 
 }
 .table-container.importancia-alta {
-    border-left-color: var(--error-color); /* Vermelho */
+    border-left-color: var(--error-color); 
 }
 .table-container.importancia-aviso {
-    border-left-color: var(--sucess-color); /* Verde */
+    border-left-color: var(--sucess-color); 
 }
 
 
-/* --- Estilos de Tabela (não usados nesta página, mas parte do seu CSS) --- */
+
 .table-title {
     color: var(--text-primary);
     font-size: 1.25rem;
@@ -245,24 +249,24 @@
     color: var(--success-color);
 }
 
-/* Media Queries para Responsividade */
+
 @media (min-width: 768px) {
-    /* md */
+    
     .stats-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    /* .table-list (para alertas) permanece 1 coluna */
+    
 }
 
 @media (min-width: 1024px) {
-    /* lg */
+    
     .stats-grid {
         grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 }
 
-/* --- Adicionado: Mensagens de Feedback (do estilo anterior) --- */
+
 .dash-message {
     padding: 1rem;
     border-radius: 0.5rem;
