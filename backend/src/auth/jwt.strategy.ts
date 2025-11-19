@@ -1,29 +1,28 @@
-// src/auth/jwt.strategy.ts
-
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { UsuariosDbService } from 'src/prisma/usuarios-db.service'; // Ajuste o caminho se necessário
+
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private usuariosDb: UsuariosDbService) {
+  constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET, // ✅ GARANTIDO que usa o nome padrão
+      secretOrKey: JWT_SECRET,
     });
   }
 
-  async validate(payload: { sub: number; username: string; funcoes: string[] }) {
-    const user = await this.usuariosDb.usuario.findUnique({
-      where: { id: payload.sub },
-    });
-
-    if (!user) {
-      throw new UnauthorizedException('Usuário do token não encontrado.');
-    }
-
-    return { sub: payload.sub, login: payload.username, funcoes: payload.funcoes };
+  async validate(payload: any) {
+    
+    return { 
+        id: payload.sub, 
+        login: payload.username,
+        nome: payload.nome,
+        lojaId: payload.lojaId,
+        funcoes: payload.funcoes
+    };
   }
 }

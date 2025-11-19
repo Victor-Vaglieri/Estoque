@@ -1,5 +1,3 @@
-// src/auth/auth.service.ts
-
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsuariosDbService } from 'src/prisma/usuarios-db.service';
@@ -12,26 +10,44 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(login: string, pass: string): Promise<{ token: string }> {
+  async login(login: string, pass: string) {
     const user = await this.usuariosDb.usuario.findUnique({
       where: { login },
+      include: { funcoes: true }, 
     });
 
     if (!user) {
       throw new UnauthorizedException('Login ou senha inválidos.');
     }
+
     const isPasswordMatching = await bcrypt.compare(pass, user.senha);
     if (!isPasswordMatching) {
       throw new UnauthorizedException('Login ou senha inválidos.');
     }
 
-    const funcoes = await this.usuariosDb.usuarioFuncao.findMany({
-      where: { usuarioId: user.id },
-      select: { funcao: true },
-    }).then(results => results.map(r => r.funcao as string));
-    const payload = { sub: user.id, username: user.login, funcoes: funcoes };
+    if (!user.ativo) {
+      throw new UnauthorizedException('Usuário inativo.');
+    }
+
+    const funcoes = user.funcoes.map((r) => r.funcao);
+
+    const payload = {
+      sub: user.id,
+      username: user.login,
+      nome: user.nome,
+      lojaId: user.lojaId,
+      funcoes: funcoes,
+    };
+
+    
     return {
       token: await this.jwtService.signAsync(payload),
+      user: {
+        id: user.id,
+        nome: user.nome,
+        lojaId: user.lojaId,
+        funcoes: funcoes,
+      }
     };
   }
 }

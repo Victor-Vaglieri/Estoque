@@ -6,13 +6,9 @@ import {
 } from '@nestjs/common';
 import { ControleDbService } from '../prisma/controle-db.service';
 import { LegacyPayloadDto } from './dto/legacy-payload.dto';
-
 import { MeioDeContato } from '@prisma/controle-client';
 
-
 type TipoServico = 'costura' | 'tingimento' | 'tapete' | 'mala';
-
-
 
 type AuthUser = {
   id: number;
@@ -21,8 +17,13 @@ type AuthUser = {
 
 @Injectable()
 export class ControleService {
-  constructor(private controleDB: ControleDbService) { }
+  constructor(private controleDB: ControleDbService) {}
+
   async findAll(tipo: TipoServico, authUser: AuthUser) {
+    if (!authUser?.lojaId) {
+        throw new ForbiddenException('Usuário não associado a uma loja.');
+    }
+
     const selectFields = {
       id: true,
       rol: true,
@@ -30,7 +31,6 @@ export class ControleService {
       data_recebimento: true,
       data_da_entrega: true,
     };
-
 
     const whereClause = {
       lojaId: authUser.lojaId,
@@ -64,8 +64,11 @@ export class ControleService {
     }
   }
 
-
   async findByRol(tipo: TipoServico, rol: number, authUser: AuthUser) {
+    if (!authUser?.lojaId) {
+         throw new ForbiddenException('Usuário não associado a uma loja.');
+    }
+
     let registro;
     switch (tipo) {
       case 'costura':
@@ -98,7 +101,6 @@ export class ControleService {
       return null;
     }
 
-
     if (registro.lojaId !== authUser.lojaId) {
       throw new ForbiddenException('Acesso negado a este ROL.');
     }
@@ -107,23 +109,29 @@ export class ControleService {
     return { fixos, multiplos: itens || [] };
   }
 
-
   async create(
     tipo: TipoServico,
     payload: LegacyPayloadDto,
     authUser: AuthUser,
   ) {
+    
+    if (!authUser || !authUser.lojaId) {
+        throw new ForbiddenException('Usuário não associado a uma loja. Impossível criar registro.');
+    }
+
     const dadosFixos = this.prepareFixedData(payload.fixos);
     const dadosMultiplos = this.prepareMultipleData(payload.multiplos);
+    
+    
+    const lojaId = Number(authUser.lojaId); 
 
     switch (tipo) {
       case 'costura':
-        
         return this.controleDB.costuraRegistro.create({
           data: {
             ...dadosFixos,
-            lojaId: authUser.lojaId,
-            rol: Number(dadosFixos.rol), 
+            lojaId: lojaId, 
+            rol: Number(dadosFixos.rol),
             itens: {
               create: dadosMultiplos as any,
             },
@@ -131,24 +139,22 @@ export class ControleService {
         });
 
       case 'tingimento':
-        
         return this.controleDB.tingimentoRegistro.create({
           data: {
             ...dadosFixos,
-            lojaId: authUser.lojaId,
+            lojaId: lojaId, 
             rol: Number(dadosFixos.rol),
             itens: {
               create: dadosMultiplos as any,
-            }
+            },
           } as any,
         });
 
       case 'tapete':
-        
         return this.controleDB.tapeteRegistro.create({
           data: {
             ...dadosFixos,
-            lojaId: authUser.lojaId,
+            lojaId: lojaId, 
             rol: Number(dadosFixos.rol),
             itens: {
               create: dadosMultiplos as any,
@@ -156,11 +162,10 @@ export class ControleService {
           } as any,
         });
       case 'mala':
-        
         return this.controleDB.malaRegistro.create({
           data: {
             ...dadosFixos,
-            lojaId: authUser.lojaId,
+            lojaId: lojaId, 
             rol: Number(dadosFixos.rol),
             itens: {
               create: dadosMultiplos as any,
@@ -170,13 +175,15 @@ export class ControleService {
     }
   }
 
-
-
   async update(
     tipo: TipoServico,
     payload: LegacyPayloadDto,
     authUser: AuthUser,
   ) {
+    if (!authUser?.lojaId) {
+        throw new ForbiddenException('Usuário não associado a uma loja.');
+    }
+
     const dadosFixos = this.prepareFixedData(payload.fixos);
     const dadosMultiplos = this.prepareMultipleData(payload.multiplos);
 
@@ -185,17 +192,17 @@ export class ControleService {
       throw new NotFoundException('ROL não fornecido para atualização.');
     }
 
-
+    
     delete dadosFixos.id;
     delete dadosFixos.createdAt;
     delete dadosFixos.updatedAt;
-    delete dadosFixos.lojaId;
+    delete dadosFixos.lojaId; 
 
     return this.controleDB.$transaction(async (tx) => {
       let registroAtualizado;
       let registroId: number;
 
-
+      
       const registroExistente = await (tx as any)[`${tipo}Registro`].findUnique({
         where: { rol },
         select: { id: true, lojaId: true },
@@ -208,7 +215,6 @@ export class ControleService {
       if (registroExistente.lojaId !== authUser.lojaId) {
         throw new ForbiddenException('Acesso negado a este ROL.');
       }
-
 
       switch (tipo) {
         case 'costura':
@@ -270,14 +276,9 @@ export class ControleService {
     });
   }
 
-
   private mapMeioDeContato(value: string): MeioDeContato | null {
     if (!value) return null;
-
-
     const key = value.toUpperCase().trim();
-
-
     switch (key) {
       case 'GOOGLE':
         return MeioDeContato.GOOGLE;
@@ -290,17 +291,14 @@ export class ControleService {
       case 'OUTROS':
         return MeioDeContato.OUTROS;
       default:
-
         throw new BadRequestException(
           `Valor inválido para Meio de Contato: ${value}`,
         );
     }
   }
 
-
   private prepareFixedData(fixos: Record<string, any>): Record<string, any> {
     const dadosLimpos: Record<string, any> = {};
-
 
     const dateKeys = [
       'data_recebimento',
@@ -314,23 +312,16 @@ export class ControleService {
     for (const key in fixos) {
       const value = fixos[key];
 
-
       if (key === 'meio_de_contato') {
-
         dadosLimpos['meio_de_contato_inicial'] = this.mapMeioDeContato(value);
       } else if (dateKeys.includes(key)) {
-
-
         dadosLimpos[key] = value ? new Date(value) : null;
       } else if (key === 'rol' && value) {
-
         dadosLimpos[key] = parseInt(value, 10);
       } else if (value !== undefined && value !== null) {
-
         dadosLimpos[key] = value;
       }
     }
-
 
     delete dadosLimpos.id;
     delete dadosLimpos.createdAt;
@@ -347,13 +338,11 @@ export class ControleService {
       for (const key in itemLimpo) {
         const value = itemLimpo[key];
 
-
         if (
           key.includes('custo') ||
           key.includes('cobrado') ||
           key.includes('valor')
         ) {
-
           const floatVal = parseFloat(value);
           itemLimpo[key] = isNaN(floatVal) ? null : floatVal;
         }
