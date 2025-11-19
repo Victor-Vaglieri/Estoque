@@ -53,9 +53,6 @@ export class InventarioService {
     return this.estoqueDb.$transaction(async (tx) => {
       for (const update of updates) {
         const { produtoId, newQuantity } = update;
-
-        
-        
         const estoqueAtual = await tx.estoqueLoja.findUnique({
           where: { produtoId_lojaId: { produtoId, lojaId } },
           include: {
