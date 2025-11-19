@@ -1,71 +1,106 @@
-import { Controller, Get, Post, Delete, Patch, Param, UseGuards, Request, ParseIntPipe, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  UseGuards,
+  Req,
+  ParseIntPipe,
+  ForbiddenException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { PerfisService } from './cadasters.service';
-import { UpdateUserRolesDto } from './dto/update-user-roles.dto'; 
-import { AprovarSolicitacaoDto } from './dto/aprove-user.dto';
+import { AprovarSolicitacaoDto, UpdateUserDto } from './dto/perfis.dto';
+import { Funcao } from '@prisma/usuarios-client';
 
+type AuthUser = {
+  id?: number;
+  sub?: number; 
+  lojaId: number;
+  funcoes: Funcao[];
+};
+
+@UseGuards(AuthGuard('jwt'))
 @Controller('perfis')
-@UseGuards(AuthGuard('jwt')) 
 export class PerfisController {
-    constructor(private readonly perfisService: PerfisService) {}
+  constructor(private readonly perfisService: PerfisService) {}
 
-    // --- Rotas para Solicitações de Cadastro ---
-
-    @Get('solicitacoes')
-    async getSolicitacoes(@Request() req) {
-        const userId = req.user.sub;
-        return this.perfisService.getSolicitacoes(userId);
-    }
-
-    // --- NOVO ENDPOINT ---
-    @Get('confirmados')
-    async getSolicitacoesConfirmadas(@Request() req) {
-        const userId = req.user.sub;
-        return this.perfisService.getSolicitacoesConfirmadas(userId);
-    }
-
-
-    @Post('aprovar/:id')
-    async aprovarSolicitacao(
-        @Request() req, 
-        @Param('id', ParseIntPipe) cadastroId: number,
-        @Body() aprovarDto: AprovarSolicitacaoDto 
-    ) {
-        const userId = req.user.sub; 
-        return this.perfisService.aprovarSolicitacao(userId, cadastroId, aprovarDto); 
-    }
-
-    @Delete('rejeitar/:id')
-    async rejeitarSolicitacao(@Request() req, @Param('id', ParseIntPipe) cadastroId: number) {
-        const userId = req.user.sub; 
-        return this.perfisService.rejeitarSolicitacao(userId, cadastroId);
-    }
-
-    // --- Rotas para Utilizadores Atuais ---
-
-    @Get('usuarios')
-    async getUsuarios(@Request() req) {
-         const userId = req.user.sub;
-         return this.perfisService.getUsuarios(userId);
-    }
+  private checkGestor(user: AuthUser) {
     
-    @Patch('usuario/:id')
-    async updateUserRoles(
-        @Request() req, 
-        @Param('id', ParseIntPipe) targetUserId: number,
-        @Body() updateUserRolesDto: UpdateUserRolesDto 
-    ) {
-        const adminId = req.user.sub;
-        return this.perfisService.updateUserRoles(adminId, targetUserId, updateUserRolesDto);
+    if (!user.funcoes || !user.funcoes.includes(Funcao.GESTOR)) {
+      throw new ForbiddenException('Acesso negado. Apenas Gestores.');
     }
+  }
+
+  
+  private getUserId(user: AuthUser): number {
+    const id = user.id || user.sub;
+    if (!id) {
+      throw new InternalServerErrorException('ID do usuário não encontrado no token.');
+    }
+    return id;
+  }
+
+  @Get('solicitacoes')
+  getSolicitacoes(@Req() req) {
+    this.checkGestor(req.user);
+    return this.perfisService.getSolicitacoes();
+  }
+
+  @Get('usuarios')
+  getUsuarios(@Req() req) {
+    this.checkGestor(req.user);
+    return this.perfisService.getUsuarios();
+  }
+
+  @Get('confirmados')
+  getSolicitacoesConfirmadas(@Req() req) {
+    this.checkGestor(req.user);
+    return this.perfisService.getSolicitacoesConfirmadas();
+  }
+
+  @Get('lojas')
+  getLojas(@Req() req) {
+    this.checkGestor(req.user);
+    return this.perfisService.getLojas();
+  }
+
+  @Post('aprovar/:id')
+  aprovarSolicitacao(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: AprovarSolicitacaoDto,
+    @Req() req,
+  ) {
+    this.checkGestor(req.user);
     
-    @Delete('usuario/:id')
-    async deleteUser(
-        @Request() req, 
-        @Param('id', ParseIntPipe) targetUserId: number
-    ) {
-        const adminId = req.user.sub;
-        return this.perfisService.deleteUser(adminId, targetUserId);
-    }
+    const adminId = this.getUserId(req.user);
+    return this.perfisService.aprovarSolicitacao(adminId, id, dto);
+  }
+
+  @Delete('rejeitar/:id')
+  rejeitarSolicitacao(@Param('id', ParseIntPipe) id: number, @Req() req) {
+    this.checkGestor(req.user);
+    return this.perfisService.rejeitarSolicitacao(id);
+  }
+
+  @Patch('usuario/:id')
+  updateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateUserDto,
+    @Req() req,
+  ) {
+    this.checkGestor(req.user);
+    return this.perfisService.updateUser(id, dto);
+  }
+
+  @Delete('usuario/:id')
+  deleteUser(@Param('id', ParseIntPipe) id: number, @Req() req) {
+    this.checkGestor(req.user);
+    const adminId = this.getUserId(req.user);
+    return this.perfisService.deleteUser(adminId, id);
+  }
 }
-

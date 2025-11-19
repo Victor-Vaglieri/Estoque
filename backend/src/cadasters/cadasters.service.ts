@@ -1,54 +1,68 @@
-import { Injectable, NotFoundException, ConflictException, InternalServerErrorException, ForbiddenException, BadRequestException } from '@nestjs/common';
-// Importe 'Prisma' de AMBOS os clientes
-import { Prisma as PrismaUsuarios, Funcao } from '@prisma/usuarios-client';
-import { Prisma as PrismaCadastros } from '@prisma/cadastros-client'; 
-// Importe os DOIS serviços de DB
-import { UsuariosDbService } from '../prisma/usuarios-db.service'; 
-import { CadastrosDbService } from '../prisma/cadastros-db.service'; 
-import * as bcrypt from 'bcrypt';
-import { UpdateUserRolesDto } from './dto/update-user-roles.dto';
-import { AprovarSolicitacaoDto } from './dto/aprove-user.dto';
+import {
+    Injectable,
+    NotFoundException,
+    ConflictException,
+    InternalServerErrorException,
+    BadRequestException,
+} from '@nestjs/common';
+import { Prisma as PrismaUsuarios } from '@prisma/usuarios-client';
+import { Prisma as PrismaCadastros } from '@prisma/cadastros-client';
+import { UsuariosDbService } from '../prisma/usuarios-db.service';
+import { CadastrosDbService } from '../prisma/cadastros-db.service';
+
+import { EstoqueDbService } from '../prisma/estoque-db.service';
+import { AprovarSolicitacaoDto, UpdateUserDto } from './dto/perfis.dto';
 
 @Injectable()
 export class PerfisService {
     constructor(
-        private usuariosDb: UsuariosDbService, 
-        private cadastrosDb: CadastrosDbService 
-    ) {}
+        private usuariosDb: UsuariosDbService,
+        private cadastrosDb: CadastrosDbService,
+        private estoqueDb: EstoqueDbService,
+    ) { }
 
 
-    async getSolicitacoes(userId: number) {
-        return this.cadastrosDb.cadastro.findMany({
-            where: {
-                responsavelId: null, 
-                ativo: true
-            },
-            orderBy: { createdAt: 'asc' }, 
-            select: { 
+    async getLojas() {
+        return this.estoqueDb.loja.findMany({
+            select: {
                 id: true,
                 nome: true,
-                login: true,
-                responsavelId: true,
-                createdAt: true
-            }
+            },
+            orderBy: { nome: 'asc' },
         });
     }
 
-    async getSolicitacoesConfirmadas(userId: number) {
-        const solicitacoes = await this.cadastrosDb.cadastro.findMany({
+    async getSolicitacoes() {
+        return this.cadastrosDb.cadastro.findMany({
             where: {
-                responsavelId: { 
-                    not: null 
-                }, ativo: true
+                responsavelId: null,
+                ativo: true,
             },
-            orderBy: { createdAt: 'desc' }, 
-            select: { 
+            orderBy: { createdAt: 'asc' },
+            select: {
                 id: true,
                 nome: true,
                 login: true,
                 responsavelId: true,
-                createdAt: true
-            } // TODO colocar qual loja foi designada
+                createdAt: true,
+            },
+        });
+    }
+
+    async getSolicitacoesConfirmadas() {
+        const solicitacoes = await this.cadastrosDb.cadastro.findMany({
+            where: {
+                responsavelId: { not: null },
+                ativo: true,
+            },
+            orderBy: { createdAt: 'desc' },
+            select: {
+                id: true,
+                nome: true,
+                login: true,
+                responsavelId: true,
+                createdAt: true,
+            },
         });
 
         if (solicitacoes.length === 0) {
@@ -56,159 +70,185 @@ export class PerfisService {
         }
 
         const responsavelIds = [
-            ...new Set(solicitacoes.map(s => s.responsavelId).filter(id => id !== null) as number[])
+            ...new Set(
+                solicitacoes
+                    .map((s) => s.responsavelId)
+                    .filter((id) => id !== null) as number[],
+            ),
         ];
 
-        // 3. Busca os nomes dos aprovadores no banco de usuários
         const aprovadores = await this.usuariosDb.usuario.findMany({
-            where: {
-                id: {
-                    in: responsavelIds
-                }
-            },
-            select: {
-                id: true,
-                nome: true
-            }
+            where: { id: { in: responsavelIds } },
+            select: { id: true, nome: true },
         });
 
-        // 4. Mapeia os IDs para nomes para consulta rápida
-        const aprovadorMap = new Map(aprovadores.map(a => [a.id, a.nome]));
+        const aprovadorMap = new Map(aprovadores.map((a) => [a.id, a.nome]));
 
-        return solicitacoes.map(solicitacao => {
-            const responsavelNome = solicitacao.responsavelId 
-                ? aprovadorMap.get(solicitacao.responsavelId) 
+        return solicitacoes.map((solicitacao) => {
+            const responsavelNome = solicitacao.responsavelId
+                ? aprovadorMap.get(solicitacao.responsavelId)
                 : null;
 
             return {
                 ...solicitacao,
-                responsavelNome: responsavelNome || 'ID Desconhecido'
+                responsavelNome: responsavelNome || 'ID Desconhecido',
             };
         });
     }
 
 
-    // TODO adicionar valor para designar a certa loja
-    async aprovarSolicitacao(adminId: number, cadastroId: number, aprovarDto: AprovarSolicitacaoDto) {
-        const cadastro = await this.cadastrosDb.cadastro.findUnique({
-            where: { 
-                id: cadastroId,
-                responsavelId: null 
+    async getUsuarios() {
+        const usuarios = await this.usuariosDb.usuario.findMany({
+            select: {
+                id: true,
+                nome: true,
+                login: true,
+                lojaId: true,
+                funcoes: {
+                    select: { funcao: true },
+                },
             },
+            orderBy: { nome: 'asc' },
         });
+
+        return usuarios.map((u) => ({
+            id: u.id,
+            nome: u.nome,
+            login: u.login,
+            lojaId: u.lojaId,
+            role: u.funcoes.map((f) => f.funcao).join(', ') || 'N/D',
+        }));
+    }
+
+    async aprovarSolicitacao(
+        adminId: number,
+        cadastroId: number,
+        aprovarDto: AprovarSolicitacaoDto,
+    ) {
+        if (!adminId) {
+            throw new BadRequestException("ID do administrador inválido.");
+        }
+        const cadastro = await this.cadastrosDb.cadastro.findUnique({
+            where: { id: cadastroId, responsavelId: null },
+        });
+
         if (!cadastro) {
-            throw new NotFoundException(`Solicitação de cadastro pendente com ID ${cadastroId} não encontrada.`);
+            throw new NotFoundException(
+                `Solicitação de cadastro pendente com ID ${cadastroId} não encontrada.`,
+            );
         }
+
         const existingUser = await this.usuariosDb.usuario.findUnique({
-             where: { login: cadastro.login },
+            where: { login: cadastro.login },
         });
+
         if (existingUser) {
-            await this.rejeitarSolicitacao(adminId, cadastroId); 
-            throw new ConflictException(`Login '${cadastro.login}' já existe. A solicitação foi rejeitada.`);
+            await this.rejeitarSolicitacao(cadastroId);
+            throw new ConflictException(
+                `Login '${cadastro.login}' já existe. A solicitação foi rejeitada.`,
+            );
         }
-        const hashedPassword = cadastro.senha;
+
         try {
+
             await this.usuariosDb.$transaction(async (prismaTx) => {
                 const newUser = await prismaTx.usuario.create({
                     data: {
                         nome: cadastro.nome,
                         login: cadastro.login,
-                        senha: hashedPassword, 
+                        senha: cadastro.senha,
                         ativo: true,
-                    }
+                        lojaId: aprovarDto.lojaId,
+                    },
                 });
-                const { funcoes } = aprovarDto;
-                if (!funcoes || funcoes.length === 0) {
+
+                if (!aprovarDto.funcoes || aprovarDto.funcoes.length === 0) {
                     throw new BadRequestException('Pelo menos uma função é necessária.');
                 }
+
                 await prismaTx.usuarioFuncao.createMany({
-                    data: funcoes.map(funcao => ({
+                    data: aprovarDto.funcoes.map((funcao) => ({
                         usuarioId: newUser.id,
-                        funcao: funcao 
-                    }))
+                        funcao: funcao,
+                    })),
                 });
             });
         } catch (error) {
-             console.error("Erro ao criar utilizador no DB principal:", error);
-             if (error instanceof PrismaUsuarios.PrismaClientKnownRequestError) {
-             }
-             if (error instanceof BadRequestException) {
-                 throw error;
-             }
-            throw new InternalServerErrorException("Falha ao criar o utilizador. A solicitação não foi atualizada.");
+            console.error('Erro ao criar utilizador:', error);
+            if (error instanceof PrismaUsuarios.PrismaClientKnownRequestError) {
+
+            }
+            throw new InternalServerErrorException(
+                'Falha ao criar o utilizador. A solicitação não foi atualizada.',
+            );
         }
+
+
         try {
-             await this.cadastrosDb.cadastro.update({
+            await this.cadastrosDb.cadastro.update({
                 where: { id: cadastroId },
-                data: {
-                    responsavelId: adminId 
-                }
+                data: { responsavelId: adminId },
             });
         } catch (error) {
-             console.error("Erro ao ATUALIZAR solicitação (Utilizador FOI criado):", error);
-             if (error instanceof PrismaCadastros.PrismaClientKnownRequestError && error.code === 'P2025') {
-                 throw new NotFoundException(`Solicitação com ID ${cadastroId} não encontrada ao tentar atualizar.`);
-             }
-            throw new InternalServerErrorException("Utilizador criado, mas falha ao atualizar a solicitação. Verifique manualmente.");
+            console.error('Erro ao atualizar solicitação:', error);
+            throw new InternalServerErrorException(
+                'Utilizador criado, mas falha ao atualizar a solicitação.',
+            );
         }
+
         return { message: `Utilizador '${cadastro.login}' criado com sucesso.` };
     }
 
-    async rejeitarSolicitacao(adminId: number, cadastroId: number) {
+    async rejeitarSolicitacao(cadastroId: number) {
         try {
             await this.cadastrosDb.cadastro.delete({
-                where: { 
-                    id: cadastroId,
-                },
+                where: { id: cadastroId },
             });
-            return { message: "Solicitação rejeitada e removida com sucesso." };
+            return { message: 'Solicitação rejeitada e removida com sucesso.' };
         } catch (error) {
-            if (error instanceof PrismaCadastros.PrismaClientKnownRequestError && error.code === 'P2025') {
-                throw new NotFoundException(`Solicitação com ID ${cadastroId} não encontrada.`);
+            if (
+                error instanceof PrismaCadastros.PrismaClientKnownRequestError &&
+                error.code === 'P2025'
+            ) {
+                throw new NotFoundException(
+                    `Solicitação com ID ${cadastroId} não encontrada.`,
+                );
             }
-            throw error; 
+            throw error;
         }
     }
 
-    async getUsuarios(userId: number) {
-        const usuarios = await this.usuariosDb.usuario.findMany({
-            select: { // TODO mostrar loja designada
-                id: true,
-                nome: true,
-                login: true,
-                funcoes: { 
-                    select: {
-                        funcao: true
-                    }
-                }
-            },
-            orderBy: { nome: 'asc' }
-        });
-        return usuarios.map(u => ({
-            id: u.id,
-            nome: u.nome,
-            login: u.login,
-            role: u.funcoes.map(f => f.funcao).join(', ') || 'N/D' 
-        }));
-    }
+    async updateUser(userId: number, dto: UpdateUserDto) {
+        const { funcoes, senha, ...data } = dto;
 
-    async updateUserRoles(adminId: number, targetUserId: number, dto: UpdateUserRolesDto) {
-        // ... (código existente)
+        const updateData: any = {
+            ...data,
+        };
+
         return await this.usuariosDb.$transaction(async (prismaTx) => {
-            await prismaTx.usuarioFuncao.deleteMany({
-                where: { usuarioId: targetUserId }
+
+            await prismaTx.usuario.update({
+                where: { id: userId },
+                data: updateData,
             });
-            if (dto.funcoes && dto.funcoes.length > 0) {
+
+
+            await prismaTx.usuarioFuncao.deleteMany({
+                where: { usuarioId: userId },
+            });
+
+            if (funcoes && funcoes.length > 0) {
                 await prismaTx.usuarioFuncao.createMany({
-                    data: dto.funcoes.map(funcao => ({
-                        usuarioId: targetUserId,
-                        funcao: funcao
-                    }))
+                    data: funcoes.map((funcao) => ({
+                        usuarioId: userId,
+                        funcao: funcao,
+                    })),
                 });
             }
+
             return prismaTx.usuario.findUnique({
-                where: { id: targetUserId },
-                include: { funcoes: true }
+                where: { id: userId },
+                include: { funcoes: true },
             });
         });
     }
@@ -216,41 +256,43 @@ export class PerfisService {
     async deleteUser(adminId: number, targetUserId: number) {
         let userLogin: string;
         try {
-             const user = await this.usuariosDb.usuario.findUniqueOrThrow({
+            const user = await this.usuariosDb.usuario.findUniqueOrThrow({
                 where: { id: targetUserId },
-                select: { login: true }
+                select: { login: true },
             });
             userLogin = user.login;
         } catch (error) {
-             if (error instanceof PrismaUsuarios.PrismaClientKnownRequestError && (error.code === 'P2025' || error.code === 'P2016')) {
-                throw new NotFoundException(`Utilizador com ID ${targetUserId} não encontrado.`);
-            }
-            throw error;
+            throw new NotFoundException(`Utilizador com ID ${targetUserId} não encontrado.`);
         }
+
         try {
+
             await this.usuariosDb.$transaction(async (prismaTx) => {
                 await prismaTx.usuarioFuncao.deleteMany({
-                    where: { usuarioId: targetUserId }
+                    where: { usuarioId: targetUserId },
                 });
                 return await prismaTx.usuario.delete({
-                    where: { id: targetUserId }
+                    where: { id: targetUserId },
                 });
             });
         } catch (error) {
-            if (error instanceof PrismaUsuarios.PrismaClientKnownRequestError && error.code === 'P2025') {
-                throw new NotFoundException(`Utilizador com ID ${targetUserId} não encontrado durante a transação.`);
-            }
-            throw error;
+            throw new InternalServerErrorException('Erro ao remover utilizador.');
         }
+
+
         try {
             await this.cadastrosDb.cadastro.updateMany({
                 where: { login: userLogin },
-                data: { ativo: false }
+                data: { ativo: false },
             });
         } catch (error) {
-            console.warn(`AVISO: Utilizador ${userLogin} (ID: ${targetUserId}) foi removido, mas falhou a limpeza do 'cadastros.db'. Erro: ${error.message}`);
+            console.warn(
+                `AVISO: Falha na limpeza do 'cadastros.db' para ${userLogin}.`,
+            );
         }
-        return { message: `Utilizador ${userLogin} (ID: ${targetUserId}) removido com sucesso de ambos os sistemas.` };
+
+        return {
+            message: `Utilizador ${userLogin} removido com sucesso.`,
+        };
     }
 }
-
