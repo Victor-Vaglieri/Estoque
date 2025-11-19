@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, ChangeEvent } from 'react';
-import { useAuth } from '@/app/context/AuthContext'; 
-import { useRouter } from 'next/navigation'; 
+import { useAuth } from '@/app/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 import './legacy.css';
 
@@ -103,7 +103,7 @@ export default function LegacyFormPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    
+
     const { user } = useAuth();
     const router = useRouter();
 
@@ -116,7 +116,7 @@ export default function LegacyFormPage() {
         setIsMenuOpen(false);
     }, [tipoAtual]);
 
-    const handleFixedChange = (e: ChangeEvent<HTMLInputElement| HTMLSelectElement>) => {
+    const handleFixedChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFixedData(prev => ({ ...prev, [name]: value }));
     };
@@ -138,28 +138,31 @@ export default function LegacyFormPage() {
         setMultipleData(prev => prev.filter((_, i) => i !== rowIndex));
     };
 
-    const token = localStorage.getItem('token');
+    
+    
 
     const fetchAllRegistros = useCallback(async (tipo: TipoServico) => {
         setIsListLoading(true);
-        
+
         const url = `${process.env.NEXT_PUBLIC_API_URL}/legacy/${tipo.toLowerCase()}`;
         try {
+            
+            const token = localStorage.getItem('token');
             if (!token) {
                 router.push('/login');
                 return;
             }
-            
+
             const res = await fetch(url, {
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` 
+                    'Authorization': `Bearer ${token}`
                 },
             });
             if (!res.ok) throw new Error('Falha ao buscar registros');
-            
-            
-            const data: RegistroCompleto[] = await res.json(); 
+
+
+            const data: RegistroCompleto[] = await res.json();
             setAllRegistros(data);
         } catch (err) {
             alert(`Erro ao carregar lista: ${err instanceof Error ? err.message : String(err)}`);
@@ -177,9 +180,7 @@ export default function LegacyFormPage() {
         }
         resetForm();
         fetchAllRegistros(tipoAtual);
-    }, [tipoAtual, resetForm, fetchAllRegistros]);
-
-
+    }, [tipoAtual, resetForm, fetchAllRegistros, user, router]); 
 
 
     useEffect(() => {
@@ -212,6 +213,13 @@ export default function LegacyFormPage() {
         const url = `${process.env.NEXT_PUBLIC_API_URL}/legacy/${tipoAtual.toLowerCase()}?rol=${rolToSearch}`;
 
         try {
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                router.push('/login');
+                return;
+            }
+            
             const res = await fetch(url, {
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             });
@@ -284,10 +292,18 @@ export default function LegacyFormPage() {
             multiplos: multiplosFiltrados,
         };
         try {
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                router.push('/login');
+                setIsSaving(false); 
+                return;
+            }
+            
             const res = await fetch(url, {
                 method: method,
                 headers: {
-                    'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` 
+                    'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`
 
                 },
                 body: JSON.stringify(payload)
@@ -336,6 +352,7 @@ export default function LegacyFormPage() {
 
                         const isDateField = label.includes("Data") || label.includes("Envio") || label.includes("Retorno");
                         const isRolField = label.includes("ROL");
+                        const isContatoField = label.includes("Meio de Contato");
 
                         if (isRolField) {
                             return (
@@ -356,6 +373,28 @@ export default function LegacyFormPage() {
                                     >
                                         {isLoading ? '...' : 'Pesquisar'}
                                     </button>
+                                </div>
+                            );
+                        }
+
+                        
+                        if (isContatoField) {
+                             return (
+                                <div key={key} className="campo-fixo">
+                                    <label htmlFor={key}>{label}:</label>
+                                    <select
+                                        id={key}
+                                        name={key}
+                                        value={fixedData[key] || ''}
+                                        onChange={handleFixedChange}
+                                    >
+                                        <option value="">Selecione...</option>
+                                        <option value="GOOGLE">Google</option>
+                                        <option value="REDE_SOCIAL">Rede Social</option>
+                                        <option value="AMIGOS">Amigos</option>
+                                        <option value="LOJA">Loja</option>
+                                        <option value="OUTROS">Outros</option>
+                                    </select>
                                 </div>
                             );
                         }
@@ -394,7 +433,7 @@ export default function LegacyFormPage() {
                                 <tr key={rowIndex}>
                                     {currentMultipleLabels.map((label) => {
                                         const key = normalizeKey(label);
-                                        const isNumeric = label.includes("Custo") || label.includes("Cobrado") || label.includes("Valor") || label.includes("Ticket"); // TODO arrumar "Ticket"
+                                        const isNumeric = label.includes("Custo") || label.includes("Cobrado") || label.includes("Valor") || label.includes("Ticket");
                                         return (
                                             <td key={key} data-label={label}>
                                                 <input

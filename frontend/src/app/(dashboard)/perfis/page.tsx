@@ -1,66 +1,78 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-// Usando caminho de alias padrão
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
-
 import "./perfis.css";
-// --- 1. Enum de Funções (deve espelhar o seu schema 'usuarios.db') ---
+
 enum Funcao {
-    CADASTRO = 'CADASTRO',
-    COMPRAS = 'COMPRAS',
+    TERCEIROS = 'TERCEIROS',
+    SAIDA = 'SAIDA',
     RECEBIMENTO = 'RECEBIMENTO',
-    FUNCIONARIO = 'FUNCIONARIO',
-    EMPREGADA = 'EMPREGADA',
+    INVENTARIO = 'INVENTARIO',
+    AVISOS = 'AVISOS',
+    CADASTRO = 'CADASTRO',
+    LISTA = 'LISTA',
     GESTOR = 'GESTOR',
 }
 
-// Interface para a Solicitação de Cadastro (do cadastros.db)
 interface CadastroRequest {
     id: number;
     nome: string;
     login: string;
     responsavelId: number | null;
     createdAt: string;
-    responsavelNome?: string | null; // O nome do aprovador
+    responsavelNome?: string | null;
 }
 
-// Interface para um Utilizador existente
 interface User {
     id: number;
     nome: string;
     login: string;
-    role: string; // O backend já formata isto como string
+    role: string; 
+    lojaId: number | null;
+}
+
+interface Loja {
+    id: number;
+    nome: string;
 }
 
 export default function PerfisPage() {
     const router = useRouter();
     const { user } = useAuth();
-    const currentUserId = user?.sub;
+    const currentUserId = user?.id;
 
     const [solicitacoes, setSolicitacoes] = useState<CadastroRequest[]>([]);
     const [usuarios, setUsuarios] = useState<User[]>([]);
     const [solicitacoesConfirmadas, setSolicitacoesConfirmadas] = useState<CadastroRequest[]>([]);
+    const [lojas, setLojas] = useState<Loja[]>([]);
 
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState<number | null>(null);
 
+    
     const [showApproveModal, setShowApproveModal] = useState(false);
     const [solicitacaoParaAprovar, setSolicitacaoParaAprovar] = useState<CadastroRequest | null>(null);
-    const [selectedFuncoes, setSelectedFuncoes] = useState<Funcao[]>([Funcao.FUNCIONARIO]);
+    const [selectedFuncoes, setSelectedFuncoes] = useState<Funcao[]>([Funcao.TERCEIROS]);
+    const [selectedLojaId, setSelectedLojaId] = useState<string>("");
 
+    
     const [showEditModal, setShowEditModal] = useState(false);
     const [usuarioParaEditar, setUsuarioParaEditar] = useState<User | null>(null);
-    const [selectedEditFuncoes, setSelectedEditFuncoes] = useState<Funcao[]>([]);
-
+    const [editForm, setEditForm] = useState({
+        nome: '',
+        login: '',
+        
+        lojaId: '',
+        funcoes: [] as Funcao[]
+    });
 
     const clearFeedback = () => { setError(null); setSuccess(null); };
 
-    // 1. Função para buscar TODAS as listas
     const fetchData = async () => {
         setIsLoading(true);
         clearFeedback();
@@ -70,51 +82,30 @@ export default function PerfisPage() {
             return;
         }
 
-
         try {
+            const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+            
             const results = await Promise.allSettled([
-                fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/solicitacoes`, {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                }),
-                fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/usuarios`, {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                }),
-                fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/confirmados`, {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                })
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/solicitacoes`, { headers }),
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/usuarios`, { headers }),
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/confirmados`, { headers }),
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/lojas`, { headers }) 
             ]);
 
-            // Processa Solicitações Pendentes (índice 0)
             if (results[0].status === 'fulfilled' && results[0].value.ok) {
-                const solicitacoesData: CadastroRequest[] = await results[0].value.json();
-                setSolicitacoes(solicitacoesData);
-            } else {
-                console.error("Falha ao carregar solicitações:", results[0].status === 'rejected' ? results[0].reason : 'Resposta não OK');
-                setError(prev => (prev ? `${prev} | Falha ao carregar solicitações.` : 'Falha ao carregar solicitações.'));
-                setSolicitacoes([]);
+                setSolicitacoes(await results[0].value.json());
             }
 
-            // Processa Utilizadores Atuais (índice 1)
             if (results[1].status === 'fulfilled' && results[1].value.ok) {
-                const usuariosData: User[] = await results[1].value.json();
-                setUsuarios(usuariosData);
-            } else {
-                console.error("Falha ao carregar usuários:", results[1].status === 'rejected' ? results[1].reason : 'Resposta não OK');
-                setError(prev => (prev ? `${prev} | Falha ao carregar usuários.` : 'Falha ao carregar usuários.'));
-                setUsuarios([]);
+                setUsuarios(await results[1].value.json());
             }
 
-            // Processa Solicitações Confirmadas (índice 2)
             if (results[2].status === 'fulfilled' && results[2].value.ok) {
-                const confirmadasData: CadastroRequest[] = await results[2].value.json();
-                setSolicitacoesConfirmadas(confirmadasData);
-            } else {
-                console.error("Falha ao carregar confirmados:", results[2].status === 'rejected' ? results[2].reason : 'Resposta não OK');
-                setError(prev => (prev ? `${prev} | Falha ao carregar confirmados.` : 'Falha ao carregar confirmados.'));
-                setSolicitacoesConfirmadas([]);
+                setSolicitacoesConfirmadas(await results[2].value.json());
+            }
+            
+            if (results[3].status === 'fulfilled' && results[3].value.ok) {
+                setLojas(await results[3].value.json());
             }
 
         } catch (err) {
@@ -125,22 +116,21 @@ export default function PerfisPage() {
     };
 
     useEffect(() => {
-
         if (user) {
             if (!user.funcoes.some(f => f === 'GESTOR')) {
                 router.push('/inicio');
                 return;
             }
-
         }
-
         fetchData();
     }, [router, user]);
 
-    // --- FUNÇÕES DE APROVAÇÃO E REJEIÇÃO (Solicitações) ---
+    
+
     const handleAprovarClick = (solicitacao: CadastroRequest) => {
         setSolicitacaoParaAprovar(solicitacao);
-        setSelectedFuncoes([Funcao.FUNCIONARIO]);
+        setSelectedFuncoes([Funcao.TERCEIROS]);
+        setSelectedLojaId(""); 
         setShowApproveModal(true);
         clearFeedback();
     };
@@ -148,121 +138,132 @@ export default function PerfisPage() {
     const handleConfirmAprovacao = async () => {
         if (!solicitacaoParaAprovar) return;
         if (selectedFuncoes.length === 0) {
-            setError("Selecione pelo menos uma função para o novo usuário.");
+            setError("Selecione pelo menos uma função.");
             return;
         }
+        if (!selectedLojaId) {
+            setError("Selecione uma loja para o usuário.");
+            return;
+        }
+
         setIsSubmitting(solicitacaoParaAprovar.id);
-        clearFeedback();
         const token = localStorage.getItem('token');
-        if (!token) { router.push('/login'); return; }
+
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/aprovar/${solicitacaoParaAprovar.id}`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ funcoes: selectedFuncoes })
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    funcoes: selectedFuncoes,
+                    lojaId: parseInt(selectedLojaId)
+                })
             });
-            if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.message || 'Falha ao aprovar usuário.');
-            }
-            setSuccess('Utilizador aprovado e criado com sucesso!');
+
+            if (!response.ok) throw new Error('Falha ao aprovar usuário.');
+            
+            setSuccess('Utilizador aprovado com sucesso!');
             setShowApproveModal(false);
             await fetchData();
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Ocorreu um erro ao aprovar.');
+            setError('Ocorreu um erro ao aprovar.');
         } finally {
             setIsSubmitting(null);
         }
     };
 
     const handleRejeitar = async (cadastroId: number) => {
-        if (!window.confirm('Tem certeza que deseja rejeitar esta solicitação? Ela será removida permanentemente.')) return;
+        if (!window.confirm('Rejeitar solicitação permanentemente?')) return;
         setIsSubmitting(cadastroId);
-        clearFeedback();
         const token = localStorage.getItem('token');
-        if (!token) { router.push('/login'); return; }
+
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/rejeitar/${cadastroId}`, {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/rejeitar/${cadastroId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` },
             });
-            if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.message || 'Falha ao rejeitar usuário.');
-            }
-            setSuccess('Solicitação rejeitada com sucesso.');
+            setSuccess('Solicitação rejeitada.');
             await fetchData();
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Ocorreu um erro ao rejeitar.');
+            setError('Erro ao rejeitar.');
         } finally {
             setIsSubmitting(null);
         }
     };
 
     const handleFuncaoChange = (funcao: Funcao) => {
-        setSelectedFuncoes(prev => {
-            if (prev.includes(funcao)) {
-                return prev.filter(f => f !== funcao);
-            } else {
-                return [...prev, funcao];
-            }
-        });
+        setSelectedFuncoes(prev => 
+            prev.includes(funcao) ? prev.filter(f => f !== funcao) : [...prev, funcao]
+        );
     };
 
-    // --- FUNÇÕES DE GESTÃO DE UTILIZADORES ATUAIS ---
-    const handleEditUserClick = (user: User) => {
-        if (user.id === currentUserId) {
-            setError("Não pode editar as suas próprias funções.");
-            return;
-        }
-        setUsuarioParaEditar(user);
-        const rolesArray = user.role.split(', ').filter(role => role in Funcao) as Funcao[];
-        setSelectedEditFuncoes(rolesArray);
+    
+
+    const handleEditUserClick = (userToEdit: User) => {
+        setUsuarioParaEditar(userToEdit);
+        
+        const rolesString = userToEdit.role || '';
+        const rolesArray = rolesString.split(', ').filter(r => Object.values(Funcao).includes(r as Funcao)) as Funcao[];
+
+        setEditForm({
+            nome: userToEdit.nome,
+            login: userToEdit.login,
+            lojaId: userToEdit.lojaId ? userToEdit.lojaId.toString() : '',
+            funcoes: rolesArray
+        });
+
         setShowEditModal(true);
         clearFeedback();
     };
 
+    const handleEditFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setEditForm(prev => ({ ...prev, [name]: value }));
+    };
+
     const handleEditFuncaoChange = (funcao: Funcao) => {
-        setSelectedEditFuncoes(prev => {
-            if (prev.includes(funcao)) {
-                return prev.filter(f => f !== funcao);
-            } else {
-                return [...prev, funcao];
-            }
-        });
+        setEditForm(prev => ({
+            ...prev,
+            funcoes: prev.funcoes.includes(funcao) 
+                ? prev.funcoes.filter(f => f !== funcao) 
+                : [...prev.funcoes, funcao]
+        }));
     };
 
     const handleConfirmEdit = async () => {
         if (!usuarioParaEditar) return;
-        if (selectedEditFuncoes.length === 0) {
+        if (editForm.funcoes.length === 0) {
             setError("O usuário deve ter pelo menos uma função.");
             return;
         }
+        if (!editForm.lojaId) {
+             setError("O usuário deve estar associado a uma loja.");
+             return;
+        }
+
         setIsSubmitting(usuarioParaEditar.id);
-        clearFeedback();
         const token = localStorage.getItem('token');
-        if (!token) { router.push('/login'); return; }
+
         try {
+            const payload: any = {
+                nome: editForm.nome,
+                login: editForm.login,
+                lojaId: parseInt(editForm.lojaId),
+                funcoes: editForm.funcoes
+            };
+
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/usuario/${usuarioParaEditar.id}`, {
                 method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ funcoes: selectedEditFuncoes })
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             });
-            if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.message || 'Falha ao atualizar usuário.');
-            }
+
+            if (!response.ok) throw new Error('Falha ao atualizar usuário.');
+
             setSuccess('Usuário atualizado com sucesso!');
             setShowEditModal(false);
             await fetchData();
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Ocorreu um erro ao atualizar.');
+            setError('Ocorreu um erro ao atualizar.');
         } finally {
             setIsSubmitting(null);
         }
@@ -270,26 +271,23 @@ export default function PerfisPage() {
 
     const handleDeleteUser = async (userId: number) => {
         if (userId === currentUserId) {
-            setError("Você não pode remover a si mesmo.");
+            setError("Você não pode remover a si mesmo. Peça a outro gestor.");
             return;
         }
+        if (!window.confirm("Tem certeza que deseja remover este usuário?")) return;
+
         setIsSubmitting(userId);
-        clearFeedback();
         const token = localStorage.getItem('token');
-        if (!token) { router.push('/login'); return; }
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/usuario/${userId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` },
             });
-            if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.message || 'Falha ao remover usuário.');
-            }
-            setSuccess('Usuário removido com sucesso.');
+            if (!response.ok) throw new Error('Falha ao remover usuário.');
+            setSuccess('Usuário removido.');
             await fetchData();
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Ocorreu um erro ao remover.');
+            setError('Erro ao remover.');
         } finally {
             setIsSubmitting(null);
         }
@@ -299,7 +297,7 @@ export default function PerfisPage() {
     return (
         <>
             <div className="page-header-perfis">
-                <h1 className="page-title-perfis">Gestão de Perfis e Cadastros</h1>
+                <h1 className="page-title-perfis">Gestão de Perfis</h1>
             </div>
 
             {error && <p className="perfis-message perfis-error">{error}</p>}
@@ -309,160 +307,99 @@ export default function PerfisPage() {
             {!isLoading && (
                 <div className="perfis-container">
 
-                    {/* --- Secção 1: Solicitações Pendentes --- */}
+                    {}
                     <section className="perfis-section">
-                        <h2 className="section-title">Solicitações de Cadastro Pendentes</h2>
-                        {error && !isLoading && !solicitacoes.length && <p className="no-data-message">Não foi possível carregar as solicitações.</p>}
-                        {!error && !isLoading && solicitacoes.length === 0 && (
-                            <p className="no-data-message">Nenhuma solicitação de cadastro pendente.</p>
-                        )}
-                        {solicitacoes.length > 0 && (
-                            <div className="perfis-table-container">
-                                <table className="perfis-table">
-                                    <thead>
-                                        <tr>
-                                            <th>ID Solicitação</th>
-                                            <th>Nome</th>
-                                            <th>Login Desejado</th>
-                                            <th>ID Responsável</th>
-                                            <th>Data Solicitação</th>
-                                            <th>Ações</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {solicitacoes.map((req) => (
-                                            <tr key={`req-${req.id}`}>
-                                                {/* --- MUDANÇA: Adicionado data-label --- */}
-                                                <td data-label="ID Solicitação">{req.id}</td>
-                                                <td data-label="Nome">{req.nome}</td>
-                                                <td data-label="Login Desejado">{req.login}</td>
-                                                <td data-label="ID Responsável">{req.responsavelId || 'N/A'}</td>
-                                                <td data-label="Data Solicitação">{new Date(req.createdAt).toLocaleDateString()}</td>
-                                                <td data-label="Ações">
-                                                    <div className="perfis-actions">
-                                                        <button
-                                                            className="btn-action btn-rejeitar"
-                                                            onClick={() => handleRejeitar(req.id)}
-                                                            disabled={isSubmitting === req.id}
-                                                        >
-                                                            {isSubmitting === req.id ? '...' : 'Rejeitar'}
-                                                        </button>
-                                                        <button
-                                                            className="btn-action btn-aprovar"
-                                                            onClick={() => handleAprovarClick(req)}
-                                                            disabled={isSubmitting === req.id}
-                                                        >
-                                                            {isSubmitting === req.id ? '...' : 'Aprovar'}
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
-                    </section>
-
-                    {/* --- Secção 2: Utilizadores Atuais --- */}
-                    <section className="perfis-section">
-                        <h2 className="section-title">Utilizadores Atuais</h2>
-                        {error && !isLoading && !usuarios.length && <p className="no-data-message">Não foi possível carregar os usuários.</p>}
-                        {!error && !isLoading && usuarios.length === 0 && (
-                            <p className="no-data-message">Nenhum utilizador encontrado.</p>
-                        )}
-                        {usuarios.length > 0 && (
-                            <div className="perfis-table-container">
-                                <table className="perfis-table">
-                                    <thead>
-                                        <tr>
-                                            <th>ID Utilizador</th>
-                                            <th>Nome</th>
-                                            <th>Login</th>
-                                            <th>Permissão (Role)</th>
-                                            <th>Ações</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {usuarios.map((u) => (
-                                            <tr key={`user-${u.id}`}>
-                                                {/* --- MUDANÇA: Adicionado data-label --- */}
-                                                <td data-label="ID Utilizador">{u.id}</td>
-                                                <td data-label="Nome">{u.nome}</td>
-                                                <td data-label="Login">{u.login}</td>
-
-                                                {/* --- MUDANÇA: Lógica para Múltiplas Roles --- */}
-                                                <td data-label="Permissão (Role)">
-                                                    <div className="role-badge-container">
-                                                        {u.role && u.role !== 'N/D' ? (
-                                                            u.role.split(', ').map((role) => (
-                                                                <span
-                                                                    key={role}
-                                                                    className={`role-badge role-${role.toLowerCase()}`}
-                                                                >
-                                                                    {role}
-                                                                </span>
-                                                            ))
-                                                        ) : (
-                                                            <span className="role-badge role-nd">N/D</span>
-                                                        )}
-                                                    </div>
-                                                </td>
-
-                                                <td data-label="Ações">
-                                                    <div className="perfis-actions">
-                                                        <button
-                                                            className="btn-action btn-rejeitar"
-                                                            onClick={() => handleDeleteUser(u.id)}
-                                                            disabled={isSubmitting !== null || u.id === currentUserId}
-                                                            title={u.id === currentUserId ? "Não pode remover a si mesmo" : "Remover Usuário"}
-                                                        >
-                                                            Remover
-                                                        </button>
-                                                        <button
-                                                            className="btn-action btn-editar"
-                                                            onClick={() => handleEditUserClick(u)}
-                                                            disabled={isSubmitting !== null || u.id === currentUserId}
-                                                            title={u.id === currentUserId ? "Não pode editar a si mesmo" : "Editar Funções"}
-                                                        >
-                                                            Editar
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
-                    </section>
-
-                    {/* --- Secção 3: Solicitações Confirmadas --- */}
-                    <section className="perfis-section">
-                        <h2 className="section-title">Histórico de Solicitações (Confirmadas)</h2>
-                        {error && !isLoading && !solicitacoesConfirmadas.length && <p className="no-data-message">Não foi possível carregar o histórico.</p>}
-                        {!error && !isLoading && solicitacoesConfirmadas.length === 0 ? (
-                            <p className="no-data-message">Nenhuma solicitação confirmada encontrada.</p>
+                        <h2 className="section-title">Solicitações Pendentes</h2>
+                        {solicitacoes.length === 0 ? (
+                            <p className="no-data-message">Nenhuma solicitação pendente.</p>
                         ) : (
                             <div className="perfis-table-container">
                                 <table className="perfis-table">
                                     <thead>
                                         <tr>
-                                            <th>ID Solicitação</th>
                                             <th>Nome</th>
-                                            <th>Login (Criado)</th>
-                                            <th>Aprovado por (Nome)</th>
+                                            <th>Login</th>
+                                            <th>Data</th>
+                                            <th>Ações</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {solicitacoesConfirmadas.map((req) => (
-                                            <tr key={`req-conf-${req.id}`} className="confirmed-row">
-                                                {/* --- MUDANÇA: Adicionado data-label --- */}
-                                                <td data-label="ID Solicitação">{req.id}</td>
+                                        {solicitacoes.map((req) => (
+                                            <tr key={req.id}>
                                                 <td data-label="Nome">{req.nome}</td>
-                                                <td data-label="Login (Criado)">{req.login}</td>
-                                                <td data-label="Aprovado por (Nome)">
-                                                    {req.responsavelNome || `ID: ${req.responsavelId}`}
+                                                <td data-label="Login">{req.login}</td>
+                                                <td data-label="Data">{new Date(req.createdAt).toLocaleDateString()}</td>
+                                                <td data-label="Ações">
+                                                    <div className="perfis-actions">
+                                                        <button className="btn-action btn-rejeitar" onClick={() => handleRejeitar(req.id)} disabled={isSubmitting === req.id}>
+                                                            Rejeitar
+                                                        </button>
+                                                        <button className="btn-action btn-aprovar" onClick={() => handleAprovarClick(req)} disabled={isSubmitting === req.id}>
+                                                            Aprovar
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </section>
+
+                    {}
+                    <section className="perfis-section">
+                        <h2 className="section-title">Utilizadores Atuais</h2>
+                        {usuarios.length === 0 ? (
+                            <p className="no-data-message">Nenhum utilizador encontrado.</p>
+                        ) : (
+                            <div className="perfis-table-container">
+                                <table className="perfis-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nome</th>
+                                            <th>Login</th>
+                                            <th>Loja</th>
+                                            <th>Funções</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {usuarios.map((u) => (
+                                            <tr key={u.id} className={u.id === currentUserId ? 'current-user-row' : ''}>
+                                                <td data-label="ID">{u.id}</td>
+                                                <td data-label="Nome">{u.nome} {u.id === currentUserId && '(Você)'}</td>
+                                                <td data-label="Login">{u.login}</td>
+                                                <td data-label="Loja">
+                                                    {lojas.find(l => l.id === u.lojaId)?.nome || 'N/A'}
+                                                </td>
+                                                <td data-label="Funções">
+                                                    <div className="role-badge-container">
+                                                        {u.role && u.role.split(', ').map(role => (
+                                                            <span key={role} className={`role-badge role-${role.toLowerCase()}`}>{role}</span>
+                                                        ))}
+                                                    </div>
+                                                </td>
+                                                <td data-label="Ações">
+                                                    <div className="perfis-actions">
+                                                        <button 
+                                                            className="btn-action btn-editar" 
+                                                            onClick={() => handleEditUserClick(u)}
+                                                            disabled={isSubmitting !== null}
+                                                        >
+                                                            Editar
+                                                        </button>
+                                                        {u.id !== currentUserId && (
+                                                            <button 
+                                                                className="btn-action btn-rejeitar" 
+                                                                onClick={() => handleDeleteUser(u.id)}
+                                                                disabled={isSubmitting !== null}
+                                                            >
+                                                                Remover
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}
@@ -474,87 +411,106 @@ export default function PerfisPage() {
                 </div>
             )}
 
-            {/* --- Modal de Aprovação (Existente) --- */}
+            {}
             {showApproveModal && solicitacaoParaAprovar && (
                 <div className="perfis-modal-overlay">
                     <div className="perfis-modal-content">
-                        <h3 className="modal-title">Aprovar Novo Utilizador</h3>
-                        <p>Selecione as funções para <strong>{solicitacaoParaAprovar.nome}</strong> (Login: {solicitacaoParaAprovar.login}):</p>
+                        <h3 className="modal-title">Aprovar {solicitacaoParaAprovar.nome}</h3>
+                        
+                        <label className="modal-label">Loja:</label>
+                        <select 
+                            className="modal-select"
+                            value={selectedLojaId} 
+                            onChange={(e) => setSelectedLojaId(e.target.value)}
+                        >
+                            <option value="">Selecione a Loja...</option>
+                            {lojas.map(l => (
+                                <option key={l.id} value={l.id}>{l.nome}</option>
+                            ))}
+                        </select>
 
+                        <label className="modal-label">Funções (Selecione):</label>
                         <div className="funcoes-checkbox-group">
                             {Object.values(Funcao).map((funcao) => (
-                                <label key={funcao} className="funcao-checkbox">
+                                <label 
+                                    key={funcao} 
+                                    className={`funcao-tag tag-${funcao.toLowerCase()} ${selectedFuncoes.includes(funcao) ? 'selected' : ''}`}
+                                >
                                     <input
                                         type="checkbox"
                                         value={funcao}
                                         checked={selectedFuncoes.includes(funcao)}
                                         onChange={() => handleFuncaoChange(funcao)}
+                                        className="hidden-checkbox" 
                                     />
                                     {funcao}
                                 </label>
                             ))}
                         </div>
 
-                        {error && <p className="perfis-message perfis-error modal-error">{error}</p>}
-
                         <div className="modal-actions">
-                            <button
-                                className="btn-secondary"
-                                onClick={() => setShowApproveModal(false)}
-                                disabled={isSubmitting === solicitacaoParaAprovar.id}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                className="btn-primary"
+                            <button className="btn-secondary" onClick={() => setShowApproveModal(false)}>Cancelar</button>
+                            <button 
+                                className="btn-primary" 
                                 onClick={handleConfirmAprovacao}
-                                disabled={isSubmitting === solicitacaoParaAprovar.id || selectedFuncoes.length === 0}
+                                disabled={!selectedLojaId || selectedFuncoes.length === 0}
                             >
-                                {isSubmitting === solicitacaoParaAprovar.id ? 'Aprovando...' : 'Confirmar Aprovação'}
+                                Confirmar
                             </button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* --- NOVO: Modal de Edição de Funções --- */}
+            {}
             {showEditModal && usuarioParaEditar && (
                 <div className="perfis-modal-overlay">
                     <div className="perfis-modal-content">
-                        <h3 className="modal-title">Editar Funções</h3>
-                        <p>Editando funções para <strong>{usuarioParaEditar.nome}</strong> (Login: {usuarioParaEditar.login}):</p>
+                        <h3 className="modal-title">Editar Usuário</h3>
+                        
+                        {}
+                        <div className="modal-subtitle">
+                            <span>Editando:</span> 
+                            <strong className="highlight-name">{usuarioParaEditar.nome}</strong>
+                        </div>
+                        
+                        <div className="edit-form-grid">
+                            <label>
+                                Nome:
+                                <input type="text" name="nome" value={editForm.nome} onChange={handleEditFormChange} />
+                            </label>
+                            
+                            <label>
+                                Loja:
+                                <select name="lojaId" value={editForm.lojaId} onChange={handleEditFormChange}>
+                                    <option value="">Selecione...</option>
+                                    {lojas.map(l => <option key={l.id} value={l.id}>{l.nome}</option>)}
+                                </select>
+                            </label>
+                        </div>
 
+                        <label className="modal-label">Funções (Selecione):</label>
                         <div className="funcoes-checkbox-group">
                             {Object.values(Funcao).map((funcao) => (
-                                <label key={funcao} className="funcao-checkbox">
+                                <label 
+                                    key={funcao} 
+                                    className={`funcao-tag tag-${funcao.toLowerCase()} ${editForm.funcoes.includes(funcao) ? 'selected' : ''} ${usuarioParaEditar.id === currentUserId && funcao === Funcao.GESTOR ? 'disabled' : ''}`}
+                                >
                                     <input
                                         type="checkbox"
-                                        value={funcao}
-                                        checked={selectedEditFuncoes.includes(funcao)}
+                                        checked={editForm.funcoes.includes(funcao)}
                                         onChange={() => handleEditFuncaoChange(funcao)}
+                                        disabled={usuarioParaEditar.id === currentUserId && funcao === Funcao.GESTOR}
+                                        className="hidden-checkbox"
                                     />
                                     {funcao}
                                 </label>
                             ))}
                         </div>
 
-                        {error && <p className="perfis-message perfis-error modal-error">{error}</p>}
-
                         <div className="modal-actions">
-                            <button
-                                className="btn-secondary"
-                                onClick={() => setShowEditModal(false)}
-                                disabled={isSubmitting === usuarioParaEditar.id}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                className="btn-primary"
-                                onClick={handleConfirmEdit}
-                                disabled={isSubmitting === usuarioParaEditar.id || selectedEditFuncoes.length === 0}
-                            >
-                                {isSubmitting === usuarioParaEditar.id ? 'Salvando...' : 'Salvar Alterações'}
-                            </button>
+                            <button className="btn-secondary" onClick={() => setShowEditModal(false)}>Cancelar</button>
+                            <button className="btn-primary" onClick={handleConfirmEdit}>Salvar Alterações</button>
                         </div>
                     </div>
                 </div>
@@ -562,4 +518,3 @@ export default function PerfisPage() {
         </>
     );
 }
-
