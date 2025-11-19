@@ -10,7 +10,7 @@ export class RecebimentosController {
     @UseGuards(AuthGuard('jwt'))
     @Get('/pendentes') 
     async findPending(@Request() req) {
-        const userId = req.user.sub;
+        const userId = req.user;
         return this.recebimentosService.findPending(userId); 
     }
 

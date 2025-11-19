@@ -39,7 +39,7 @@ export class AuthService {
       funcoes: funcoes,
     };
 
-    
+    // MUDANÇA: Retornando 'token' para compatibilidade com seu frontend atual
     return {
       token: await this.jwtService.signAsync(payload),
       user: {

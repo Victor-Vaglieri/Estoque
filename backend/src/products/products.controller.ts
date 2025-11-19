@@ -26,6 +26,10 @@ type AuthUser = {
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @Get('fornecedores')
+  findAllFornecedores() {
+    return this.productsService.findAllFornecedores();
+  }
   
   @Get()
   async getProducts(@Req() req) {

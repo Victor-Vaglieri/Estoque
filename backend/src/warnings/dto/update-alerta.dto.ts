@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsEnum, IsOptional, IsInt, Min, IsBoolean } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum, IsOptional, IsInt, Min, IsBoolean, IsArray } from 'class-validator';
 // Importe o Enum do seu schema Prisma (ajuste o nome se necessário)
 import { Importancia } from '@prisma/alertas-client'; 
 
@@ -19,9 +19,10 @@ export class UpdateAlertaDto {
     importancia?: Importancia;
 
     @IsOptional()
-    @IsInt()
-    @Min(1)
-    destinadoPara?: number;
+    @IsArray()
+    @IsInt({ each: true })
+    @Min(1, { each: true }) // Garante que é um ID de usuário válido
+    destinatarios?: number[]; // ID do usuário a quem se destina (opcional)
 
     // Campo específico para marcar como concluído/pendente
     @IsOptional()
