@@ -1,531 +1,424 @@
+
+@import "tailwindcss";
+
+
+:root {
+  
+  --role-gestor-bg: #fef2f2; --role-gestor-text: #b91c1c; --role-gestor-border: #fecaca;
+  --role-funcionario-bg: #f0fdf4; --role-funcionario-text: #15803d; --role-funcionario-border: #bbf7d0;
+  --role-terceiros-bg: #faf5ff; --role-terceiros-text: #7e22ce; --role-terceiros-border: #e9d5ff;
+  --role-saida-bg: #fff7ed; --role-saida-text: #c2410c; --role-saida-border: #fed7aa;
+  --role-recebimento-bg: #fffbeb; --role-recebimento-text: #b45309; --role-recebimento-border: #fde68a;
+  --role-inventario-bg: #f0fdfa; --role-inventario-text: #0f766e; --role-inventario-border: #ccfbf1;
+  --role-avisos-bg: #fdf2f8; --role-avisos-text: #be185d; --role-avisos-border: #fbcfe8;
+  --role-cadastro-bg: #eef2ff; --role-cadastro-text: #4338ca; --role-cadastro-border: #c7d2fe;
+  --role-lista-bg: #ecfeff; --role-lista-text: #0e7490; --role-lista-border: #a5f3fc;
+  --role-nd-bg: #f4f4f5; --role-nd-text: #52525b; --role-nd-border: #d4d4d8;
+}
+
+
+:root[data-theme='dark'] {
+  --role-gestor-bg: #450a0a; --role-gestor-text: #fecaca; --role-gestor-border: #7f1d1d;
+  --role-funcionario-bg: #052e16; --role-funcionario-text: #bbf7d0; --role-funcionario-border: #14532d;
+  --role-terceiros-bg: #3b0764; --role-terceiros-text: #e9d5ff; --role-terceiros-border: #6b21a8;
+  --role-saida-bg: #431407; --role-saida-text: #fed7aa; --role-saida-border: #9a3412;
+  --role-recebimento-bg: #451a03; --role-recebimento-text: #fde68a; --role-recebimento-border: #92400e;
+  --role-inventario-bg: #042f2e; --role-inventario-text: #99f6e4; --role-inventario-border: #115e59;
+  --role-avisos-bg: #500724; --role-avisos-text: #fbcfe8; --role-avisos-border: #9d174d;
+  --role-cadastro-bg: #1e1b4b; --role-cadastro-text: #c7d2fe; --role-cadastro-border: #3730a3;
+  --role-lista-bg: #083344; --role-lista-text: #a5f3fc; --role-lista-border: #155e75;
+  --role-nd-bg: #27272a; --role-nd-text: #d4d4d8; --role-nd-border: #52525b;
+}
+
+
 .perfis-layout {
-    display: flex;
-    /* mantém a sidebar + conteúdo lado a lado */
-    min-height: 100vh;
-    height: 100%;
-    background-color: var(--background-page);
-}
-
-
-.page-title-perfis {
-    color: var(--text-primary);
-    font-size: 1.875rem;
-    font-weight: 700;
-}
-
-.page-header-perfis {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-}
-
-
-.section-header-perfis {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.section-title-perfis {
-    color: var(--text-primary);
-    font-size: 1.5rem;
-    font-weight: 700;
-}
-
-.content-area-perfis {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--background-page);
+  height: 100%;
 }
 
 .main-content-wrapper-perfis {
-    flex: 1 1 0%;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+  flex: 1 1 0%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .main-content-perfis {
-    flex: 1 1 0%;
-    overflow-x: hidden;
-    overflow-y: auto;
+  flex: 1 1 0%;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
-.main-container-perfis {
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 2rem 1.5rem;
+.perfis-container, .main-container-perfis {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 2rem 1.5rem;
 }
 
-/* Layout Geral e Cabeçalho */
+.content-area-perfis {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+
 .page-header-perfis {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .page-title-perfis {
-    color: var(--text-primary);
-    font-size: 1.875rem;
-    /* 30px */
-    font-weight: 700;
+  color: var(--text-primary);
+  font-size: 1.75rem;
+  font-weight: 700;
 }
 
-/* Container principal (para as duas secções) */
-.perfis-container {
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
-    /* Espaço entre as secções */
+.section-title, .section-title-perfis {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  padding-left: 0.75rem;
+  border-left: 4px solid var(--primary);
 }
 
-.perfis-section {
-    width: 100%;
-}
-
-.section-title {
-    color: var(--text-primary);
-    font-size: 1.5rem;
-    /* 24px */
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border-color);
-}
-
-/* Mensagens de Feedback */
-.perfis-message {
-    padding: 1rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1.5rem;
-    font-weight: 500;
-}
-
-.perfis-error {
-    background-color: #fef2f2;
-    color: var(--error-color);
-    border: 1px solid var(--error-color);
-}
-
-.perfis-success {
-    background-color: #f0fdf4;
-    color: var(--sucess-color);
-    border: 1px solid var(--sucess-color);
+.section-header-perfis {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
 .no-data-message {
-    color: var(--text-secondary);
-    text-align: center;
-    padding: 2rem;
-    font-style: italic;
-    background-color: var(--background-surface);
-    border-radius: 0.5rem;
+  color: var(--text-secondary);
+  background-color: var(--background-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  text-align: center;
+  padding: 2rem;
+  font-style: italic;
 }
 
 
-/* Estilos da Tabela */
+.perfis-message {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+.perfis-error { background-color: #fef2f2; color: var(--error-color); border: 1px solid var(--error-color); }
+.perfis-success { background-color: #f0fdf4; color: var(--sucess-color); border: 1px solid var(--sucess-color); }
+
+
+
 .perfis-table-container {
-    background-color: var(--background-surface);
-    border-radius: 0.5rem;
-    box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px -1px var(--shadow-color);
-    overflow-x: auto;
-    /* Mantém o scroll horizontal em desktop */
-    padding: 0;
+  background-color: var(--background-surface);
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px var(--shadow-color);
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
 }
 
 .perfis-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.perfis-table thead {
-    background-color: var(--background-header-table);
+  width: 100%;
+  border-collapse: collapse;
 }
 
 .perfis-table th {
-    padding: 1rem;
-    text-align: left;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text-tertiary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    white-space: nowrap;
-    /* Cabeçalho não quebra */
+  background-color: var(--background-header-table);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
 }
 
 .perfis-table td {
-    padding: 1rem;
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    border-bottom: 1px solid var(--border-color);
-    vertical-align: middle;
-    white-space: normal;
-    word-break: break-word;
+  padding: 1rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
 }
-
-/* Alinha ações e badges verticalmente se a linha ficar alta */
-.perfis-table td:last-child {
-    vertical-align: top;
-    padding-top: 1rem;
-}
-
-.perfis-table td .perfis-actions {
-    margin-top: 2px;
-    /* Pequeno ajuste */
-}
-
 
 .perfis-table tbody tr:last-child td {
-    border-bottom: none;
+  border-bottom: none;
 }
 
-/* --- ESTILO: Linha confirmada --- */
-.perfis-table tbody tr.confirmed-row td {
-    color: var(--text-tertiary);
-    background-color: var(--background-surface);
-    /* Fundo cinza muito claro */
+.current-user-row {
+  background-color: var(--nav-link-background); 
 }
 
 
-/* Botões de Ação na Tabela */
-.perfis-actions {
-    display: flex;
-    gap: 0.5rem;
-    white-space: nowrap;
-}
-
-.btn-action {
-    padding: 0.4rem 0.9rem;
-    /* Ligeiramente maior */
-    font-size: 0.8rem;
-    font-weight: 500;
-    border: none;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    transition: background-color 0.2s, opacity 0.2s;
-    color: white;
-}
-
-.btn-action:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.btn-aprovar {
-    background-color: var(--sucess-color);
-}
-
-.btn-aprovar:hover:not(:disabled) {
-    background-color: #15803d;
-}
-
-.btn-rejeitar {
-    background-color: var(--error-color);
-}
-
-.btn-rejeitar:hover:not(:disabled) {
-    background-color: #dc2626;
-}
-
-.btn-editar {
-    background-color: var(--primary);
-}
-
-.btn-editar:hover:not(:disabled) {
-    background-color: var(--primary-hover);
-}
-
-/* --- MUDANÇA: Container para Badges Múltiplos --- */
 .role-badge-container {
-    display: flex;
-    flex-wrap: wrap;
-    /* Permite que os badges quebrem a linha */
-    gap: 0.25rem;
-    /* Pequeno espaço entre os badges */
-    align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
 }
 
-/* Badge de Permissão (Role) */
 .role-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    white-space: nowrap;
-    /* margin: 2px 0; */
-    /* Removido, 'gap' no container é melhor */
-    display: inline-block;
-}
-
-/* Estilos de exemplo para roles */
-.role-gestor {
-    background-color: var(--background-page);
-    color: #b91c1c;
-}
-
-.role-funcionario {
-    background-color: var(--background-page);
-    color: #1d4ed8;
-}
-
-.role-compras {
-    background-color: var(--background-page);
-    color: #15803d;
-}
-
-.role-cadastro {
-    background-color: var(--background-page);
-    color: var(--text-tertiary);
-}
-
-.role-recebimento{
-     background-color: var(--background-page);
-     color: rgb(172, 132, 2);
-}
-
-.role-empregada {
-     background-color: var(--background-page);
-     color: rgb(170, 2, 2);
-}
-
-.role-nd {
-    background-color: var(--background-page);
-    color: rgb(31, 221, 255);
-}
-
-.role-cadastro{
-    background-color: var(--background-page);
-    color: rgb(124, 9, 255);
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  border: 1px solid transparent;
 }
 
 
-/* --- ESTILOS DO MODAL --- */
+.role-gestor { background-color: var(--role-gestor-bg); color: var(--role-gestor-text); border-color: var(--role-gestor-border); }
+.role-funcionario { background-color: var(--role-funcionario-bg); color: var(--role-funcionario-text); border-color: var(--role-funcionario-border); }
+.role-terceiros { background-color: var(--role-terceiros-bg); color: var(--role-terceiros-text); border-color: var(--role-terceiros-border); }
+.role-saida { background-color: var(--role-saida-bg); color: var(--role-saida-text); border-color: var(--role-saida-border); }
+.role-recebimento { background-color: var(--role-recebimento-bg); color: var(--role-recebimento-text); border-color: var(--role-recebimento-border); }
+.role-inventario { background-color: var(--role-inventario-bg); color: var(--role-inventario-text); border-color: var(--role-inventario-border); }
+.role-avisos { background-color: var(--role-avisos-bg); color: var(--role-avisos-text); border-color: var(--role-avisos-border); }
+.role-cadastro { background-color: var(--role-cadastro-bg); color: var(--role-cadastro-text); border-color: var(--role-cadastro-border); }
+.role-lista { background-color: var(--role-lista-bg); color: var(--role-lista-text); border-color: var(--role-lista-border); }
+.role-nd { background-color: var(--role-nd-bg); color: var(--role-nd-text); border-color: var(--role-nd-border); }
+
+
 
 .perfis-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
 }
 
 .perfis-modal-content {
-    background-color: var(--background-surface);
-    color: var(--text-primary);
-    padding: 2rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    width: 100%;
-    max-width: 500px;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    /* Adicionado para mobile */
-    margin: 1rem;
+  background-color: var(--background-surface);
+  width: 100%;
+  max-width: 550px;
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh; 
+  overflow-y: auto;
 }
 
 .modal-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 1.5rem 1.5rem 0.5rem; 
+  margin: 0;
 }
 
-.modal-error {
-    margin: 0;
-    /* Remove margem extra da mensagem de erro dentro do modal */
+
+.modal-subtitle {
+  padding: 0 1.5rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-/* Grupo de Checkboxes para Funções */
+.modal-subtitle .highlight-name {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.edit-form-grid {
+  padding: 1.5rem 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.35rem;
+  padding: 0 1.5rem;
+  margin-top: 1rem;
+}
+
+.modal-select, input[type="text"] {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  background-color: var(--background-surface);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2371717a' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25em;
+  padding-right: 2.5rem;
+}
+
+
+.modal-select option {
+  background-color: var(--background-surface);
+  color: var(--text-primary);
+}
+
+.modal-select:focus, input[type="text"]:focus, input[type="password"]:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-focus-shadow, rgba(37, 99, 235, 0.2));
+}
+
+
+
 .funcoes-checkbox-group {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    /* 2 colunas */
-    gap: 0.75rem;
-    border-top: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color);
-    padding: 1.5rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 1.5rem 1.5rem;
 }
 
-.funcao-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    color: var(--text-primary);
-    cursor: pointer;
+.hidden-checkbox {
+  display: none;
 }
 
-.funcao-checkbox input[type="checkbox"] {
-    width: 1.1rem;
-    height: 1.1rem;
-    cursor: pointer;
+
+.funcao-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-page);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
 }
 
-/* Ações do Modal */
+.funcao-tag:hover {
+  border-color: var(--text-tertiary);
+}
+
+.funcao-tag.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+
+
+.tag-gestor.selected { background-color: var(--role-gestor-bg); color: var(--role-gestor-text); border-color: var(--role-gestor-border); }
+.tag-funcionario.selected { background-color: var(--role-funcionario-bg); color: var(--role-funcionario-text); border-color: var(--role-funcionario-border); }
+.tag-terceiros.selected { background-color: var(--role-terceiros-bg); color: var(--role-terceiros-text); border-color: var(--role-terceiros-border); }
+.tag-saida.selected { background-color: var(--role-saida-bg); color: var(--role-saida-text); border-color: var(--role-saida-border); }
+.tag-recebimento.selected { background-color: var(--role-recebimento-bg); color: var(--role-recebimento-text); border-color: var(--role-recebimento-border); }
+.tag-inventario.selected { background-color: var(--role-inventario-bg); color: var(--role-inventario-text); border-color: var(--role-inventario-border); }
+.tag-avisos.selected { background-color: var(--role-avisos-bg); color: var(--role-avisos-text); border-color: var(--role-avisos-border); }
+.tag-cadastro.selected { background-color: var(--role-cadastro-bg); color: var(--role-cadastro-text); border-color: var(--role-cadastro-border); }
+.tag-lista.selected { background-color: var(--role-lista-bg); color: var(--role-lista-text); border-color: var(--role-lista-border); }
+
+
+
 .modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    /* Alinha botões à direita */
-    gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background-color: var(--background-header-table);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  border-bottom-left-radius: 0.75rem;
+  border-bottom-right-radius: 0.75rem;
 }
 
-/* Botões (reutilizando estilos globais se existirem) */
+
 .btn-primary {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-on-primary-button);
-    background-color: var(--primary);
-    border: none;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: background-color 0.2s, opacity 0.2s;
+  background-color: var(--primary);
+  color: var(--text-on-primary-button);
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
 }
-
-.btn-primary:hover:not(:disabled) {
-    background-color: var(--primary-hover);
-}
-
-.btn-primary:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
 .btn-secondary {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-tertiary);
-    background-color: var(--background-surface);
-    border: 1px solid var(--border-color);
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: background-color 0.2s, opacity 0.2s;
+  background-color: var(--background-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
 }
 
-.btn-secondary:hover:not(:disabled) {
-    background-color: var(--background-page);
+.perfis-actions {
+  display: flex;
+  gap: 0.5rem;
+  white-space: nowrap;
 }
 
-.btn-secondary:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+.btn-action {
+  padding: 0.3rem 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
 }
+.btn-editar { background-color: var(--background-page); color: var(--primary); border: 1px solid var(--primary); }
+.btn-rejeitar { background-color: var(--background-page); color: var(--error-color); border: 1px solid var(--error-color); }
+.btn-aprovar { background-color: var(--sucess-color); color: white; }
 
-/* ================================================= */
-/* --- Estilos de Responsividade para Tabela --- */
-/* ================================================= */
+
 
 @media (max-width: 768px) {
-
-    /* Esconde o cabeçalho da tabela em telas pequenas */
-    .perfis-table thead {
-        display: none;
-    }
-
-    /* Transforma a tabela, linhas e células em blocos (cards) */
-    .perfis-table,
-    .perfis-table tbody,
-    .perfis-table tr,
-    .perfis-table td {
-        display: block;
-        width: 100%;
-    }
-
-    /* Remove o container da tabela para os cards preencherem */
-    .perfis-table-container {
-        background-color: transparent;
-        border-radius: 0;
-        box-shadow: none;
-        padding: 0;
-        overflow-x: hidden;
-        /* Remove scroll no modo card */
-    }
-
-    /* Cada linha (tr) vira um card */
-    .perfis-table tr {
-        background-color: var(--background-surface);
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px -1px var(--shadow-color);
-        margin-bottom: 1.5rem;
-        border: 1px solid var(--border-color);
-        overflow: hidden;
-        /* Garante que o :before não vaze */
-    }
-
-    /* Células */
-    .perfis-table td {
-        padding: 0.75rem 1rem;
-        padding-left: 50%;
-        /* Espaço à esquerda para o "label" */
-        text-align: right;
-        /* Alinha o valor à direita */
-        position: relative;
-        /* Contexto para o ::before */
-        border-bottom: 1px dashed var(--border-color);
-        /* Linha tracejada entre "colunas" */
-    }
-
-    .perfis-table td:last-child {
-        border-bottom: none;
-        /* Remove borda da última célula */
-        padding-top: 0.75rem;
-        /* Reseta o padding-top */
-        text-align: right;
-        /* Garante alinhamento */
-    }
-
-    .perfis-table td .perfis-actions {
-        margin-top: 0;
-        /* Reseta a margem */
-        justify-content: flex-end;
-        /* Alinha botões à direita */
-    }
-
-    /* Cria o "label" da coluna usando o data-label */
-    .perfis-table td::before {
-        content: attr(data-label);
-        /* Pega o texto do data-label="Nome" */
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 45%;
-        /* Largura do label */
-
-        font-weight: 600;
-        color: var(--text-primary);
-        text-align: left;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        white-space: normal;
-        /* Permite quebra de linha no label */
-    }
-
-    /* --- MUDANÇA: Ajusta o container do badge no modo card --- */
-    .perfis-table td .role-badge-container {
-        justify-content: flex-end;
-        /* Alinha badges à direita */
-        padding-left: 0;
-        /* Remove padding extra */
-    }
-
-    .perfis-table td .role-badge {
-        font-size: 0.7rem;
-    }
+  .perfis-table thead { display: none; }
+  .perfis-table tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background-color: var(--background-surface); 
+  }
+  .perfis-table td {
+    display: flex;
+    justify-content: space-between;
+    text-align: right;
+    padding-left: 40%;
+    position: relative;
+  }
+  .perfis-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 1rem;
+    font-weight: 600;
+    text-align: left;
+    color: var(--text-secondary);
+  }
 }

@@ -1,41 +1,41 @@
-/* --- 1. CONFIGURAÇÃO GLOBAL E VARIÁVEIS --- */
-:root {
-  /* Cores de Fundo (Fornecidas) */
-  --background-page: #f4f4f5; /* Zinc-100 */
-  --background-surface: #ffffff; /* White */
-  --background-header-table: #fafafa; /* Zinc-50 */
-  --nav-link-background: #e4e4e7; /* Zinc-200 */
 
-  /* Cores de Texto (Fornecidas) */
-  --text-primary: #27272a; /* Zinc-800 */
-  --text-secondary: #71717a; /* Zinc-500 */
-  --text-tertiary: #52525b; /* Zinc-600 */
+:root {
+  
+  --background-page: #f4f4f5; 
+  --background-surface: #ffffff; 
+  --background-header-table: #fafafa; 
+  --nav-link-background: #e4e4e7; 
+
+  
+  --text-primary: #27272a; 
+  --text-secondary: #71717a; 
+  --text-tertiary: #52525b; 
   --text-on-primary-button: #ffffff;
 
-  /* Cores de Ação (Fornecidas) */
-  --primary: #2563eb; /* Blue-600 */
-  --primary-hover: #1d4ed8; /* Blue-700 */
-  --primary-focus: #3b82f6; /* Blue-500 */
+  
+  --primary: #2563eb; 
+  --primary-hover: #1d4ed8; 
+  --primary-focus: #3b82f6; 
 
-  /* Cores de UI (Fornecidas) */
-  --border-color: #d4d4d8; /* Zinc-300 */
+  
+  --border-color: #d4d4d8; 
   --shadow-color: rgba(0, 0, 0, 0.1);
-  --error-color: #ef4444; /* Red-500 */
-  --sucess-color: #16a34a; /* Green-600 */
+  --error-color: #ef4444; 
+  --sucess-color: #16a34a; 
 
-  /* --- Variáveis Adicionais (Derivadas do seu tema) --- */
+  
 
-  /* Hovers de Ação (Derivados para consistência) */
-  --sucess-hover: #15803d; /* Green-700 (Derivado) */
-  --error-hover: #dc2626; /* Red-600 (Derivado) */
-  /* Sombra de Foco baseada no seu --primary-focus */
+  
+  --sucess-hover: #15803d; 
+  --error-hover: #dc2626; 
+  
   --primary-focus-shadow: rgba(59, 130, 246, 0.25);
 
-  /* Cores Neutras (Mapeadas das suas variáveis) */
-  --neutral-button-bg: var(--nav-link-background); /* Zinc-200 */
-  --neutral-button-hover: var(--border-color); /* Zinc-300 */
+  
+  --neutral-button-bg: var(--nav-link-background); 
+  --neutral-button-hover: var(--border-color); 
 
-  /* Variáveis Estruturais (Mantidas) */
+  
   --shadow: 0 4px 12px var(--shadow-color);
   --border-radius: 8px;
 }
@@ -52,7 +52,7 @@ body {
   box-sizing: border-box;
 }
 
-/* --- 2. LAYOUT PRINCIPAL E NAVEGAÇÃO --- */
+
 .parent {
   max-width: 1400px;
   margin: 20px auto;
@@ -62,7 +62,7 @@ body {
   gap: 24px;
 }
 
-/* Estilos de Navegação (Mobile-First) */
+
 .opcoes {
   background: var(--background-surface);
   border-radius: var(--border-radius);
@@ -82,14 +82,14 @@ body {
 }
 
 .menu {
-  display: none; /* Escondido por padrão no mobile */
+  display: none; 
   flex-direction: column;
   width: 100%;
   margin-top: 10px;
 }
 
 .menu.show {
-  display: flex; /* Mostra o menu quando 'show' está presente */
+  display: flex; 
 }
 
 .tipo-btn {
@@ -117,7 +117,7 @@ body {
   font-weight: 600;
 }
 
-/* --- 3. SEÇÕES (CARDS) --- */
+
 .div-fixos,
 .div-multiplos {
   background: var(--background-surface);
@@ -140,10 +140,10 @@ body {
   border-bottom: 1px solid var(--background-header-table);
 }
 
-/* --- 4. FORMULÁRIOS (CAMPOS FIXOS) --- */
+
 .linha-fixos {
   display: grid;
-  grid-template-columns: 1fr; /* 1 coluna no mobile */
+  grid-template-columns: 1fr; 
   gap: 16px;
 }
 
@@ -182,7 +182,7 @@ input[type="date"]:focus {
   box-shadow: 0 0 0 3px var(--primary-focus-shadow);
 }
 
-/* Container especial do ROL */
+
 .div-rol {
   flex-direction: row;
   align-items: flex-end;
@@ -200,12 +200,12 @@ input[type="date"]:focus {
 .div-rol .button-rol {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
-  height: 42px; /* Alinha com a altura do input (padding + border) */
+  height: 42px; 
   white-space: nowrap;
 }
 
 
-/* --- 5. BOTÕES GERAIS --- */
+
 button {
   padding: 10px 16px;
   font-size: 1rem;
@@ -268,10 +268,10 @@ button:disabled {
   margin-top: 20px;
 }
 
-/* --- 6. TABELAS (Estilo Base e Wrapper) --- */
+
 .table-wrapper {
   width: 100%;
-  overflow-x: auto; /* Permite rolagem horizontal em telas pequenas se o modo 'card' for muito apertado */
+  overflow-x: auto; 
 }
 
 table {
@@ -300,22 +300,22 @@ thead th {
   text-align: center;
 }
 
-/* Tabela de Itens do Formulário */
+
 #tabelaMultiplos td input {
-  padding: 8px; /* Menor que os inputs normais */
+  padding: 8px; 
 }
 
-/* Tabela de Registros Salvos */
+
 #tabelaRegistros tbody tr:nth-child(even) {
   background-color: var(--background-header-table);
 }
 
 
-/* --- 7. MEDIA QUERY PARA TABLET E DESKTOP (Layout Largo) --- */
+
 @media (min-width: 768px) {
-  /* Navegação Desktop */
+  
   .burger {
-    display: none; /* Esconde o burger no desktop */
+    display: none; 
   }
 
   .opcoes {
@@ -323,7 +323,7 @@ thead th {
   }
 
   .menu {
-    display: flex; /* Mostra o menu lado a lado */
+    display: flex; 
     flex-direction: row;
     width: auto;
     margin-top: 0;
@@ -335,26 +335,26 @@ thead th {
     padding: 8px 16px;
   }
 
-  /* Layout do Formulário Fixo */
+  
   .linha-fixos {
-    /* Layout de grid responsivo: tenta caber o máximo de colunas de 280px */
+    
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   }
 
-  /* Layout de Ações */
+  
   .form-actions {
     flex-direction: row;
     justify-content: space-between;
   }
 }
 
-/* --- 8. MEDIA QUERY PARA TELAS MUITO PEQUENAS (Responsividade da Tabela) --- */
+
 @media (max-width: 600px) {
   
-  /* Transforma as tabelas em "cartões" */
+  
   #tabelaMultiplos thead,
   #tabelaRegistros thead {
-    display: none; /* Esconde o cabeçalho do desktop */
+    display: none; 
   }
 
   #tabelaMultiplos tr,
@@ -363,29 +363,29 @@ thead th {
     margin-bottom: 16px;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    overflow: hidden; /* Para conter os 'td' */
-    background: var(--background-surface); /* Garante fundo branco nos cartões */
+    overflow: hidden; 
+    background: var(--background-surface); 
   }
 
   #tabelaMultiplos td,
   #tabelaRegistros td {
     display: block;
-    text-align: right; /* Alinha o valor à direita */
+    text-align: right; 
     padding: 12px;
-    padding-left: 50%; /* Deixa espaço para o 'data-label' */
+    padding-left: 50%; 
     position: relative;
     border-bottom: 1px solid var(--background-header-table);
   }
 
   #tabelaMultiplos tr td:last-child,
   #tabelaRegistros tr td:last-child {
-    border-bottom: none; /* Remove a última borda */
+    border-bottom: none; 
   }
 
-  /* Cria o 'cabeçalho' da linha usando o data-label */
+  
   #tabelaMultiplos td::before,
   #tabelaRegistros td::before {
-    content: attr(data-label); /* Pega o texto do atributo data-label */
+    content: attr(data-label); 
     position: absolute;
     left: 12px;
     width: calc(50% - 24px);
@@ -394,15 +394,45 @@ thead th {
     color: var(--text-tertiary);
   }
 
-  /* Ajuste especial para a coluna de ação */
+  
   #tabelaMultiplos .col-acao,
   #tabelaRegistros .col-acao {
     text-align: center;
-    padding-left: 12px; /* Reseta o padding */
+    padding-left: 12px; 
   }
 
   #tabelaMultiplos .col-acao::before,
   #tabelaRegistros .col-acao::before {
-    display: none; /* A coluna de Ação não precisa de label */
+    display: none; 
   }
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select { 
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 1rem;
+  color: var(--text-primary);
+  background-color: var(--background-surface);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  
+  appearance: none; 
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2371717a' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25em;
+  padding-right: 2.5rem; 
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+select:focus { 
+  outline: none;
+  border-color: var(--primary-focus);
+  box-shadow: 0 0 0 3px var(--primary-focus-shadow);
 }
