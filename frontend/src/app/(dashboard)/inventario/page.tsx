@@ -98,10 +98,10 @@ export default function InventarioPage() {
         loadData();
     }, [user, router]); 
 
-    const handleQuantityChange = (productId: number, value: string) => {
+    const handleQuantityChange = (produtoId: number, value: string) => {
         const sanitizedValue = value.replace(/[^0-9.]/g, '');
         if ((sanitizedValue.match(/\./g) || []).length > 1) return;
-        setEditedQuantities(prev => ({ ...prev, [productId]: sanitizedValue }));
+        setEditedQuantities(prev => ({ ...prev, [produtoId]: sanitizedValue }));
         clearFeedback();
     };
 
@@ -116,17 +116,17 @@ export default function InventarioPage() {
         }
 
         const updates = Object.entries(editedQuantities)
-            .map(([productIdStr, quantityStr]) => {
-                const productId = parseInt(productIdStr, 10);
+            .map(([produtoIdStr, quantityStr]) => {
+                const produtoId = parseInt(produtoIdStr, 10);
                 const newQuantity = quantityStr === '' || quantityStr === '.' ? NaN : parseFloat(quantityStr);
-                const originalProduct = products.find(p => p.id === productId);
+                const originalProduct = products.find(p => p.id === produtoId);
 
                 if (!isNaN(newQuantity) && newQuantity >= 0 && originalProduct && newQuantity !== originalProduct.quantidadeEst) {
-                    return { productId, newQuantity };
+                    return { produtoId, newQuantity };
                 }
                 return null;
             })
-            .filter(update => update !== null) as { productId: number, newQuantity: number }[];
+            .filter(update => update !== null) as { produtoId: number, newQuantity: number }[];
 
         if (updates.length === 0) {
             setSuccess("Nenhuma alteração para salvar.");

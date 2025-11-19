@@ -138,9 +138,6 @@ export default function LegacyFormPage() {
         setMultipleData(prev => prev.filter((_, i) => i !== rowIndex));
     };
 
-    
-    
-
     const fetchAllRegistros = useCallback(async (tipo: TipoServico) => {
         setIsListLoading(true);
 
@@ -466,6 +463,9 @@ export default function LegacyFormPage() {
                 </div>
 
                 <div className="form-actions">
+                <button type="button" id="resetForm" onClick={resetForm}>
+                        Limpar Formulário
+                    </button>
                     <button type="button" id="addLinha" onClick={adicionarLinha}>
                         + Adicionar Linha
                     </button>

@@ -17,7 +17,7 @@ import { IconRecive } from './icons/IconRecive';
 import { IconTable } from './icons/IconTable';
 
 const navLinks = [
-  { name: 'Início', href: '/inicio', icon: <IconHome className="sidebar-icon" />, roles: ['GESTOR', 'SAIDA', 'RECEBIMENTO', 'INVENTARIO', 'CADASTRO', 'LISTA', 'TERCEIROS'] }, // consertado e não testado
+  { name: 'Início', href: '/inicio', icon: <IconHome className="sidebar-icon" />, roles: ['GESTOR', 'SAIDA', 'RECEBIMENTO', 'INVENTARIO', 'CADASTRO', 'LISTA', 'TERCEIROS'] }, // consertado e testado
   { name: 'Terceiros', href: '/legacy', icon: <IconAlert className="sidebar-icon" />, roles: ['GESTOR', 'TERCEIROS'] }, // consertado e testado
   { name: 'Saída', href: '/saidas', icon: <IconOut className="sidebar-icon" />, roles: ['SAIDA', 'GESTOR'] }, // consertado e não testado
   { name: 'Recebimento', href: '/recebimentos', icon: <IconRecive className="sidebar-icon" />, roles: ['RECEBIMENTO', 'GESTOR'] }, // consertado e não testado
