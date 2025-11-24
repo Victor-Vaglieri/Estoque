@@ -81,40 +81,52 @@ export class RelatoriosService {
 
 
     async getStockValueByLoja(): Promise<StockValueByLoja[]> {
+    const lojas = await this.estoqueDb.loja.findMany();
 
-        const lojas = await this.estoqueDb.loja.findMany();
-
-
-        const allEstoque = await this.estoqueDb.estoqueLoja.findMany({
-            include: {
-                produto: {
-                    include: {
-                        historicoPreco: {
-                            orderBy: { data: 'desc' },
-                            take: 1,
-                        },
-                    },
-                },
+    const allEstoque = await this.estoqueDb.estoqueLoja.findMany({
+      include: {
+        produto: {
+          include: {
+            // 1. Tenta buscar o preço definido (Tabela de Preço)
+            historicoPreco: {
+              orderBy: { data: 'desc' },
+              take: 1,
             },
-        });
+            // 2. Traz também a última entrada como plano B (Preço de Custo)
+            entradas: {
+              orderBy: { data: 'desc' },
+              take: 1,
+            },
+          },
+        },
+      },
+    });
 
+    const valueMap = new Map<number, number>();
 
-        const valueMap = new Map<number, number>();
-        allEstoque.forEach((est) => {
-            const lastPrice = est.produto.historicoPreco[0]?.preco ?? 0;
-            const itemValue = est.quantidadeEst * lastPrice;
-            const currentTotal = valueMap.get(est.lojaId) ?? 0;
-            valueMap.set(est.lojaId, currentTotal + itemValue);
-        });
+    allEstoque.forEach((est) => {
+      // Lógica de Preço Inteligente:
+      let lastPrice = est.produto.historicoPreco[0]?.preco;
 
-        // 3. Mapeia os resultados
-        return lojas.map((loja) => {
-            return {
-                name: loja.nome,
-                value: valueMap.get(loja.id) || 0,
-            };
-        });
-    }
+      // Se não tiver preço no histórico, usa o preço pago na última entrada
+      if (!lastPrice) {
+        lastPrice = est.produto.entradas[0]?.precoPago ?? 0;
+      }
+
+      const itemValue = est.quantidadeEst * lastPrice;
+      const currentTotal = valueMap.get(est.lojaId) ?? 0;
+      
+      valueMap.set(est.lojaId, currentTotal + itemValue);
+    });
+
+    // 3. Mapeia os resultados
+    return lojas.map((loja) => {
+      return {
+        name: loja.nome,
+        value: valueMap.get(loja.id) || 0,
+      };
+    });
+  }
 
 
     async getPurchaseHistory(): Promise<PurchaseHistory[]> {
@@ -219,7 +231,6 @@ export class RelatoriosService {
             })),
         );
         
-        // MUDANÇA: Adicionado o 'malaSheet'
         const malaSheet = mala.flatMap((r) =>
             r.itens.map((item) => ({
                 ROL: r.rol,
@@ -246,7 +257,6 @@ export class RelatoriosService {
                 XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(tingimentoSheet), 'Tingimento');
             if (tapeteSheet.length > 0)
                 XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(tapeteSheet), 'Tapete');
-            // MUDANÇA: Adicionado o 'malaSheet'
             if (malaSheet.length > 0)
                 XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(malaSheet), 'Mala');
 
@@ -274,20 +284,16 @@ export class RelatoriosService {
         });
 
         const lojas = await this.estoqueDb.loja.findMany();
-        const lojaMap = new Map(lojas.map((l) => [l.id, l.nome]));
-
+        
         try {
             const wb = XLSX.utils.book_new();
 
-
             for (const fornecedor of fornecedores) {
                 const sheetData = fornecedor.produtos.map((p) => {
-
                     const estoqueTotal = p.estoqueLojas.reduce(
                         (sum, est) => sum + est.quantidadeEst,
                         0,
                     );
-
 
                     const estoquePorLoja = {};
                     for (const loja of lojas) {
@@ -305,21 +311,24 @@ export class RelatoriosService {
                         EstoqueMinimo: p.quantidadeMin,
                         EstoqueMaximo: p.quantidadeMax,
                         EstoqueTotal: estoqueTotal,
+                        Tipo: p.producao ? 'Produção' : 'Revenda', // Texto amigável
                         ...estoquePorLoja,
                     };
                 });
-
                 if (sheetData.length > 0) {
+                    const sheetName = fornecedor.nome.substring(0, 30).replace(/[\\/?*[\]]/g, '');
+                    
                     XLSX.utils.book_append_sheet(
                         wb,
                         XLSX.utils.json_to_sheet(sheetData),
-                        fornecedor.nome.substring(0, 30),
+                        sheetName, 
                     );
                 }
             }
 
             return XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
         } catch (error) {
+            console.error(error); // Log para ajudar a debugar
             throw new InternalServerErrorException(
                 'Falha ao gerar o arquivo XLSX de Fornecedores.',
             );

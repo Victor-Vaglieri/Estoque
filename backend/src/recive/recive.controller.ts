@@ -21,7 +21,7 @@ export class RecebimentosController {
         @Request() req,
         @Body() updateRecebimentoDto: UpdateRecebimentoDto,
     ) {
-        const userId = req.user.sub;
+        const userId = req.user;
         return this.recebimentosService.updateStatus(userId, historicoCompraId, updateRecebimentoDto);
     }
 }
