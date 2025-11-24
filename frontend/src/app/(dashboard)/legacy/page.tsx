@@ -169,15 +169,22 @@ export default function LegacyFormPage() {
     }, [router]); 
 
     useEffect(() => {
+        // 1. Validação de Usuário
         if (user) {
             if (!user.funcoes.some((f: string) => f === 'TERCEIROS' || f === 'GESTOR')) {
                 router.push('/inicio');
                 return;
             }
         }
+
+        // 2. Limpa o formulário e recarrega a lista
+        // Importante: A ordem aqui garante que o form limpe ANTES de buscar novos dados
         resetForm();
+        
+        console.log(`Buscando registros para: ${tipoAtual}`); // DEBUG: Veja se aparece "Mala" no console
         fetchAllRegistros(tipoAtual);
-    }, [tipoAtual, resetForm, fetchAllRegistros, user, router]); 
+
+    }, [tipoAtual, user, router, resetForm, fetchAllRegistros]);
 
 
     useEffect(() => {

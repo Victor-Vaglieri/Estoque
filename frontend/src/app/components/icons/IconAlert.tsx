@@ -1,10 +1,6 @@
-export function IconAlert(props: React.SVGProps<SVGSVGElement>) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 48 48" {...props}><g fill="none" strokeLinejoin="round" strokeWidth="2">
-            <rect width="40" height="26" x="4" y="15" fill="#C73E1F" stroke="#000" rx="2"/>
-            <path fill="#C73E1F" stroke="#000" strokeLinecap="round" d="M24 7L16 15H32L24 7Z"/>
-            <path stroke="#fff" strokeLinecap="round" d="M12 24H30"/>
-            <path stroke="#fff" strokeLinecap="round" d="M12 32H20"/></g></svg>
-
-    )
-}
+export const IconAlert = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+  </svg>
+);

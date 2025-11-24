@@ -1,10 +1,10 @@
-export function IconRecive(props: React.SVGProps<SVGSVGElement>) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 48 48" {...props}>
-            <g fill="none" strokeLinejoin="round" strokeWidth="2">
-                <path fill="#C73E1F" stroke="#000" d="M39 6H9C7.34315 6 6 7.34315 6 9V39C6 40.6569 7.34315 42 9 42H39C40.6569 42 42 40.6569 42 39V9C42 7.34315 40.6569 6 39 6Z" />
-                <path stroke="#fff" strokeLinejoin="round" d="M32 28L24 36L16 28" />
-                <path stroke="#fff" strokeLinejoin="round" d="M24 20V35.5" />
-                <path stroke="#fff" strokeLinejoin="round" d="M16 14H32" /></g></svg>
-    )
-}
+export const IconRecive = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    {/* A bandeja/caixa aberta em cima */}
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    
+    {/* A seta apontando para baixo (entrando) */}
+    <polyline points="7 10 12 15 17 10" />
+    <line x1="12" y1="15" x2="12" y2="3" />
+  </svg>
+);

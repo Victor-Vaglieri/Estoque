@@ -1,5 +1,5 @@
 .recebimento-layout {
-    display: flex; /* mantém a sidebar + conteúdo lado a lado */
+    display: flex; 
     min-height: 100vh;
     height: 100%;
     background-color: var(--background-page);
@@ -62,7 +62,7 @@
 
 
 
-/* Layout Geral e Cabeçalho */
+
 .page-header-recebimentos {
     display: flex;
     justify-content: space-between;
@@ -72,59 +72,59 @@
 
 .page-title-recebimentos {
     color: var(--text-primary);
-    font-size: 1.875rem; /* 30px */
+    font-size: 1.875rem; 
     font-weight: 700;
 }
 
-/* Grelha de Recebimentos */
+
 .recebimentos-grid {
     display: grid;
-    grid-template-columns: repeat(1, 1fr); /* 1 coluna por defeito */
+    grid-template-columns: repeat(1, 1fr); 
     gap: 1.5rem;
-    align-items: start; /* Impede esticamento */
+    align-items: start; 
 }
 
-/* Card Individual */
+
 .recebimentos-container {
     background-color: var(--background-surface);
     padding: 1.5rem;
     border-radius: 0.5rem;
     box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px -1px var(--shadow-color);
-    position: relative; /* Para o posicionamento do badge */
+    position: relative; 
 }
 
-/* Título do Card */
+
 .recebimentos-title {
     color: var(--text-primary);
     font-size: 1.25rem;
     font-weight: 600;
     margin-bottom: 1rem;
-    padding-right: 6rem; /* Espaço para o badge não sobrepor */
+    padding-right: 6rem; 
 }
 
-/* Badge de Status */
+
 .status-badge {
     position: absolute;
     top: 1.5rem;
     right: 1.5rem;
     padding: 0.25rem 0.75rem;
-    border-radius: 9999px; /* Pill shape */
-    font-size: 0.75rem; /* 12px */
+    border-radius: 9999px; 
+    font-size: 0.75rem; 
     font-weight: 600;
     text-transform: uppercase;
     color: white;
 }
 
 .status-pendente {
-    background-color: #f97316; /* Ambar 500 */
+    background-color: #f97316; 
 }
 .status-faltante {
     background-color: #9C1A15; 
 }
-/* Adicione cores para CONFIRMADO, CANCELADO se precisar */
 
 
-/* Detalhes do Recebimento */
+
+
 .recebimentos-details {
     margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
@@ -137,11 +137,11 @@
     margin-bottom: 0.25rem;
 }
 
-/* Área de Ações (Preço e Botões) */
+
 .recebimentos-actions {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem; /* Espaço entre input de preço e botões */
+    gap: 1.5rem; 
 }
 
 .price-label {
@@ -161,7 +161,7 @@
     color: var(--text-primary);
     font-size: 0.875rem;
     font-family: inherit;
-    max-width: 150px; /* Limita a largura do input de preço */
+    max-width: 150px; 
 }
 
 .price-input:focus {
@@ -170,14 +170,14 @@
     border-color: var(--primary);
 }
 
-/* Container dos Botões */
+
 .action-buttons {
     display: flex;
-    flex-wrap: wrap; /* Permite que os botões quebrem linha se necessário */
-    gap: 0.75rem; /* Espaço entre os botões */
+    flex-wrap: wrap; 
+    gap: 0.75rem; 
 }
 
-/* Estilos Base Comuns para Botões */
+
 .action-buttons button {
     padding: 0.5rem 1rem;
     font-size: 0.875rem;
@@ -186,7 +186,7 @@
     border-radius: 0.375rem;
     cursor: pointer;
     transition: background-color 0.2s, opacity 0.2s;
-    color: white; /* Cor do texto padrão para botões coloridos */
+    color: white; 
 }
 
 .action-buttons button:disabled {
@@ -194,33 +194,33 @@
     cursor: not-allowed;
 }
 
-/* Botão de Sucesso (Confirmar) */
+
 .btn-success {
-    background-color: var(--sucess-color); /* Verde */
+    background-color: var(--sucess-color); 
 }
 .btn-success:hover:not(:disabled) {
-    background-color: #15803d; /* Verde mais escuro */
+    background-color: #15803d; 
 }
 
-/* Botão de Aviso (Faltante) */
+
 .btn-warning {
-    background-color: #f97316; /* Laranja */
+    background-color: #f97316; 
 }
 .btn-warning:hover:not(:disabled) {
-    background-color: rgba(234, 88, 12, 0.01); /* Laranja mais escuro */
+    background-color: rgba(224, 93, 22, 1); 
 
 }
 
-/* Botão de Perigo (Cancelar) */
+
 .btn-danger {
-    background-color: var(--error-color); /* Vermelho */
+    background-color: var(--error-color); 
 }
 .btn-danger:hover:not(:disabled) {
-    background-color: #dc2626; /* Vermelho mais escuro */
+    background-color: #dc2626; 
 }
 
 
-/* Mensagens de Feedback */
+
 .recebimentos-message {
     padding: 1rem;
     border-radius: 0.5rem;
@@ -240,14 +240,14 @@
     border: 1px solid var(--sucess-color);
 }
 
-/* Responsividade (Ajuste as colunas conforme necessário) */
-@media (min-width: 768px) { /* Telas médias (md) */
+
+@media (min-width: 768px) { 
     .recebimentos-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (min-width: 1280px) { /* Telas grandes (xl) */
+@media (min-width: 1280px) { 
     .recebimentos-grid {
         grid-template-columns: repeat(3, 1fr);
     }

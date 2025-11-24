@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect, FormEvent, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
 import './compras.css';
 
-// MUDANÇA: Interface atualizada para o novo schema e para incluir o fornecedor
 interface ProductToBuy {
     nome: string;
     id: number;
@@ -14,28 +13,30 @@ interface ProductToBuy {
     marca: string | null;
     quantidadeMin: number;
     quantidadeEst: number;
-    quantidadeMax: number; // Renomeado (era quantidadeNec)
+    quantidadeMax: number;
     quantidadePendenteFaltante: number;
-    // Adicionado para que o backend possa nos dizer quem é o fornecedor
     fornecedor: {
         id: number;
         nome: string;
     };
 }
 
-// MUDANÇA: O estado agora é um objeto agrupado por nome de fornecedor
 type GroupedProducts = Record<string, ProductToBuy[]>;
 
 export default function ComprasPage() {
     const router = useRouter();
     const { user } = useAuth();
 
-    // MUDANÇA: O estado agora espera um objeto (Record) e não um array
     const [productsToBuy, setProductsToBuy] = useState<GroupedProducts>({});
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
-    const [isSubmittingMap, setIsSubmittingMap] = useState<Record<number, boolean>>({});
+    
+    
+    const [priceInputs, setPriceInputs] = useState<Record<number, string>>({});
+    
+    
+    const [submittingSupplier, setSubmittingSupplier] = useState<string | null>(null);
 
     const clearFeedback = () => {
         setError(null);
@@ -52,16 +53,15 @@ export default function ComprasPage() {
         }
 
         try {
-            // MUDANÇA: Endpoint ajustado (era /to_buy_products, agora /compras)
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/compras/lista`, {
                 method: 'GET',
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
             });
             if (!response.ok) throw new Error('Falha ao carregar a lista de compras.');
             
-            // MUDANÇA: Espera um objeto agrupado (GroupedProducts) do backend
             const data: GroupedProducts = await response.json();
             setProductsToBuy(data);
+            setPriceInputs({}); 
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Ocorreu um erro.');
         } finally {
@@ -71,8 +71,7 @@ export default function ComprasPage() {
 
     useEffect(() => {
         if (user) {
-            // MUDANÇA: Permissão atualizada de 'COMPRAS' para 'LISTA' (do schema usuarios.db)
-            if (!user.funcoes.some(f => f === 'LISTA' || f === 'GESTOR')) {
+            if (!user.funcoes.some((f: string) => f === 'LISTA' || f === 'GESTOR')) {
                 router.push('/inicio');
                 return;
             }
@@ -80,69 +79,83 @@ export default function ComprasPage() {
         fetchProductsToBuy();
     }, [user, router]);
 
-    const handleRegisterPurchase = async (event: React.FormEvent<HTMLFormElement>, productId: number, productName: string) => {
-        event.preventDefault();
-        const formElement = event.currentTarget;
+    
+    const handlePriceChange = (productId: number, value: string) => {
+        setPriceInputs(prev => ({ ...prev, [productId]: value }));
+    };
 
+    
+    const handleBulkSubmit = async (fornecedorNome: string, products: ProductToBuy[]) => {
         clearFeedback();
-        setIsSubmittingMap(prev => ({ ...prev, [productId]: true }));
+        setSubmittingSupplier(fornecedorNome);
 
         const token = localStorage.getItem('token');
         if (!token) {
             router.push('/login');
-            setIsSubmittingMap(prev => ({ ...prev, [productId]: false }));
             return;
         }
 
-        const formData = new FormData(formElement);
-        const purchaseData = {
-            productId: productId,
-            quantidade: parseFloat(formData.get('quantidade') as string),
-            // MUDANÇA: O backend espera 'precoTotal', não 'preco'
-            precoTotal: parseFloat(formData.get('preco') as string),
-        };
+        
+        const itemsToBuy = products.map(p => {
+            const needed = Math.max(0, p.quantidadeMax - p.quantidadeEst - p.quantidadePendenteFaltante);
+            return { ...p, neededQuantity: needed };
+        }).filter(p => p.neededQuantity > 0);
 
-        if (!purchaseData.quantidade || purchaseData.quantidade <= 0) {
-            setError(`[${productName}] Quantidade inválida.`);
-            setIsSubmittingMap(prev => ({ ...prev, [productId]: false }));
+        if (itemsToBuy.length === 0) {
+            setError("Não há itens com necessidade de reposição para este fornecedor.");
+            setSubmittingSupplier(null);
             return;
         }
-        if (purchaseData.precoTotal === null || purchaseData.precoTotal < 0) {
-            setError(`[${productName}] Preço inválido.`);
-            setIsSubmittingMap(prev => ({ ...prev, [productId]: false }));
+
+        
+        const missingPrices = itemsToBuy.filter(p => !priceInputs[p.id] || parseFloat(priceInputs[p.id]) <= 0);
+        
+        if (missingPrices.length > 0) {
+            setError(`Por favor, preencha o preço para: ${missingPrices.map(p => p.nome).join(', ')}`);
+            setSubmittingSupplier(null);
             return;
         }
 
         try {
-            // MUDANÇA: Endpoint ajustado (era /to_buy_products, agora /compras/registrar)
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/compras/registrar`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify(purchaseData),
-            });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || `[${productName}] Falha ao registrar.`);
-            }
+            
+            const promises = itemsToBuy.map(product => {
+                const payload = {
+                    productId: product.id,
+                    quantidade: product.neededQuantity,
+                    precoTotal: parseFloat(priceInputs[product.id]),
+                };
 
-            setSuccess(`[${productName}] Compra registrada!`);
-            formElement.reset();
-            await fetchProductsToBuy(); // Recarrega a lista
+                return fetch(`${process.env.NEXT_PUBLIC_API_URL}/compras/registrar`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                }).then(async res => {
+                    if (!res.ok) {
+                        const err = await res.json();
+                        throw new Error(err.message || `Erro em ${product.nome}`);
+                    }
+                    return res.json();
+                });
+            });
+
+            await Promise.all(promises);
+
+            setSuccess(`Pedido para ${fornecedorNome} enviado com sucesso!`);
+            await fetchProductsToBuy();
 
         } catch (err) {
-            setError(err instanceof Error ? err.message : `[${productName}] Ocorreu um erro.`);
+            setError(err instanceof Error ? err.message : "Ocorreu um erro ao processar o pedido em massa.");
         } finally {
-            setIsSubmittingMap(prev => ({ ...prev, [productId]: false }));
+            setSubmittingSupplier(null);
         }
     };
     
-    // MUDANÇA: Verifica se o objeto de produtos está vazio
     const hasProductsToBuy = useMemo(() => Object.keys(productsToBuy).length > 0, [productsToBuy]);
 
     return (
         <>
             <div className="page-header-produtos">
-                <h1 className="page-title-produtos">Lista de Compras</h1>
+                <h1 className="page-title-produtos">Lista de Compras (Cotação)</h1>
             </div>
 
             {error && <p className="compras-message compras-error">{error}</p>}
@@ -157,89 +170,94 @@ export default function ComprasPage() {
                 </div>
             )}
 
-            {/* MUDANÇA: Renderização agora é agrupada por fornecedor */}
             {!isLoading && hasProductsToBuy && (
                 <div className="fornecedor-sections-container">
-                    {/* Mapeia o OBJETO de fornecedores */}
-                    {Object.entries(productsToBuy).map(([fornecedorNome, products]) => (
-                        <section key={fornecedorNome} className="fornecedor-section">
-                            <h2 className="fornecedor-title">{fornecedorNome}</h2>
-                            <div className="compras-grid">
-                                {products.map((product) => {
-                                    const isSubmitting = isSubmittingMap[product.id] || false;
-                                    // MUDANÇA: Usa 'quantidadeMax'
-                                    const neededQuantity = Math.max(0, product.quantidadeMax - product.quantidadeEst - product.quantidadePendenteFaltante);
+                    {Object.entries(productsToBuy).map(([fornecedorNome, products]) => {
+                        
+                        const hasItemsToBuy = products.some(p => (p.quantidadeMax - p.quantidadeEst - p.quantidadePendenteFaltante) > 0);
+                        
+                        return (
+                            <section key={fornecedorNome} className="fornecedor-section">
+                                <h2 className="fornecedor-title">{fornecedorNome}</h2>
+                                
+                                <div className="compras-grid">
+                                    {products.map((product) => {
+                                        const neededQuantity = Math.max(0, product.quantidadeMax - product.quantidadeEst - product.quantidadePendenteFaltante);
+                                        
+                                        return (
+                                            <div key={product.id} className="compras-container">
+                                                <h2 className="compras-title">{product.nome}</h2>
+                                                <div className="compras-details">
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                        <span>Marca: {product.marca || '-'}</span>
+                                                        <span>Un: {product.unidade}</span>
+                                                    </div>
+                                                    
+                                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.5rem', fontSize: '0.9rem' }}>
+                                                        <div style={{background: 'var(--background-page)', padding: '4px', borderRadius: '4px'}}>
+                                                            <small>Atual</small><br/>
+                                                            <strong>{product.quantidadeEst}</strong>
+                                                        </div>
+                                                        <div style={{background: 'var(--background-page)', padding: '4px', borderRadius: '4px'}}>
+                                                            <small>Máximo</small><br/>
+                                                            <strong>{product.quantidadeMax}</strong>
+                                                        </div>
+                                                    </div>
 
-                                    return (
-                                        <div key={product.id} className="compras-container">
-                                            <h2 className="compras-title">{product.nome}</h2>
-                                            <div className="compras-details">
-                                                <p><strong>Marca:</strong> {product.marca || 'N/A'}</p>
-                                                <p><strong>Estoque Atual:</strong> {product.quantidadeEst} {product.unidade}</p>
-                                                {/* MUDANÇA: Usa 'quantidadeMax' */}
-                                                <p><strong>Estoque Máximo:</strong> {product.quantidadeMax} {product.unidade}</p>
+                                                    <div className="compras-pending-info">
+                                                        {product.quantidadePendenteFaltante > 0 && (
+                                                            <p style={{ color: '#eea811', fontWeight: 'bold', fontSize: '0.8rem' }}>
+                                                                (Pendente: {product.quantidadePendenteFaltante})
+                                                            </p>
+                                                        )}
+                                                    </div>
 
-                                                <div className="compras-pending-info">
-                                                    {product.quantidadePendenteFaltante > 0 && (
-                                                        <p style={{ color: '#eea811', fontWeight: 'bold' }}>
-                                                            (Já comprado/Pendente: {product.quantidadePendenteFaltante} {product.unidade})
+                                                    {neededQuantity > 0 ? (
+                                                        <div style={{marginTop: '1rem', borderTop: '1px dashed var(--border-color)', paddingTop: '1rem'}}>
+                                                            <p className="compras-needed" style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>
+                                                                Comprar: <strong>{neededQuantity} {product.unidade}</strong>
+                                                            </p>
+                                                            <label style={{fontSize: '0.85rem', display: 'block', marginBottom: '0.25rem'}}>Preço Total (R$):</label>
+                                                            <input
+                                                                type="number"
+                                                                className="price-input"
+                                                                placeholder="0.00"
+                                                                value={priceInputs[product.id] || ''}
+                                                                onChange={(e) => handlePriceChange(product.id, e.target.value)}
+                                                                min="0"
+                                                                step="0.01"
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        <p className="compras-waiting-message" style={{marginTop: '1rem'}}>
+                                                            Estoque cheio ou aguardando entrega.
                                                         </p>
                                                     )}
                                                 </div>
-
-                                                <p className="compras-needed">
-                                                    <strong>
-                                                        Precisa Comprar:{' '}
-                                                        {neededQuantity}{' '}
-                                                        {product.unidade}
-                                                    </strong>
-                                                </p>
                                             </div>
+                                        );
+                                    })}
+                                </div>
 
-                                            <div className="compras-action-area">
-                                                {neededQuantity > 0 && (
-                                                    <form onSubmit={(e) => handleRegisterPurchase(e, product.id, product.nome)} className="compras-form">
-                                                        <label>
-                                                            Quantidade Comprada
-                                                            <input
-                                                                name="quantidade"
-                                                                type="number"
-                                                                step="any"
-                                                                placeholder={`Ex: ${neededQuantity}`}
-                                                                required
-                                                                min="0.01"
-                                                            />
-                                                        </label>
-                                                        <label>
-                                                            Preço Total Pago (R$)
-                                                            <input
-                                                                name="preco" // O DTO espera 'precoTotal', mas o form envia 'preco'. Corrigido no handleSubmit.
-                                                                type="number"
-                                                                step="0.01"
-                                                                placeholder="Ex: 15.50"
-                                                                required
-                                                                min="0.01"
-                                                            />
-                                                        </label>
-                                                        <div className="form-actions">
-                                                            <button type="submit" className="btn-primary" disabled={isSubmitting}>
-                                                                {isSubmitting ? 'Registrando...' : 'Registrar Compra'}
-                                                            </button>
-                                                        </div>
-                                                    </form>
-                                                )}
-                                                {neededQuantity <= 0 && product.quantidadePendenteFaltante > 0 && (
-                                                    <p className="compras-waiting-message">
-                                                        Aguardando confirmação das compras pendentes.
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </section>
-                    ))}
+                                {}
+                                <div className="fornecedor-footer">
+                                    <div className="summary-text">
+                                        Confirme os valores unitários acima antes de enviar.
+                                    </div>
+                                    <button 
+                                        className="btn-primary btn-large"
+                                        onClick={() => handleBulkSubmit(fornecedorNome, products)}
+                                        disabled={!hasItemsToBuy || submittingSupplier === fornecedorNome}
+                                    >
+                                        {submittingSupplier === fornecedorNome 
+                                            ? 'Processando...' 
+                                            : `Confirmar Pedido para ${fornecedorNome}`
+                                        }
+                                    </button>
+                                </div>
+                            </section>
+                        );
+                    })}
                 </div>
             )}
         </>

@@ -1,14 +1,7 @@
-export function IconOut(props: React.SVGProps<SVGSVGElement>) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 48 48" {...props}>
-            <g fill="none" stroke="#000" strokeLinejoin="round" strokeWidth="2">
-                <path strokeLinecap="round" d="M4 30L9 6H39L44 30" />
-                <path fill="#C73E1F" d="M4 30H14.9091L16.7273 36H31.2727L33.0909 30H44V43H4V30Z" />
-                <path strokeLinecap="round" d="M18 20L24 14L30 20" />
-                <path strokeLinecap="round" d="M24 26V14" />
-            </g>
-        </svg>
-
-    )
-}
-
+export const IconOut = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <polyline points="16 17 21 12 16 7" />
+    <line x1="21" y1="12" x2="9" y2="12" />
+  </svg>
+);
