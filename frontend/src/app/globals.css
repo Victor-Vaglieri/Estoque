@@ -65,6 +65,18 @@
 .sidebar-icon {
   width: 2.5rem;
   height: 2.5rem;
+  color: var(--text-secondary);
+  transition: color 0.2s;
+}
+
+/* Quando o link está ativo (página atual) */
+.nav-link.active .sidebar-icon {
+  color: var(--primary); /* Cor do tema (azul) */
+}
+
+/* (Opcional) Quando passa o mouse no link */
+.nav-link:hover .sidebar-icon {
+  color: var(--text-primary); /* Ou use var(--primary) se preferir */
 }
 
 :root {

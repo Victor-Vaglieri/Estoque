@@ -15,15 +15,17 @@ import { IconModUsers } from './icons/IconModUsers';
 import { IconOut } from './icons/IconOut';
 import { IconRecive } from './icons/IconRecive';
 import { IconTable } from './icons/IconTable';
+import { IconBriefcase } from './icons/IconBriefCase';
 
 const navLinks = [
+  // para todos falta testar com banco mockado, consertar ícones onde necessário, consertar estilos se necessário e testar responsividade
   { name: 'Início', href: '/inicio', icon: <IconHome className="sidebar-icon" />, roles: ['GESTOR', 'SAIDA', 'RECEBIMENTO', 'INVENTARIO', 'CADASTRO', 'LISTA', 'TERCEIROS'] }, // consertado e testado
-  { name: 'Terceiros', href: '/legacy', icon: <IconAlert className="sidebar-icon" />, roles: ['GESTOR', 'TERCEIROS'] }, // consertado e testado
-  { name: 'Saída', href: '/saidas', icon: <IconOut className="sidebar-icon" />, roles: ['SAIDA', 'GESTOR'] }, // consertado e não testado
+  { name: 'Terceiros', href: '/legacy', icon: <IconBriefcase className="sidebar-icon" />, roles: ['GESTOR', 'TERCEIROS'] }, // consertado e testado
+  { name: 'Saída', href: '/saidas', icon: <IconOut className="sidebar-icon" />, roles: ['SAIDA', 'GESTOR'] }, // consertado e não testado (parece correto)
   { name: 'Recebimento', href: '/recebimentos', icon: <IconRecive className="sidebar-icon" />, roles: ['RECEBIMENTO', 'GESTOR'] }, // consertado e não testado
   { name: 'Inventário', href: '/inventario', icon: <IconTable className="sidebar-icon" />, roles: ['GESTOR', 'INVENTARIO'] }, // consertado e não testado
-  { name: 'Avisos', href: '/avisos', icon: <IconAlert className="sidebar-icon" />, roles: ['GESTOR', 'AVISOS'] }, // consertado e não testado
-  { name: 'Cadastro', href: '/produtos', icon: <IconBox className="sidebar-icon" />, roles: ['GESTOR', 'CADASTRO'] }, // consertado e não testado
+  { name: 'Avisos', href: '/avisos', icon: <IconAlert className="sidebar-icon" />, roles: ['GESTOR', 'AVISOS'] }, // consertado e testado
+  { name: 'Cadastro', href: '/produtos', icon: <IconBox className="sidebar-icon" />, roles: ['GESTOR', 'CADASTRO'] }, // consertado e + ou - testado
   { name: 'Lista', href: '/compras', icon: <IconCart className="sidebar-icon" />, roles: ['GESTOR', 'LISTA'] }, // consertado e não testado
   { name: 'Relatórios', href: '/relatorios', icon: <IconGraph className="sidebar-icon" />, roles: ['GESTOR'] }, // consertado e não testado
   { name: 'Configurações', href: '/configuracoes', icon: <IconConfig className="sidebar-icon" />, roles: ['GESTOR', 'SAIDA', 'RECEBIMENTO', 'INVENTARIO', 'CADASTRO', 'LISTA', 'TERCEIROS'] }, // nenhuma mudança

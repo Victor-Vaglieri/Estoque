@@ -1,8 +1,6 @@
-export function IconHome(props: React.SVGProps<SVGSVGElement>) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 48 48" {...props}><g fill="none" stroke="#000" strokeLinejoin="round" strokeWidth="2" {...props}>
-            <path fill="#C73E1F" d="M44 44V20L24 4L4 20L4 44H16V26H32V44H44Z"/>
-        <path strokeLinecap="round" d="M24 44V34" /></g></svg>
-    )
-}
-
+export const IconHome = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    <polyline points="9 22 9 12 15 12 15 22" />
+  </svg>
+);
