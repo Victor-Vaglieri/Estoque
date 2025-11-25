@@ -1,8 +1,8 @@
-/* ================================================= */
-/* === 0. Layout base                            === */
-/* ================================================= */
+
+
+
 .produtos-layout {
-    display: flex; /* mantém a sidebar + conteúdo lado a lado */
+    display: flex; 
     min-height: 100vh;
     height: 100%;
     background-color: var(--background-page);
@@ -24,8 +24,69 @@
 .section-header-produtos {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start; /* Alinha ao topo, caso o texto quebre */
     margin-bottom: 1rem;
+    gap: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.product-info-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem; /* Espaço pequeno entre nome e detalhes */
+    flex: 1;
+}
+
+.product-name {
+    color: var(--text-primary);
+    font-size: 1.125rem; /* 18px */
+    font-weight: 600;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.product-meta-line {
+    color: var(--text-secondary);
+    font-size: 0.85rem; /* 13-14px */
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Separador (bolinha) entre os itens meta */
+.meta-separator {
+    font-size: 0.6rem;
+    opacity: 0.5;
+}
+
+/* Badge de Produção (Estilo "Pílula" mais moderno) */
+.badge-producao {
+    background-color: rgba(11, 88, 212, 0.15); /* Fundo sutil (usando base da sua cor primary) */
+    color: #60a5fa; /* Azul mais claro para contraste no dark mode */
+    border: 1px solid var(--primary);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.15rem 0.6rem;
+    border-radius: 9999px; /* Totalmente arredondado */
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+/* Ação (Botão editar) */
+.action-details {
+    padding-top: 0.25rem; /* Alinha visualmente com o texto */
+    color: var(--text-secondary);
+    transition: color 0.2s;
+}
+.action-details:hover {
+    color: var(--primary);
 }
 
 .section-title-produtos {
@@ -34,7 +95,7 @@
     font-weight: 700;
 }
 
-/* garante que a área principal ocupe todo o espaço ao lado da sidebar */
+
 .content-area-produtos {
     flex: 1;
     display: flex;
@@ -57,22 +118,22 @@
 
 .main-container-produtos {
     max-width: 100%;
-    /* Largura máxima do container */
+    
     margin-left: auto;
     margin-right: auto;
     padding: 2rem 1.5rem;
-    /* py-8 px-6 */
+    
 }
 
-/* o conteúdo central não deve limitar o grid */
 
 
-/* ================================================= */
-/* === 1. Layout da Grade de Produtos            === */
-/* ================================================= */
+
+
+
+
 .table-list-produtos {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* padrão: 1 coluna em telas pequenas */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
     gap: 1.5rem;
     list-style-type: none;
     padding: 0;
@@ -80,16 +141,16 @@
     width: 100%;
 }
 
-/* Em telas com 768px de largura ou mais */
+
 @media (min-width: 768px) {
     .table-list-produtos {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-/* ================================================= */
-/* === 2. Estilo dos Cards                       === */
-/* ================================================= */
+
+
+
 .table-container-produtos {
     background-color: var(--background-surface);
     padding: 1.5rem;
@@ -105,9 +166,9 @@
     margin-bottom: 1rem;
 }
 
-/* ================================================= */
-/* === 3. Estilos de Formulário                  === */
-/* ================================================= */
+
+
+
 .table-container-produtos form {
     display: flex;
     flex-direction: column;
@@ -141,9 +202,9 @@
     border-color: var(--primary);
 }
 
-/* ================================================= */
-/* === 4. Botões                                 === */
-/* ================================================= */
+
+
+
 .btn-primary {
     padding: 0.5rem 1rem;
     font-size: 0.875rem;
@@ -190,9 +251,9 @@
     text-decoration: underline;
 }
 
-/* ================================================= */
-/* === 5. Componentes Específicos                === */
-/* ================================================= */
+
+
+
 .form-divider-produtos {
     margin-top: 1.5rem;
     padding-top: 1.5rem;
@@ -217,91 +278,120 @@
     transform: rotate(90deg);
 }
 
-/* 1. Alinha o label do checkbox na horizontal (sobrescreve o padrão do formulário) */
+
 .table-container-produtos form label.checkbox-label {
     flex-direction: row;
     align-items: center;
     font-weight: 500;
 }
 
-/* 2. Esconde o checkbox padrão e cria a "caixa" personalizada */
+
 .checkbox-label input[type="checkbox"] {
-    /* Esconde o visual padrão */
+    
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
     
-    /* Remove margens do formulário e alinha */
+    
     margin-top: 0;
-    margin-left: 0.5rem; /* Espaço entre o texto "Ativo:" e a caixa */
+    margin-left: 0.5rem; 
     vertical-align: middle;
 
-    /* Define o tamanho da nova caixa */
-    width: 1.15rem;  /* Aprox. 18px */
-    height: 1.15rem; /* Aprox. 18px */
+    
+    width: 1.15rem;  
+    height: 1.15rem; 
 
-    /* Estiliza a caixa com suas variáveis */
+    
     background-color: var(--background-page);
     border: 2px solid var(--border-color);
-    border-radius: 0.25rem; /* 4px */
+    border-radius: 0.25rem; 
     cursor: pointer;
     transition: all 0.2s ease;
     
-    /* Posição relativa para ancorar o "check" (::after) */
+    
     position: relative;
 }
 
-/* 3. Estilo do estado :checked (quando marcado) */
+
 .checkbox-label input[type="checkbox"]:checked {
     background-color: var(--primary);
     border-color: var(--primary);
 }
 
-/* 4. Estilo do estado :focus (para acessibilidade) */
+
 .checkbox-label input[type="checkbox"]:focus {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
 }
 
-/* 5. Cria o "check" (símbolo de marcado) usando ::after */
+
 .checkbox-label input[type="checkbox"]::after {
     content: "";
     position: absolute;
-    display: none; /* Escondido por padrão */
+    display: none; 
     
-    /* Posiciona o "check" no centro */
+    
     left: 50%;
     top: 50%;
 
-    /* Desenha o "check" (um "L" rotacionado) */
-    width: 0.25rem;  /* Largura do traço */
-    height: 0.6rem; /* Altura do traço */
-    border: solid var(--text-on-primary-button); /* Cor do check (usei a cor do texto do botão) */
-    border-width: 0 2px 2px 0; /* "Desenha" o L */
     
-    /* Ajusta a posição final e rotaciona */
+    width: 0.25rem;  
+    height: 0.6rem; 
+    border: solid var(--text-on-primary-button); 
+    border-width: 0 2px 2px 0; 
+    
+    
     transform: translate(-50%, -60%) rotate(45deg);
 }
 
-/* 6. Mostra o "check" quando o input estiver :checked */
+
 .checkbox-label input[type="checkbox"]:checked::after {
     display: block;
 }
 
 .table-container-produtos {
-    /* ...seus estilos existentes... */
+    
     border-left: 5px solid transparent; 
     transition: border-color 0.3s ease;
 }
 
-/* Agora, colorimos a borda dos ativos com uma cor "sucesso" 
-  (Estou usando var(--primary) como exemplo, mude se tiver uma cor de sucesso) 
-*/
+
 .table-container-produtos:not(.produto-inativo) {
-    border-left-color: var(--primary); /* ou uma cor verde, ex: #28a745 */
+    border-left-color: var(--primary); 
 }
 
-/* E colorimos a borda dos inativos com uma cor "erro" ou "cinza" */
+
 .table-container-produtos.produto-inativo {
-    border-left-color: var(--error-color); /* ou um cinza, ex: #6c757d */
+    border-left-color: var(--error-color); 
+}
+
+
+.badge-producao {
+    background-color: var(--primary);
+    color: var(--text-on-primary-button);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-left: auto; 
+    white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); 
+}
+
+
+.badge-producao svg, 
+.badge-producao span {
+    line-height: 1;
+}
+
+
+@media (max-width: 480px) {
+    .badge-producao {
+        margin-left: 0;
+        margin-top: 0.5rem;
+        width: fit-content;
+    }
 }

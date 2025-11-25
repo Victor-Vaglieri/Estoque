@@ -136,7 +136,7 @@ export default function RelatoriosPage() {
         try {
             const response = await fetch(url, {
                 method: 'GET',
-                headers: { 'Authorization': `Bearer ${token}` },
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'}, 
             });
 
             if (!response.ok) {
