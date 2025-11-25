@@ -123,7 +123,7 @@ export default function AvisosPage() {
 
   useEffect(() => {
     if (user) {
-      if (!user.funcoes.some((f: string) => f === 'GESTOR')) {
+      if (!user.funcoes.some((f: string) => f === 'GESTOR' || f === 'AVISOS')) {
         router.push('/inicio');
         return;
       }

@@ -1,348 +1,294 @@
+/* =========================================
+   LAYOUT GERAL
+   ========================================= */
 .inventario-layout {
-    display: flex; /* mantém a sidebar + conteúdo lado a lado */
+    display: flex;
     min-height: 100vh;
     height: 100%;
     background-color: var(--background-page);
 }
 
+.page-header-inventario {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
 
 .page-title-inventario {
     color: var(--text-primary);
     font-size: 1.875rem;
     font-weight: 700;
+    letter-spacing: -0.025em;
 }
 
-.page-header-inventario {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-}
-
-
-.section-header-inventario {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.section-title-inventario {
-    color: var(--text-primary);
-    font-size: 1.5rem;
-    font-weight: 700;
-}
-
-.content-area-inventario {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-}
-
-.main-content-wrapper-inventario {
-    flex: 1 1 0%;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.main-content-inventario {
-    flex: 1 1 0%;
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-
-.main-container-inventario {
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 2rem 1.5rem;
-}
-
-
-/* Layout Geral e Cabeçalho */
-.page-header-inventario {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-}
-
-.page-title-inventario {
-    color: var(--text-primary);
-    font-size: 1.875rem; /* 30px */
-    font-weight: 700;
-}
-
-/* Botão Salvar Inventário */
+/* Botão Salvar (Destaque) */
 .btn-save-inventory {
-   padding: 0.6rem 1.2rem; 
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
 }
 
-/* Mensagens de Feedback */
+/* =========================================
+   TABELA DE INVENTÁRIO
+   ========================================= */
+.inventario-table-container {
+    background-color: var(--background-surface);
+    border-radius: 0.75rem; /* Arredondamento moderno */
+    box-shadow: 0 4px 6px -1px var(--shadow-color);
+    border: 1px solid var(--border-color);
+    overflow: hidden; /* Mantém as bordas arredondadas */
+}
+
+.inventario-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* Cabeçalho */
+.inventario-table thead {
+    background-color: var(--background-page); /* Diferencia do corpo */
+    border-bottom: 1px solid var(--border-color);
+}
+
+.inventario-table th {
+    padding: 1rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Corpo */
+.inventario-table tbody tr {
+    transition: background-color 0.1s;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.inventario-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.inventario-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.02); /* Hover sutil */
+}
+
+.inventario-table td {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+/* =========================================
+   INPUT DE QUANTIDADE (O "Coração" da tela)
+   ========================================= */
+.quantity-input {
+    width: 100%;
+    max-width: 100px;
+    padding: 0.5rem 0.75rem;
+    
+    /* Visual "Inset" (profundidade) */
+    background-color: var(--background-page); 
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    
+    color: var(--text-primary);
+    font-family: 'Monaco', 'Consolas', monospace; /* Fonte mono para números alinhados */
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center; /* Números centralizados são mais fáceis de ler em inputs curtos */
+    
+    transition: all 0.2s ease;
+}
+
+/* Input quando focado */
+.quantity-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background-color: var(--background-surface);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.15); /* Brilho suave */
+    transform: scale(1.02); /* Leve zoom para foco */
+}
+
+/* =========================================
+   LINHA EDITADA (FEEDBACK)
+   ========================================= */
+/* Em vez de mudar o fundo todo (que fica feio no dark mode), 
+   vamos adicionar uma barra lateral colorida */
+.inventario-table tbody tr.edited-row {
+    background-color: rgba(var(--primary-rgb), 0.05); /* Tintura muito leve de azul */
+}
+
+.inventario-table tbody tr.edited-row td:first-child {
+    box-shadow: inset 4px 0 0 var(--primary); /* Barra azul na esquerda */
+}
+
+.edited-row .quantity-input {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* =========================================
+   BOTÕES DE ORDENAÇÃO
+   ========================================= */
+.sort-button {
+    background: none;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: background-color 0.2s;
+}
+
+.sort-button:hover {
+    background-color: var(--background-surface);
+    color: var(--text-primary);
+}
+
+/* Seta Indicadora */
+.sort-button::after {
+    content: '';
+    width: 0.5em;
+    height: 0.5em;
+    background-color: currentColor;
+    clip-path: polygon(0 0, 100% 0, 50% 100%); /* Triângulo para baixo */
+    opacity: 0.2;
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+/* Estado Ativo */
+.sort-button.sort-asc::after {
+    opacity: 1;
+    transform: rotate(180deg); /* Vira para cima */
+    color: var(--primary);
+}
+
+.sort-button.sort-desc::after {
+    opacity: 1;
+    transform: rotate(0deg);
+    color: var(--primary);
+}
+
+/* =========================================
+   MENSAGENS E ESTADOS VAZIOS
+   ========================================= */
+.inventario-container {
+    background-color: var(--background-surface);
+    padding: 3rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    color: var(--text-secondary);
+    border: 1px dashed var(--border-color);
+}
+
 .inventario-message {
     padding: 1rem;
     border-radius: 0.5rem;
     margin-bottom: 1.5rem;
     font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .inventario-error {
-    background-color: #fef2f2; 
-    color: var(--error-color); 
-    border: 1px solid var(--error-color); 
+    background-color: rgba(224, 68, 68, 0.1);
+    color: var(--error-color);
+    border: 1px solid var(--error-color);
 }
 
-.inventario-success { 
-    background-color: #f0fdf4; 
-    color: var(--sucess-color); 
-    border: 1px solid var(--sucess-color); 
+.inventario-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--sucess-color);
+    border: 1px solid var(--sucess-color);
 }
 
-/* Container da Tabela */
-.inventario-table-container {
-    background-color: var(--background-surface);
-    border-radius: 0.5rem;
-    box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px -1px var(--shadow-color);
-    overflow-x: auto; 
-    padding: 0; 
-}
-
-/* Tabela */
-.inventario-table {
-    width: 100%;
-    border-collapse: collapse; 
-}
-
-/* Cabeçalho da Tabela */
-.inventario-table thead {
-    background-color: var(--background-header-table); 
-}
-
-.inventario-table th {
-    padding: 0.75rem 1rem; 
-    text-align: left;
-    font-size: 0.75rem; 
-    font-weight: 600;
-    color: var(--text-tertiary); 
-    text-transform: uppercase;
-    letter-spacing: 0.05em; 
-    white-space: nowrap; 
-    position: relative; 
-}
-
-/* Estilos para Botão de Ordenação */
-.sort-button {
-    background: none;
-    border: none;
-    padding: 0; 
-    margin: 0; 
-    font-family: inherit; 
-    font-size: inherit; 
-    font-weight: inherit; 
-    color: inherit; 
-    text-transform: inherit; 
-    letter-spacing: inherit; 
-    text-align: inherit; 
-    cursor: pointer;
-    display: inline-flex; 
-    align-items: center;
-}
-
-.sort-button::after { /* Ícone de seta */
-    content: '';
-    width: 0; 
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    margin-left: 0.5rem; 
-    opacity: 0.3; 
-    border-top: 5px solid currentColor; 
-}
-
-.sort-button.sort-asc::after {
-    opacity: 1; 
-    border-bottom: 5px solid currentColor; 
-    border-top: 0;
-}
-
-.sort-button.sort-desc::after {
-    opacity: 1; 
-    border-top: 5px solid currentColor; 
-    border-bottom: 0;
-}
-
-
-/* Células do Corpo da Tabela */
-.inventario-table td {
-    padding: 0.5rem 1rem; 
-    font-size: 0.875rem; 
-    color: var(--text-secondary); 
-    border-bottom: 1px solid var(--border-color); 
-    vertical-align: middle; 
-}
-
-/* Estilo para Input na Tabela */
-.quantity-input {
-    width: 100%; 
-    max-width: 120px; 
-    padding: 0.5rem 0.75rem; /* Aumentado o padding */
-    border: 1px solid var(--border-color); 
-    border-radius: 0.375rem; /* Mais arredondado */
-    /* MUDANÇA: Fundo branco (surface) para destacar */
-    background-color: var(--background-page); 
-    /* MUDANÇA: Cor do texto primária (mais escura) */
-    color: var(--text-primary); 
-    font-size: 0.875rem; /* Garantir tamanho */
-    font-weight: 500; /* Ligeiro negrito */
-    text-align: right; 
-    box-sizing: border-box; 
-    transition: border-color 0.2s, box-shadow 0.2s, color 0.2s;
-}
-.quantity-input::-webkit-outer-spin-button,
-.quantity-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* Estilo do Input ao focar ou se a linha foi editada */
-.quantity-input:focus,
-.edited-row .quantity-input {
-    border-color: var(--primary); 
-    background-color: var(--background-header-table); 
-    outline: none; 
-    color: var(--text-primary); 
-    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.2); 
-}
-
-/* Estilo para Linha Editada */
-.inventario-table tbody tr.edited-row td {
-     background-color: #fefce8; /* Amarelo ainda mais claro */
-}
-
-
-/* Última linha sem borda inferior */
-.inventario-table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-
-/* Container para quando não há produtos */
-.inventario-container {
-    background-color: var(--background-surface);
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px -1px var(--shadow-color);
-    text-align: center;
-    color: var(--text-secondary);
-}
-
-.inventario-title {
-    color: var(--text-primary);
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-
-/* Botão primário */
-.btn-primary {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-on-primary-button);
-    background-color: var(--primary);
-    border: none;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: background-color 0.2s, opacity 0.2s;
-}
-
-.btn-primary:hover:not(:disabled) {
-    background-color: var(--primary-hover);
-}
-
-.btn-primary:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-
-/* ================================================= */
-/* --- NOVO: Estilos de Responsividade para Tabela --- */
-/* ================================================= */
-
+/* =========================================
+   RESPONSIVIDADE (MOBILE CARDS)
+   ========================================= */
 @media (max-width: 768px) {
-    /* Esconde o cabeçalho da tabela em telas pequenas */
-    .inventario-table thead {
-        display: none;
-    }
-
-    /* Transforma a tabela, linhas e células em blocos (cards) */
-    .inventario-table, 
-    .inventario-table tbody, 
-    .inventario-table tr, 
-    .inventario-table td {
+    .inventario-table thead { display: none; }
+    
+    .inventario-table, .inventario-table tbody, .inventario-table tr, .inventario-table td {
         display: block;
         width: 100%;
     }
 
-    /* Remove o container da tabela para os cards preencherem */
     .inventario-table-container {
         background-color: transparent;
-        border-radius: 0;
+        border: none;
         box-shadow: none;
-        padding: 0;
+        overflow: visible;
     }
 
-    /* Cada linha (tr) vira um card */
     .inventario-table tr {
         background-color: var(--background-surface);
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px -1px var(--shadow-color);
-        margin-bottom: 1.5rem;
         border: 1px solid var(--border-color);
-        overflow: hidden; /* Garante que o :before não vaze */
-    }
-    
-     /* Estilo da linha editada no modo card */
-    .inventario-table tr.edited-row {
-        border-left: 4px solid var(--primary);
-        background-color: #fefce8; 
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        padding: 1rem;
+        position: relative;
     }
 
-    /* Células */
+    .inventario-table tbody tr.edited-row {
+        border-color: var(--primary);
+        background-color: var(--background-surface); /* Remove tintura no mobile */
+    }
+    
+    /* Indicador de edição no card mobile */
+    .inventario-table tbody tr.edited-row::after {
+        content: "Modificado";
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: var(--primary);
+        background-color: rgba(var(--primary-rgb), 0.1);
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.25rem;
+    }
+
     .inventario-table td {
-        padding: 0.75rem 1rem;
-        padding-left: 50%; /* Espaço à esquerda para o "label" */
-        text-align: right; /* Alinha o valor à direita */
-        position: relative; /* Contexto para o ::before */
-        border-bottom: 1px dashed var(--border-color); /* Linha tracejada entre "colunas" */
+        padding: 0.5rem 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+        border-bottom: 1px solid var(--border-color);
     }
 
     .inventario-table td:last-child {
-        border-bottom: none; /* Remove borda da última célula */
+        border-bottom: none;
+        padding-top: 1rem;
+        justify-content: center; /* Centraliza o input no mobile */
     }
 
-    /* Cria o "label" da coluna usando o data-label */
     .inventario-table td::before {
-        content: attr(data-label); /* Pega o texto do data-label="Nome" */
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 45%; /* Largura do label */
-        
+        content: attr(data-label);
         font-weight: 600;
-        color: var(--text-primary);
+        color: var(--text-secondary);
+        font-size: 0.85rem;
         text-align: left;
-        font-size: 0.8rem;
-        text-transform: uppercase; /* Opcional: deixa labels em maiúsculas */
     }
-    
-    /* Ajusta o input no modo card */
-    .inventario-table td .quantity-input {
-        width: 100px; /* Largura fixa para o input no card */
-        max-width: none;
+
+    .quantity-input {
+        max-width: 100%; /* Input grande no mobile para facilitar toque */
+        height: 3rem; /* Altura de toque amigável */
+        font-size: 1.2rem;
     }
 }

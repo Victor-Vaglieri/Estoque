@@ -245,7 +245,10 @@ button:disabled {
   background-color: var(--error-hover);
 }
 
-.button-rol,
+.button-rol {
+  background-color: rgb(202, 132, 19);
+  color: var(--text-primary);
+}
 .button-editar {
   background-color: var(--neutral-button-bg);
   color: var(--text-primary);

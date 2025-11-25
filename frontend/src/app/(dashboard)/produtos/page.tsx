@@ -20,20 +20,20 @@ interface Product {
     nome: string;
     unidade: string;
     marca: string | null;
-    codigo: string | null; 
-    corredor: string | null; 
-    producao: boolean; 
-    
-    
-    quantidadeEst: number; 
-    
+    codigo: string | null;
+    corredor: string | null;
+    producao: boolean;
+
+
+    quantidadeEst: number;
+
     quantidadeMin: number;
-    quantidadeMax: number; 
-    fornecedorId: number; 
+    quantidadeMax: number;
+    fornecedorId: number;
     observacoes: string | null;
     ativo: boolean;
 
-    
+
     fornecedor?: Fornecedor;
 }
 
@@ -41,9 +41,9 @@ interface Product {
 export default function ProductsHomePage() {
     const router = useRouter();
     const [products, setProducts] = useState<Product[]>([]);
-    
+
     const [fornecedores, setFornecedores] = useState<Fornecedor[]>([]);
-    
+
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const { user } = useAuth();
@@ -60,15 +60,15 @@ export default function ProductsHomePage() {
             return;
         }
         try {
-            
+
             const headers = {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
             };
-            
+
             const [resProducts, resFornecedores] = await Promise.all([
                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, { headers }),
-                fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/fornecedores`, { headers }) 
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/fornecedores`, { headers })
             ]);
 
             if (!resProducts.ok) {
@@ -77,12 +77,12 @@ export default function ProductsHomePage() {
             if (!resFornecedores.ok) {
                 throw new Error(`Erro ao buscar fornecedores: ${resFornecedores.statusText}`);
             }
-            
+
             const productsData = await resProducts.json();
             const fornecedoresData = await resFornecedores.json();
-            
+
             setProducts(productsData);
-            setFornecedores(fornecedoresData); 
+            setFornecedores(fornecedoresData);
 
         } catch (err) {
             setError(err instanceof Error ? err.message : "Ocorreu um erro desconhecido.");
@@ -99,7 +99,7 @@ export default function ProductsHomePage() {
             }
         }
         fetchProductsData();
-    }, [user,router]); 
+    }, [user, router]);
 
     const handleToggleEdit = (productId: number) => {
         setEditingProductId(prevId => (prevId === productId ? null : productId));
@@ -108,7 +108,7 @@ export default function ProductsHomePage() {
 
     const handleUpdateProduct = async (event: React.FormEvent<HTMLFormElement>, productId: number) => {
         event.preventDefault();
-        setError(null); 
+        setError(null);
         const token = localStorage.getItem('token');
         if (!token) {
             setError("Sua sessão expirou. Faça o login novamente.");
@@ -116,8 +116,8 @@ export default function ProductsHomePage() {
         }
 
         const formData = new FormData(event.currentTarget);
-        
-        
+
+
         const updatedData = {
             nome: formData.get('nome') as string,
             unidade: formData.get('unidade') as string,
@@ -127,16 +127,16 @@ export default function ProductsHomePage() {
             producao: (event.currentTarget.elements.namedItem('producao') as HTMLInputElement).checked,
             fornecedorId: parseInt(formData.get('fornecedorId') as string, 10),
             quantidadeMin: parseInt(formData.get('quantidadeMin') as string, 10),
-            quantidadeMax: parseInt(formData.get('quantidadeMax') as string, 10), 
-            quantidadeEst: parseInt(formData.get('quantidadeEst') as string, 10), 
+            quantidadeMax: parseInt(formData.get('quantidadeMax') as string, 10),
+            quantidadeEst: parseInt(formData.get('quantidadeEst') as string, 10),
             observacoes: formData.get('observacoes') as string,
             ativo: (event.currentTarget.elements.namedItem('ativo') as HTMLInputElement).checked,
         };
 
         try {
-            
+
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${productId}`, {
-                method: 'PATCH', 
+                method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -149,7 +149,7 @@ export default function ProductsHomePage() {
                 throw new Error(errorData.message || "Falha ao atualizar o produto.");
             }
 
-            await fetchProductsData(); 
+            await fetchProductsData();
             setEditingProductId(null);
 
         } catch (err) {
@@ -168,8 +168,8 @@ export default function ProductsHomePage() {
         }
 
         const formData = new FormData(event.currentTarget);
-        
-        
+
+
         const createData = {
             nome: formData.get('nome') as string,
             unidade: formData.get('unidade') as string,
@@ -179,8 +179,8 @@ export default function ProductsHomePage() {
             producao: (event.currentTarget.elements.namedItem('producao') as HTMLInputElement).checked,
             fornecedorId: parseInt(formData.get('fornecedorId') as string, 10),
             quantidadeMin: parseInt(formData.get('quantidadeMin') as string, 10),
-            quantidadeMax: parseInt(formData.get('quantidadeMax') as string, 10), 
-            quantidadeEst: parseInt(formData.get('quantidadeEst') as string, 10), 
+            quantidadeMax: parseInt(formData.get('quantidadeMax') as string, 10),
+            quantidadeEst: parseInt(formData.get('quantidadeEst') as string, 10),
             observacoes: formData.get('observacoes') as string,
             ativo: (event.currentTarget.elements.namedItem('ativo') as HTMLInputElement).checked,
         };
@@ -200,7 +200,7 @@ export default function ProductsHomePage() {
                 throw new Error(errorData.message || "Falha ao criar o produto.");
             }
 
-            await fetchProductsData(); 
+            await fetchProductsData();
             setShowCreateForm(false);
 
         } catch (err) {
@@ -219,21 +219,39 @@ export default function ProductsHomePage() {
 
             <ul className="table-list-produtos">
                 {products.map((product) => (
-                    <li
-                        key={product.id}
-                        className={`table-container-produtos ${!product.ativo ? 'produto-inativo' : ''}`}
-                    >
+                    <li key={product.id} className={`table-container-produtos ${!product.ativo ? 'produto-inativo' : ''}`}>
+
                         <div className="section-header-produtos">
-                            
-                            <h2 className="section-title-produtos">
-                                {product.codigo ? `(${product.codigo}) ` : ''}{product.nome} ({product.unidade}) - {product.marca}
-                            </h2>
+                            <div className="product-info-wrapper">
+                                {/* Linha 1: Nome + Badge */}
+                                <h2 className="product-name">
+                                    {product.nome}
+                                    {product.producao && (
+                                        <span className="badge-producao" title="Produção Própria">
+                                            Produção
+                                        </span>
+                                    )}
+                                </h2>
+
+                                {/* Linha 2: Detalhes secundários (Código | Marca | Unidade) */}
+                                <div className="product-meta-line">
+                                    {product.codigo && (
+                                        <>
+                                            <span>{product.codigo}</span>
+                                            <span className="meta-separator">●</span>
+                                        </>
+                                    )}
+                                    <span>{product.marca || 'Sem Marca'}</span>
+                                    <span className="meta-separator">●</span>
+                                    <span style={{ textTransform: 'uppercase' }}>{product.unidade}</span>
+                                </div>
+                            </div>
+
                             <button className="action-details" onClick={() => handleToggleEdit(product.id)}>
                                 {editingProductId === product.id ? <IconDown className='arrow-icon' /> : <IconLeft className='arrow-icon' />}
                             </button>
                         </div>
 
-                        
                         <p><strong>Estoque (Loja):</strong> {product.quantidadeEst} | <strong>Mínimo:</strong> {product.quantidadeMin} | <strong>Máximo:</strong> {product.quantidadeMax}</p>
                         {product.observacoes && <p><strong>Observações:</strong> {product.observacoes}</p>}
 
@@ -241,8 +259,6 @@ export default function ProductsHomePage() {
                             <div className="form-divider-produtos">
                                 <h3 className="table-title-produtos">Editar Produto</h3>
                                 <form onSubmit={(e) => handleUpdateProduct(e, product.id)}>
-                                    
-                                    
                                     <label>Nome:<input type="text" name="nome" defaultValue={product.nome} required /></label>
                                     <label>Unidade:<input type="text" name="unidade" defaultValue={product.unidade} required /></label>
                                     <label>Marca:<input type="text" name="marca" defaultValue={product.marca ?? ''} /></label>
@@ -257,7 +273,7 @@ export default function ProductsHomePage() {
                                     <label>Max (Nec):<input type="number" name="quantidadeMax" defaultValue={product.quantidadeMax} required /></label>
                                     <label>Estoque (Loja):<input type="number" name="quantidadeEst" defaultValue={product.quantidadeEst} required /></label>
                                     <label>Observações:<textarea name="observacoes" defaultValue={product.observacoes ?? ''}></textarea></label>
-                                    
+
                                     <label className="checkbox-label">
                                         Produção:
                                         <input type="checkbox" name="producao" defaultChecked={product.producao} />
@@ -266,14 +282,10 @@ export default function ProductsHomePage() {
                                         Ativo:
                                         <input type="checkbox" name="ativo" defaultChecked={product.ativo} />
                                     </label>
-                                    
+
                                     <div className="form-actions">
-                                        <button type="submit" className="btn-primary">
-                                            Salvar Alterações
-                                        </button>
-                                        <button type="button" className="btn-secondary" onClick={() => setEditingProductId(null)}>
-                                            Cancelar
-                                        </button>
+                                        <button type="submit" className="btn-primary">Salvar Alterações</button>
+                                        <button type="button" className="btn-secondary" onClick={() => setEditingProductId(null)}>Cancelar</button>
                                     </div>
                                 </form>
                             </div>
@@ -281,7 +293,7 @@ export default function ProductsHomePage() {
                     </li>
                 ))}
 
-                
+                {/* ... (Add New Product Card logic remains unchanged) ... */}
                 <li key="add-product-card" className="table-container-produtos">
                     <div className="section-header-produtos">
                         <h2 className="section-title-produtos">Adicionar Novo Produto</h2>
