@@ -24,11 +24,11 @@ export class UsersController {
     @Request() req,
     @Body() updateLoginDto: UpdateLoginDto,
   ) {
-    const userId = req.user.sub;
+    const userId = req.user;
     if (!userId) {
       throw new UnauthorizedException('Usuário não encontrado no token.');
     }
-    return this.usersService.updateLogin(userId, updateLoginDto.login);
+    return this.usersService.updateLogin(req.user.id, updateLoginDto.login);
   }
 
   /**
@@ -40,10 +40,10 @@ export class UsersController {
     @Request() req,
     @Body() updatePasswordDto: UpdatePasswordDto,
   ) {
-    const userId = req.user.sub;
+    const userId = req.user;
     if (!userId) {
       throw new UnauthorizedException('Usuário não encontrado no token.');
     }
-    return this.usersService.updatePassword(userId, updatePasswordDto);
+    return this.usersService.updatePassword(req.user.id, updatePasswordDto);
   }
 }

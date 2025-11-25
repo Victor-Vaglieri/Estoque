@@ -109,4 +109,23 @@ export class RelatoriosController {
         );
         return new StreamableFile(fileBuffer);
     }
+
+    @Get('debug-db')
+    async debugDatabase() {
+        // Busca TUDO sem filtro de data para ver se existe algo
+        const tudo = await this.relatoriosService['controleDb'].costuraRegistro.findMany({
+            take: 5,
+        });
+
+        return {
+            mensagem: "Teste de conexão direta",
+            quantidade: tudo.length,
+            amostra: tudo.map(item => ({
+                id: item.id,
+                cliente: item.nome_cliente,
+                data_recebimento: item.data_recebimento, // Vamos ver como isso sai
+                tipo_data: typeof item.data_recebimento
+            }))
+        };
+    }
 }

@@ -103,4 +103,27 @@ export class PerfisController {
     const adminId = this.getUserId(req.user);
     return this.perfisService.deleteUser(adminId, id);
   }
+
+  @Get('fornecedores')
+  async findAllFornecedores(@Req() req) {
+    this.checkGestor(req.user); // Garante que é gestor
+    return this.perfisService.findAllFornecedores();
+  }
+
+  @Post('fornecedores')
+  async createFornecedor(@Req() req, @Body() body: { nome: string }) {
+    this.checkGestor(req.user);
+    return this.perfisService.createFornecedor(body.nome);
+  }
+
+  @Patch('fornecedores/:id')
+  async updateFornecedor(@Req() req, @Param('id') id: string, @Body() body: { nome: string }) {
+    this.checkGestor(req.user);
+    return this.perfisService.updateFornecedor(Number(id), body.nome);
+  }
+  @Delete('fornecedores/:id')
+  async deleteFornecedor(@Req() req, @Param('id') id: string) {
+    this.checkGestor(req.user);
+    return this.perfisService.deleteFornecedor(Number(id));
+  }
 }
