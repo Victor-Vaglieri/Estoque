@@ -127,7 +127,37 @@
 
 
 
+/* Adicione isto para estilizar o SELECT igual aos inputs */
+.table-container-produtos form select {
+    margin-top: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    background-color: var(--background-page);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-family: inherit;
+    
+    /* Remove estilo padrão e adiciona seta customizada (opcional, mas recomendado) */
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    padding-right: 2.5rem; /* Espaço para a seta não ficar em cima do texto */
+}
 
+.table-container-produtos form select:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-color: var(--primary);
+}
+
+/* Garante que as opções do select tenham fundo escuro no tema dark */
+.table-container-produtos form select option {
+    background-color: var(--background-surface);
+    color: var(--text-primary);
+}
 
 
 
