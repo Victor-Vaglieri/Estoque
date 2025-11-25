@@ -4,8 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./alertas.db"
+  provider = "postgresql"
+  // url      = "file:./alertas.db"
+  url     = env("DATABASE_URL_ALERTAS")
 }
 
 model Alertas {

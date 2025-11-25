@@ -13,6 +13,12 @@ import {
  * o 'quantidadeEst' (estoque inicial) que será usado para criar o 'EstoqueLoja'.
  */
 export class CreateProdutoDto {
+  
+  @IsOptional()
+  @IsInt()
+  lojaId?: number;
+
+  
   @IsString()
   @IsNotEmpty()
   nome: string;
@@ -65,4 +71,5 @@ export class CreateProdutoDto {
   @IsBoolean()
   @IsOptional()
   ativo?: boolean;
+
 }

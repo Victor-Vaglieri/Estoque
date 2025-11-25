@@ -12,37 +12,32 @@ import { Prisma } from '@prisma/estoque-client';
 export class ProductsService {
   constructor(private estoqueDb: EstoqueDbService) {}
 
-  // --- NOVO MÉTODO: Buscar Fornecedores ---
   async findAllFornecedores() {
     return this.estoqueDb.fornecedor.findMany({
       orderBy: { nome: 'asc' },
     });
   }
-  // ----------------------------------------
 
   async findAll(lojaId: number) {
     const produtos = await this.estoqueDb.produto.findMany({
-      where: {
-        ativo: true,
-      },
+      where: { ativo: true },
       include: {
         fornecedor: true,
-        estoqueLojas: {
-          where: {
-            lojaId: lojaId,
-          },
-        },
+        estoqueLojas: true,
       },
       orderBy: { nome: 'asc' },
     });
 
     return produtos.map((produto) => {
+      const estoqueDaLojaAtual = produto.estoqueLojas.find(e => e.lojaId === lojaId);
       const estoqueDaLoja = produto.estoqueLojas[0] || null;
+      const qualquerEstoque = produto.estoqueLojas[0];
       return {
         ...produto,
         estoqueLojas: undefined,
         quantidadeEst: estoqueDaLoja ? estoqueDaLoja.quantidadeEst : 0,
         quantidadeNec: produto.quantidadeMax,
+        realLojaId: estoqueDaLojaAtual?.lojaId || qualquerEstoque?.lojaId || null
       };
     });
   }
@@ -52,13 +47,9 @@ export class ProductsService {
       where: {
         lojaId: lojaId,
         quantidadeEst: { gt: 0 },
-        produto: {
-          ativo: true,
-        },
+        produto: { ativo: true },
       },
-      include: {
-        produto: true,
-      },
+      include: { produto: true },
       orderBy: { produto: { nome: 'asc' } },
     });
 
@@ -69,19 +60,30 @@ export class ProductsService {
     }));
   }
 
-  async create(dto: CreateProdutoDto, lojaId: number) {
-    const { quantidadeEst, ...dadosProduto } = dto;
+  
+  
+  
+  
+  async create(dto: CreateProdutoDto & { lojaId?: number }, lojaIdDoUsuario: number) {
+    
+    
+    const targetLojaId = dto.lojaId ? Number(dto.lojaId) : lojaIdDoUsuario;
+
+    
+    const { quantidadeEst, lojaId, ...dadosProduto } = dto;
 
     try {
       return await this.estoqueDb.$transaction(async (tx) => {
+        
         const novoProduto = await tx.produto.create({
           data: dadosProduto,
         });
 
+        
         await tx.estoqueLoja.create({
           data: {
             produtoId: novoProduto.id,
-            lojaId: lojaId,
+            lojaId: targetLojaId, 
             quantidadeEst: quantidadeEst,
           },
         });
@@ -99,42 +101,61 @@ export class ProductsService {
     }
   }
 
-  async update(id: number, dto: UpdateProdutoDto, lojaId: number) {
-    const { quantidadeEst, ...dadosProduto } = dto;
+  async update(id: number, dto: UpdateProdutoDto & { lojaId?: number }, lojaIdDoUsuario: number) {
+    // 1. Separa os campos
+    const { quantidadeEst, lojaId, ...dadosProduto } = dto;
+
+    // 2. Define a loja alvo
+    const targetLojaId = lojaId ? Number(lojaId) : lojaIdDoUsuario;
 
     try {
       return await this.estoqueDb.$transaction(async (tx) => {
+        
+        // 3. Atualiza dados básicos do produto
         const produtoAtualizado = await tx.produto.update({
           where: { id },
           data: dadosProduto,
         });
 
-        if (quantidadeEst !== undefined) {
-          await tx.estoqueLoja.upsert({
-            where: {
-              produtoId_lojaId: {
-                produtoId: id,
-                lojaId: lojaId,
-              },
-            },
-            update: {
-              quantidadeEst: quantidadeEst,
-            },
-            create: {
-              produtoId: id,
-              lojaId: lojaId,
-              quantidadeEst: quantidadeEst,
-            },
-          });
+        // 4. LÓGICA DE MOVIMENTAÇÃO DE LOJA (A Correção)
+        // Se um lojaId foi especificado ou se estamos atualizando o estoque...
+        if (targetLojaId) {
+            // A. Verifica se já existe estoque nessa loja alvo
+            const estoqueExistente = await tx.estoqueLoja.findUnique({
+                where: { produtoId_lojaId: { produtoId: id, lojaId: targetLojaId } }
+            });
+
+            // B. Se o objetivo é MOVER (ou seja, garantir que ele esteja SÓ nessa loja):
+            // Removemos qualquer vínculo de estoque desse produto com OUTRAS lojas
+            await tx.estoqueLoja.deleteMany({
+                where: {
+                    produtoId: id,
+                    lojaId: { not: targetLojaId } // Apaga tudo que não for a loja alvo
+                }
+            });
+
+            // C. Atualiza ou Cria o estoque na loja alvo
+            // Se a quantidadeEst veio no DTO, usamos ela. 
+            // Se não veio, tentamos manter a quantidade que já existia lá (ou 0 se for novo).
+            const novaQuantidade = quantidadeEst !== undefined 
+                ? quantidadeEst 
+                : (estoqueExistente?.quantidadeEst ?? 0);
+
+            await tx.estoqueLoja.upsert({
+                where: { produtoId_lojaId: { produtoId: id, lojaId: targetLojaId } },
+                update: { quantidadeEst: novaQuantidade },
+                create: { 
+                    produtoId: id, 
+                    lojaId: targetLojaId, 
+                    quantidadeEst: novaQuantidade 
+                }
+            });
         }
 
         return produtoAtualizado;
       });
     } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
         throw new NotFoundException(`Produto com ID ${id} não encontrado.`);
       }
       throw error;

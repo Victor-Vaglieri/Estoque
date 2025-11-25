@@ -4,8 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./estoque.db"
+  provider = "postgresql"
+  // url      = "file:./estoque.db"
+  url      = env("DATABASE_URL_ESTOQUE")
 }
 
 model Fornecedor {
