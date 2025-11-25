@@ -4,8 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./controle.db"
+  provider = "postgresql"
+  //url      = "file:./controle.db"
+  url = env("DATABASE_URL_CONTROLE")
 }
 
 enum MeioDeContato {

@@ -4,8 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./cadastros.db"
+  provider = "postgresql"
+  // url      = "file:./cadastros.db"
+url     = env("DATABASE_URL_CADASTROS")
 }
 
 model Cadastro {
