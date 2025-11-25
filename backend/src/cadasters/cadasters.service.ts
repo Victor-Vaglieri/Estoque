@@ -295,4 +295,34 @@ export class PerfisService {
             message: `Utilizador ${userLogin} removido com sucesso.`,
         };
     }
+
+    async findAllFornecedores() {
+        return this.estoqueDb.fornecedor.findMany({ orderBy: { nome: 'asc' } });
+    }
+
+    async createFornecedor(nome: string) {
+        if (!nome) throw new BadRequestException("Nome é obrigatório");
+        return this.estoqueDb.fornecedor.create({ data: { nome } });
+    }
+
+    async updateFornecedor(id: number, nome: string) {
+        if (!nome) throw new BadRequestException("Nome é obrigatório");
+        return this.estoqueDb.fornecedor.update({
+            where: { id },
+            data: { nome }
+        });
+    }
+    async deleteFornecedor(id: number) {
+        const produtosVinculados = await this.estoqueDb.produto.count({
+            where: { fornecedorId: id },
+        });
+        if (produtosVinculados > 0) {
+            throw new BadRequestException(
+                `Não é possível remover este fornecedor pois ele possui ${produtosVinculados} produtos cadastrados.`,
+            );
+        }
+        return this.estoqueDb.fornecedor.delete({
+            where: { id },
+        });
+    }
 }
