@@ -32,9 +32,6 @@ export default function ComprasPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Armazena os preços digitados: { [produtoId]: "15.50" }
-  const [priceInputs, setPriceInputs] = useState<Record<number, string>>({});
-
   // Controla qual fornecedor está enviando dados (loading state)
   const [submittingSupplier, setSubmittingSupplier] = useState<string | null>(null);
 
@@ -61,7 +58,6 @@ export default function ComprasPage() {
 
       const data: GroupedProducts = await response.json();
       setProductsToBuy(data);
-      setPriceInputs({}); // Limpa inputs ao recarregar
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ocorreu um erro.');
     } finally {
@@ -78,10 +74,6 @@ export default function ComprasPage() {
     }
     fetchProductsToBuy();
   }, [user, router]);
-
-  const handlePriceChange = (productId: number, value: string) => {
-    setPriceInputs((prev) => ({ ...prev, [productId]: value }));
-  };
 
   const handleBulkSubmit = async (fornecedorNome: string, products: ProductToBuy[]) => {
     clearFeedback();
@@ -107,26 +99,15 @@ export default function ComprasPage() {
       return;
     }
 
-    // 2. Valida se os preços foram preenchidos
-    const missingPrices = itemsToBuy.filter(
-      (p) => !priceInputs[p.id] || parseFloat(priceInputs[p.id]) <= 0
-    );
-
-    if (missingPrices.length > 0) {
-      setError(
-        `Por favor, preencha o preço para: ${missingPrices.map((p) => p.nome).join(', ')}`
-      );
-      setSubmittingSupplier(null);
-      return;
-    }
+    // REMOVIDO: Validação de preços (não é mais necessário)
 
     try {
-      // 3. Envia requisições em paralelo
+      // 2. Envia requisições em paralelo
       const promises = itemsToBuy.map((product) => {
         const payload = {
           productId: product.id,
           quantidade: product.neededQuantity,
-          precoTotal: parseFloat(priceInputs[product.id]),
+          precoTotal: 0, // Enviando 0 pois o preço será definido no recebimento ou é irrelevante agora
         };
 
         return fetch(`${process.env.NEXT_PUBLIC_API_URL}/compras/registrar`, {
@@ -163,7 +144,7 @@ export default function ComprasPage() {
   return (
     <>
       <div className="page-header-produtos">
-        <h1 className="page-title-produtos">Lista de Compras (Cotação)</h1>
+        <h1 className="page-title-produtos">Lista de Compras (Automática)</h1>
       </div>
 
       {error && <p className="compras-message compras-error">{error}</p>}
@@ -209,13 +190,13 @@ export default function ComprasPage() {
                             <span>Un: {product.unidade}</span>
                           </div>
 
-                          <div className="info-grid">
-                            <div className="info-box">
-                              <small>Atual</small>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.5rem', fontSize: '0.9rem' }}>
+                            <div style={{ background: 'var(--background-page)', padding: '4px', borderRadius: '4px' }}>
+                              <small>Atual</small><br />
                               <strong>{product.quantidadeEst}</strong>
                             </div>
-                            <div className="info-box">
-                              <small>Máximo</small>
+                            <div style={{ background: 'var(--background-page)', padding: '4px', borderRadius: '4px' }}>
+                              <small>Máximo</small><br />
                               <strong>{product.quantidadeMax}</strong>
                             </div>
                           </div>
@@ -229,24 +210,13 @@ export default function ComprasPage() {
                           </div>
 
                           {neededQuantity > 0 ? (
-                            <div className="compras-action-area">
-                              <p className="compras-needed">
+                            <div style={{ marginTop: '1rem', borderTop: '1px dashed var(--border-color)', paddingTop: '1rem' }}>
+                              <p className="compras-needed" style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>
                                 Comprar: <strong>{neededQuantity} {product.unidade}</strong>
                               </p>
-                              
-                              <label className="price-label">Preço Total (R$):</label>
-                              <input
-                                type="number"
-                                className="price-input"
-                                placeholder="0.00"
-                                value={priceInputs[product.id] || ''}
-                                onChange={(e) => handlePriceChange(product.id, e.target.value)}
-                                min="0"
-                                step="0.01"
-                              />
                             </div>
                           ) : (
-                            <p className="compras-waiting-message">
+                            <p className="compras-waiting-message" style={{ marginTop: '1rem' }}>
                               Aguardando entrega.
                             </p>
                           )}
@@ -259,7 +229,7 @@ export default function ComprasPage() {
                 {/* BOTÃO GERAL DO FORNECEDOR */}
                 <div className="fornecedor-footer">
                   <div className="summary-text">
-                    Preencha os preços unitários acima e confirme o envio.
+                    Confirme o envio do pedido de reposição automática.
                   </div>
                   <button
                     className="btn-primary btn-large"
