@@ -12,7 +12,7 @@ export class RegisterPurchaseDto {
 
   // MUDANÇA: O frontend envia 'precoTotal'
   @IsNumber()
-  @Min(0.01)
+  @Min(0)
   @IsNotEmpty()
   precoTotal: number;
 }

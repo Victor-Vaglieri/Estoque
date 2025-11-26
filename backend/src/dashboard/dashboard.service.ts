@@ -7,20 +7,16 @@ export class DashboardService {
   constructor(private estoqueDb: EstoqueDbService) {}
 
   async getStats(lojaId: number) {
-    
-    const rawResult: { count: number }[] = await this.estoqueDb.$queryRaw(
-      Prisma.sql`
-        SELECT COUNT(*) as count
-        FROM "EstoqueLoja" AS E
-        JOIN "Produto" AS P ON E."produtoId" = P."id"
+    const rawResult: { count: number }[] = await this.estoqueDb.$queryRaw`
+        SELECT COUNT(*)::int as count
+        FROM estoque."EstoqueLoja" AS E
+        JOIN estoque."Produto" AS P ON E."produtoId" = P."id"
         WHERE E."lojaId" = ${lojaId}
-          AND P."ativo" = 1
+          AND P."ativo" = true
           AND E."quantidadeEst" < P."quantidadeMin"
-      `,
-    );
+      `;
 
     const itensAbaixoMin = Number(rawResult[0]?.count || 0);
-
     
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0); 
@@ -40,7 +36,6 @@ export class DashboardService {
       },
     });
 
-    
     const comprasPendentes = await this.estoqueDb.compraDistribuicao.count({
       where: {
         lojaId: lojaId,
@@ -50,7 +45,6 @@ export class DashboardService {
       },
     });
 
-    
     const ultimaEntrada = await this.estoqueDb.entrada.findFirst({
       where: {
         lojaId: lojaId,
