@@ -37,10 +37,12 @@
    ========================================= */
 .inventario-table-container {
     background-color: var(--background-surface);
-    border-radius: 0.75rem; /* Arredondamento moderno */
+    border-radius: 0.75rem;
+    /* Arredondamento moderno */
     box-shadow: 0 4px 6px -1px var(--shadow-color);
     border: 1px solid var(--border-color);
-    overflow: hidden; /* Mantém as bordas arredondadas */
+    overflow: hidden;
+    /* Mantém as bordas arredondadas */
 }
 
 .inventario-table {
@@ -51,7 +53,8 @@
 
 /* Cabeçalho */
 .inventario-table thead {
-    background-color: var(--background-page); /* Diferencia do corpo */
+    background-color: var(--background-page);
+    /* Diferencia do corpo */
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -76,7 +79,8 @@
 }
 
 .inventario-table tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.02); /* Hover sutil */
+    background-color: rgba(255, 255, 255, 0.02);
+    /* Hover sutil */
 }
 
 .inventario-table td {
@@ -93,18 +97,20 @@
     width: 100%;
     max-width: 100px;
     padding: 0.5rem 0.75rem;
-    
+
     /* Visual "Inset" (profundidade) */
-    background-color: var(--background-page); 
+    background-color: var(--background-page);
     border: 1px solid var(--border-color);
     border-radius: 0.375rem;
-    
+
     color: var(--text-primary);
-    font-family: 'Monaco', 'Consolas', monospace; /* Fonte mono para números alinhados */
+    font-family: 'Monaco', 'Consolas', monospace;
+    /* Fonte mono para números alinhados */
     font-size: 1rem;
     font-weight: 600;
-    text-align: center; /* Números centralizados são mais fáceis de ler em inputs curtos */
-    
+    text-align: center;
+    /* Números centralizados são mais fáceis de ler em inputs curtos */
+
     transition: all 0.2s ease;
 }
 
@@ -113,8 +119,10 @@
     outline: none;
     border-color: var(--primary);
     background-color: var(--background-surface);
-    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.15); /* Brilho suave */
-    transform: scale(1.02); /* Leve zoom para foco */
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.15);
+    /* Brilho suave */
+    transform: scale(1.02);
+    /* Leve zoom para foco */
 }
 
 /* =========================================
@@ -123,11 +131,13 @@
 /* Em vez de mudar o fundo todo (que fica feio no dark mode), 
    vamos adicionar uma barra lateral colorida */
 .inventario-table tbody tr.edited-row {
-    background-color: rgba(var(--primary-rgb), 0.05); /* Tintura muito leve de azul */
+    background-color: rgba(var(--primary-rgb), 0.05);
+    /* Tintura muito leve de azul */
 }
 
 .inventario-table tbody tr.edited-row td:first-child {
-    box-shadow: inset 4px 0 0 var(--primary); /* Barra azul na esquerda */
+    box-shadow: inset 4px 0 0 var(--primary);
+    /* Barra azul na esquerda */
 }
 
 .edited-row .quantity-input {
@@ -163,7 +173,8 @@
     width: 0.5em;
     height: 0.5em;
     background-color: currentColor;
-    clip-path: polygon(0 0, 100% 0, 50% 100%); /* Triângulo para baixo */
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    /* Triângulo para baixo */
     opacity: 0.2;
     transition: transform 0.2s, opacity 0.2s;
 }
@@ -171,7 +182,8 @@
 /* Estado Ativo */
 .sort-button.sort-asc::after {
     opacity: 1;
-    transform: rotate(180deg); /* Vira para cima */
+    transform: rotate(180deg);
+    /* Vira para cima */
     color: var(--primary);
 }
 
@@ -219,9 +231,14 @@
    RESPONSIVIDADE (MOBILE CARDS)
    ========================================= */
 @media (max-width: 768px) {
-    .inventario-table thead { display: none; }
-    
-    .inventario-table, .inventario-table tbody, .inventario-table tr, .inventario-table td {
+    .inventario-table thead {
+        display: none;
+    }
+
+    .inventario-table,
+    .inventario-table tbody,
+    .inventario-table tr,
+    .inventario-table td {
         display: block;
         width: 100%;
     }
@@ -238,16 +255,17 @@
         border: 1px solid var(--border-color);
         border-radius: 0.5rem;
         margin-bottom: 1rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         padding: 1rem;
         position: relative;
     }
 
     .inventario-table tbody tr.edited-row {
         border-color: var(--primary);
-        background-color: var(--background-surface); /* Remove tintura no mobile */
+        background-color: var(--background-surface);
+        /* Remove tintura no mobile */
     }
-    
+
     /* Indicador de edição no card mobile */
     .inventario-table tbody tr.edited-row::after {
         content: "Modificado";
@@ -275,7 +293,8 @@
     .inventario-table td:last-child {
         border-bottom: none;
         padding-top: 1rem;
-        justify-content: center; /* Centraliza o input no mobile */
+        justify-content: center;
+        /* Centraliza o input no mobile */
     }
 
     .inventario-table td::before {
@@ -287,8 +306,31 @@
     }
 
     .quantity-input {
-        max-width: 100%; /* Input grande no mobile para facilitar toque */
-        height: 3rem; /* Altura de toque amigável */
+        max-width: 100%;
+        /* Input grande no mobile para facilitar toque */
+        height: 3rem;
+        /* Altura de toque amigável */
         font-size: 1.2rem;
     }
+
+    /* Cabeçalhos das lojas */
+    .th-loja {
+        color: var(--primary);
+        /* Destaca que são colunas de estoque */
+        font-weight: 700;
+        text-align: center !important;
+        /* Centraliza cabeçalho */
+    }
+
+    /* Valores das lojas */
+    .td-loja-valor {
+        text-align: center !important;
+        /* Centraliza valor */
+        font-variant-numeric: tabular-nums;
+        /* Alinha números */
+        color: var(--text-secondary);
+        /* Cor um pouco mais fraca para diferenciar da contagem */
+    }
+
+    /* Destaca a coluna da loja atual do usuário se quiser, mas opcional */
 }

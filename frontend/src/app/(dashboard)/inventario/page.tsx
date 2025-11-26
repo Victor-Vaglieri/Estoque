@@ -1,13 +1,10 @@
 "use client";
 
-import { useState, useEffect, ChangeEvent, useMemo } from 'react';
-
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
-
 import './inventario.css';
-
 
 interface Product {
     id: number;
@@ -19,12 +16,10 @@ interface Product {
     quantidadeMin: number;
 }
 
-
 type SortConfig = {
     key: keyof Product | null; 
     direction: 'ascending' | 'descending'; 
 } | null;
-
 
 export default function InventarioPage() {
     const router = useRouter();
@@ -36,7 +31,6 @@ export default function InventarioPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
-
     
     const [sortConfig, setSortConfig] = useState<SortConfig>(null);
 
@@ -46,21 +40,15 @@ export default function InventarioPage() {
     }
 
     useEffect(() => {
-        
         const loadData = async () => {
-            
             if (user) {
-                
-                if (!Array.isArray(user?.funcoes) || !user.funcoes.some(f => f === 'INVENTARIO' || f === 'GESTOR')) {
+                if (!Array.isArray(user?.funcoes) || !user.funcoes.some((f: string) => f === 'INVENTARIO' || f === 'GESTOR')) {
                     router.push('/inicio');
                     return;
                 }
             } else {
-                
-                
                 return;
             }
-
             
             setIsLoading(true);
             clearFeedback();
@@ -73,7 +61,6 @@ export default function InventarioPage() {
             }
 
             try {
-                
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inventario`, {
                     method: 'GET',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -93,7 +80,6 @@ export default function InventarioPage() {
                 setIsLoading(false);
             }
         };
-
         
         loadData();
     }, [user, router]); 
@@ -135,7 +121,6 @@ export default function InventarioPage() {
         }
 
         try {
-            
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inventario/ajuste`, {
                 method: 'PATCH',
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -149,10 +134,6 @@ export default function InventarioPage() {
             }
 
             setSuccess("Inventário atualizado com sucesso!");
-
-            
-            
-            
             
             setIsLoading(true);
             const refetchResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inventario`, {
@@ -174,32 +155,23 @@ export default function InventarioPage() {
             setIsLoading(false); 
         }
     };
-
     
     const sortedProducts = useMemo(() => {
         let sortableProducts = [...products];
         if (sortConfig !== null) {
             sortableProducts.sort((a, b) => {
                 if (!sortConfig.key) return 0;
-
                 const aValue = a[sortConfig.key];
                 const bValue = b[sortConfig.key];
-
                 if (aValue === null || aValue === undefined) return sortConfig.direction === 'ascending' ? 1 : -1;
                 if (bValue === null || bValue === undefined) return sortConfig.direction === 'ascending' ? -1 : 1;
-
-                if (aValue < bValue) {
-                    return sortConfig.direction === 'ascending' ? -1 : 1;
-                }
-                if (aValue > bValue) {
-                    return sortConfig.direction === 'ascending' ? 1 : -1;
-                }
+                if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
+                if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
                 return 0;
             });
         }
         return sortableProducts;
     }, [products, sortConfig]);
-
     
     const requestSort = (key: keyof Product) => {
         let direction: 'ascending' | 'descending' = 'ascending';
@@ -208,15 +180,11 @@ export default function InventarioPage() {
         }
         setSortConfig({ key, direction });
     };
-
     
     const getSortDirectionClass = (key: keyof Product) => {
-        if (!sortConfig || sortConfig.key !== key) {
-            return '';
-        }
+        if (!sortConfig || sortConfig.key !== key) return '';
         return sortConfig.direction === 'ascending' ? 'sort-asc' : 'sort-desc';
     };
-
 
     return (
         <>
@@ -251,39 +219,30 @@ export default function InventarioPage() {
                         <thead>
                             <tr>
                                 <th>
-                                    <button
-                                        type="button"
-                                        onClick={() => requestSort('nome')}
-                                        className={`sort-button ${getSortDirectionClass('nome')}`}
-                                    >
+                                    <button type="button" onClick={() => requestSort('nome')} className={`sort-button ${getSortDirectionClass('nome')}`}>
                                         Nome
                                     </button>
                                 </th>
                                 <th>
-                                    <button
-                                        type="button"
-                                        onClick={() => requestSort('marca')}
-                                        className={`sort-button ${getSortDirectionClass('marca')}`}
-                                    >
+                                    <button type="button" onClick={() => requestSort('marca')} className={`sort-button ${getSortDirectionClass('marca')}`}>
                                         Marca
                                     </button>
                                 </th>
                                 <th>
-                                    <button
-                                        type="button"
-                                        onClick={() => requestSort('unidade')}
-                                        className={`sort-button ${getSortDirectionClass('unidade')}`}
-                                    >
+                                    <button type="button" onClick={() => requestSort('unidade')} className={`sort-button ${getSortDirectionClass('unidade')}`}>
                                         Unidade
                                     </button>
                                 </th>
+                                {/* --- MUDANÇA: Nova Coluna --- */}
                                 <th>
-                                    <button
-                                        type="button"
-                                        onClick={() => requestSort('quantidadeMin')}
-                                        className={`sort-button ${getSortDirectionClass('quantidadeMin')}`}
-                                    >
-                                        Estoque Mínimo
+                                    <button type="button" onClick={() => requestSort('quantidadeEst')} className={`sort-button ${getSortDirectionClass('quantidadeEst')}`}>
+                                        Estoque Atual (Sistema)
+                                    </button>
+                                </th>
+                                {/* -------------------------- */}
+                                <th>
+                                    <button type="button" onClick={() => requestSort('quantidadeMin')} className={`sort-button ${getSortDirectionClass('quantidadeMin')}`}>
+                                        Mínimo
                                     </button>
                                 </th>
                                 <th>Quantidade Contada</th>
@@ -296,10 +255,16 @@ export default function InventarioPage() {
 
                                 return (
                                     <tr key={product.id} className={isEdited ? 'edited-row' : ''}>
-                                        {}
                                         <td data-label="Nome">{product.nome}</td>
                                         <td data-label="Marca">{product.marca || '-'}</td>
                                         <td data-label="Unidade">{product.unidade}</td>
+                                        
+                                        {/* --- MUDANÇA: Exibindo Estoque Atual --- */}
+                                        <td data-label="Estoque Atual" style={{ fontWeight: 'bold' }}>
+                                            {product.quantidadeEst}
+                                        </td>
+                                        {/* ------------------------------------- */}
+
                                         <td data-label="Estoque Mínimo">{product.quantidadeMin}</td>
                                         <td data-label="Qtd. Contada">
                                             <input
