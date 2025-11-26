@@ -19,23 +19,29 @@ export class ProductsService {
   }
 
   async findAll(lojaId: number) {
+    
+    const idLojaUsuario = Number(lojaId);
+
     const produtos = await this.estoqueDb.produto.findMany({
       where: { ativo: true },
       include: {
         fornecedor: true,
-        estoqueLojas: true,
+        estoqueLojas: true, 
       },
       orderBy: { nome: 'asc' },
     });
 
     return produtos.map((produto) => {
-      const estoqueDaLojaAtual = produto.estoqueLojas.find(e => e.lojaId === lojaId);
-      const estoqueDaLoja = produto.estoqueLojas[0] || null;
+      
+      const estoqueDaLojaAtual = produto.estoqueLojas.find(e => e.lojaId === idLojaUsuario);
+      
+      
       const qualquerEstoque = produto.estoqueLojas[0];
+
       return {
         ...produto,
-        estoqueLojas: undefined,
-        quantidadeEst: estoqueDaLoja ? estoqueDaLoja.quantidadeEst : 0,
+        estoqueLojas: undefined, 
+        quantidadeEst: estoqueDaLojaAtual ? estoqueDaLojaAtual.quantidadeEst : 0,
         quantidadeNec: produto.quantidadeMax,
         realLojaId: estoqueDaLojaAtual?.lojaId || qualquerEstoque?.lojaId || null
       };
@@ -102,41 +108,41 @@ export class ProductsService {
   }
 
   async update(id: number, dto: UpdateProdutoDto & { lojaId?: number }, lojaIdDoUsuario: number) {
-    // 1. Separa os campos
+    
     const { quantidadeEst, lojaId, ...dadosProduto } = dto;
 
-    // 2. Define a loja alvo
+    
     const targetLojaId = lojaId ? Number(lojaId) : lojaIdDoUsuario;
 
     try {
       return await this.estoqueDb.$transaction(async (tx) => {
         
-        // 3. Atualiza dados básicos do produto
+        
         const produtoAtualizado = await tx.produto.update({
           where: { id },
           data: dadosProduto,
         });
 
-        // 4. LÓGICA DE MOVIMENTAÇÃO DE LOJA (A Correção)
-        // Se um lojaId foi especificado ou se estamos atualizando o estoque...
+        
+        
         if (targetLojaId) {
-            // A. Verifica se já existe estoque nessa loja alvo
+            
             const estoqueExistente = await tx.estoqueLoja.findUnique({
                 where: { produtoId_lojaId: { produtoId: id, lojaId: targetLojaId } }
             });
 
-            // B. Se o objetivo é MOVER (ou seja, garantir que ele esteja SÓ nessa loja):
-            // Removemos qualquer vínculo de estoque desse produto com OUTRAS lojas
+            
+            
             await tx.estoqueLoja.deleteMany({
                 where: {
                     produtoId: id,
-                    lojaId: { not: targetLojaId } // Apaga tudo que não for a loja alvo
+                    lojaId: { not: targetLojaId } 
                 }
             });
 
-            // C. Atualiza ou Cria o estoque na loja alvo
-            // Se a quantidadeEst veio no DTO, usamos ela. 
-            // Se não veio, tentamos manter a quantidade que já existia lá (ou 0 se for novo).
+            
+            
+            
             const novaQuantidade = quantidadeEst !== undefined 
                 ? quantidadeEst 
                 : (estoqueExistente?.quantidadeEst ?? 0);

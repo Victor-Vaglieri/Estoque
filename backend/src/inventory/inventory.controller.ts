@@ -29,7 +29,7 @@ export class InventarioController {
     if (!authUser?.lojaId) {
       throw new ForbiddenException('Usuário não associado a uma loja.');
     }
-    return this.inventarioService.findAllByLoja(authUser.lojaId);
+    return this.inventarioService.findAllForInventory(authUser.lojaId);
   }
 
   

@@ -4,11 +4,11 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { EstoqueDbService } from '../prisma/estoque-db.service';
-// MUDANÇA: Importar os tipos necessários
+
 import { RegisterPurchaseDto, ProductToBuy } from './dto/compras.dto';
 import { EstadoEntrada, Prisma } from '@prisma/estoque-client';
 
-// O tipo esperado do req.user
+
 type AuthUser = {
   id: number;
   lojaId: number;
@@ -17,47 +17,48 @@ type AuthUser = {
 @Injectable()
 export class ComprasService {
   constructor(private estoqueDb: EstoqueDbService) {}
-
-  /**
-   * MUDANÇA: Lógica reescrita para ser compatível com o schema
-   */
+  
   async findAllToBuy(lojaId: number): Promise<Record<string, ProductToBuy[]>> {
     
-    // 1. Busca o estoque de todos os produtos da loja, incluindo os dados do produto e fornecedor
-    const estoquesDaLoja = await this.estoqueDb.estoqueLoja.findMany({
+    // 1. Busca o estoque de TODAS as lojas
+    const estoques = await this.estoqueDb.estoqueLoja.findMany({
       where: {
-        lojaId: lojaId,
-        produto: {
-          ativo: true, // Garante que o produto esteja ativo
-        },
+        produto: { ativo: true },
       },
       include: {
         produto: {
-          include: {
-            fornecedor: true, // Inclui o fornecedor
-          },
+          include: { fornecedor: true },
         },
       },
     });
 
-    // 2. Busca TODAS as distribuições pendentes/faltantes para esta loja
-    const distribuicoesPendentes =
-      await this.estoqueDb.compraDistribuicao.findMany({
-        where: {
-          lojaId: lojaId,
-          confirmadoEntrada: {
-            in: [EstadoEntrada.PENDENTE, EstadoEntrada.FALTANTE],
-          },
-        },
-        // Inclui o historicoCompra para sabermos a qual produtoId ele pertence
-        include: {
-          historicoCompra: {
-            select: { produtoId: true },
-          },
-        },
-      });
+    // 2. Agrupa o estoque por Produto (Soma as quantidades de todas as lojas)
+    const mapaProdutos = new Map<number, { produto: any; totalEstoque: number }>();
 
-    // 3. Mapeia as pendências para acesso rápido (ex: { 1: 50, 2: 10 })
+    for (const est of estoques) {
+      const pid = est.produtoId;
+      const atual = mapaProdutos.get(pid);
+      
+      if (atual) {
+        atual.totalEstoque += est.quantidadeEst;
+      } else {
+        mapaProdutos.set(pid, {
+          produto: est.produto,
+          totalEstoque: est.quantidadeEst
+        });
+      }
+    }
+
+    // 3. Busca o que já está comprado (Pendente)
+    const distribuicoesPendentes = await this.estoqueDb.compraDistribuicao.findMany({
+        where: {
+          confirmadoEntrada: { in: [EstadoEntrada.PENDENTE, EstadoEntrada.FALTANTE] },
+        },
+        include: {
+          historicoCompra: { select: { produtoId: true } },
+        },
+    });
+
     const pendenteMap = new Map<number, number>();
     for (const dist of distribuicoesPendentes) {
       const produtoId = dist.historicoCompra.produtoId;
@@ -65,15 +66,16 @@ export class ComprasService {
       pendenteMap.set(produtoId, totalAtual + dist.quantidade);
     }
 
-    // 4. Filtra a lista de produtos que realmente precisam de compra
+    // 4. Filtra o que precisa comprar
     const productsToBuy: ProductToBuy[] = [];
-    for (const estoque of estoquesDaLoja) {
-      const produto = estoque.produto;
-      const quantidadeEst = estoque.quantidadeEst;
+    
+    // Itera sobre os produtos únicos agrupados
+    for (const item of mapaProdutos.values()) {
+      const { produto, totalEstoque } = item;
       const quantidadePendente = pendenteMap.get(produto.id) ?? 0;
 
-      // A lógica de "precisa comprar"
-      if (quantidadeEst + quantidadePendente < produto.quantidadeMax) {
+      // Verifica se a soma de todas as lojas + pendente é menor que o máximo
+      if (totalEstoque + quantidadePendente < produto.quantidadeMax) {
         productsToBuy.push({
           id: produto.id,
           nome: produto.nome,
@@ -82,26 +84,21 @@ export class ComprasService {
           codigo: produto.codigo,
           quantidadeMin: produto.quantidadeMin,
           quantidadeMax: produto.quantidadeMax,
-          quantidadeEst: quantidadeEst,
+          quantidadeEst: totalEstoque, // Manda o total somado
           quantidadePendenteFaltante: quantidadePendente,
-          fornecedor: produto.fornecedor, // O objeto Fornecedor inteiro
+          fornecedor: produto.fornecedor,
         });
       }
     }
 
-    // 5. Agrupa a lista final por fornecedor (como o frontend espera)
     return this.groupProductsByFornecedor(productsToBuy);
   }
 
-  /**
-   * Registra uma nova compra (cria HistoricoCompra e CompraDistribuicao)
-   * Esta função assume que a compra é para a loja do próprio usuário.
-   */
+  
   async registerPurchase(dto: RegisterPurchaseDto, authUser: AuthUser) {
     const { productId, quantidade, precoTotal } = dto;
     const { id: userId, lojaId } = authUser;
 
-    // 1. Encontra o fornecedor do produto
     const produto = await this.estoqueDb.produto.findUnique({
       where: { id: productId },
       select: { fornecedorId: true },
@@ -111,26 +108,26 @@ export class ComprasService {
       throw new NotFoundException('Produto não encontrado.');
     }
 
-    // 2. Cria o Pedido Mestre e a Distribuição (para a loja do usuário) em uma transação
     return this.estoqueDb.$transaction(async (tx) => {
-      // Cria o HistoricoCompra (Pedido Mestre)
+      
       const novaCompra = await tx.historicoCompra.create({
         data: {
           produtoId: productId,
-          quantidade: quantidade, // Quantidade total comprada
-          precoTotal: precoTotal, // Preço total pago
-          responsavelId: userId, // Quem fez o pedido
+          quantidade: quantidade,
+          // MUDANÇA: Garante que se não vier preço, salva 0.0
+          precoTotal: precoTotal || 0.0, 
+          responsavelId: userId,
           fornecedorId: produto.fornecedorId,
         },
       });
 
-      // Cria a Distribuição (para onde vai o item)
+      // Cria a distribuição inicial (Pendente) para a loja de quem pediu
       await tx.compraDistribuicao.create({
         data: {
           historicoCompraId: novaCompra.id,
-          lojaId: lojaId, // Vai para a loja do usuário que registrou
-          quantidade: quantidade, // A quantidade total vai para esta loja
-          confirmadoEntrada: EstadoEntrada.PENDENTE, // Define como pendente
+          lojaId: lojaId, 
+          quantidade: quantidade,
+          confirmadoEntrada: EstadoEntrada.PENDENTE,
         },
       });
 
@@ -138,9 +135,7 @@ export class ComprasService {
     });
   }
 
-  /**
-   * Função auxiliar para agrupar os produtos por nome de fornecedor
-   */
+  
   private groupProductsByFornecedor(
     products: ProductToBuy[],
   ): Record<string, ProductToBuy[]> {

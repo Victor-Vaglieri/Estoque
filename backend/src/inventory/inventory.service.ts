@@ -27,6 +27,44 @@ export class InventarioService {
     private eventEmitter: EventEmitter2,
   ) {}
 
+
+  async findAllForInventory(lojaIdUsuario: number) {
+    const produtos = await this.estoqueDb.produto.findMany({
+      where: { ativo: true },
+      include: {
+        // Traz o estoque de todas as lojas para exibir na tabela
+        estoqueLojas: {
+            include: {
+                loja: { select: { id: true, nome: true } }
+            }
+        },
+      },
+      orderBy: { nome: 'asc' },
+    });
+
+    return produtos.map((p) => {
+      // Encontra o estoque específico da loja do usuário para edição
+      const estoqueAtual = p.estoqueLojas.find(e => e.lojaId === lojaIdUsuario);
+
+      return {
+        id: p.id,
+        nome: p.nome,
+        codigo: p.codigo,
+        marca: p.marca,
+        unidade: p.unidade,
+        quantidadeMin: p.quantidadeMin,
+        // Quantidade da loja do usuário (para referência do input)
+        quantidadeEst: estoqueAtual ? estoqueAtual.quantidadeEst : 0,
+        // Lista completa para as colunas dinâmicas
+        estoquePorLoja: p.estoqueLojas.map(e => ({
+            lojaId: e.lojaId,
+            nomeLoja: e.loja.nome,
+            quantidade: e.quantidadeEst
+        }))
+      };
+    });
+  }
+
   
   async findAllByLoja(lojaId: number) {
     const estoqueLojas = await this.estoqueDb.estoqueLoja.findMany({

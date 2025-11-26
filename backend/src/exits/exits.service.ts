@@ -78,22 +78,44 @@ export class ExitsService {
       });
 
       return novaSaida;
+    }, {
+        maxWait: 5000,
+        timeout: 10000
     });
   }
 
   
-  findAll(authUser: AuthUser) {
-    return this.estoqueDb.saida.findMany({
+  async findAll(authUser: AuthUser) {
+
+    const saidas = await this.estoqueDb.saida.findMany({
       where: {
-        
         lojaId: authUser.lojaId,
       },
       include: {
-        produto: true,
+        produto: {
+          include: {
+            
+            estoqueLojas: {
+              where: { lojaId: authUser.lojaId }
+            }
+          }
+        },
       },
       orderBy: {
         data: 'desc',
       },
+    });
+
+    return saidas.map((saida) => {
+      const estoqueAtual = saida.produto?.estoqueLojas[0]?.quantidadeEst ?? 0;
+      return {
+        ...saida,
+        produto: {
+          ...saida.produto,
+          quantidadeEst: estoqueAtual, 
+          estoqueLojas: undefined, 
+        },
+      };
     });
   }
 
@@ -109,25 +131,22 @@ export class ExitsService {
         throw new NotFoundException('Registro de saída não encontrado.');
       }
 
-      
       if (saidaOriginal.lojaId !== authUser.lojaId) {
         throw new ForbiddenException(
           'Você não tem permissão para editar este registro.',
         );
       }
 
-      
       const novaQuantidade = updateSaidaDto.quantidade;
-      if (
-        novaQuantidade &&
-        novaQuantidade !== saidaOriginal.quantidade
-      ) {
+      
+      
+      if (novaQuantidade !== undefined && novaQuantidade !== saidaOriginal.quantidade) {
         
         const estoqueLoja = await tx.estoqueLoja.findUnique({
           where: {
             produtoId_lojaId: {
               produtoId: saidaOriginal.produtoId,
-              lojaId: authUser.lojaId,
+              lojaId: saidaOriginal.lojaId,
             },
           },
         });
@@ -139,16 +158,18 @@ export class ExitsService {
         }
 
         
-        const diferencaEstoque =
-          novaQuantidade - saidaOriginal.quantidade;
+        const diferencaEstoque = novaQuantidade - saidaOriginal.quantidade;
 
-        
-        if (estoqueLoja.quantidadeEst < diferencaEstoque) {
-          throw new BadRequestException(
-            `Estoque insuficiente para esta alteração. Disponível: ${estoqueLoja.quantidadeEst}`,
-          );
+        if (diferencaEstoque > 0) {
+            if (estoqueLoja.quantidadeEst < diferencaEstoque) {
+                throw new BadRequestException(
+                  `Estoque insuficiente para adicionar mais ${diferencaEstoque} itens. Disponível: ${estoqueLoja.quantidadeEst}`,
+                );
+            }
         }
 
+        
+        
         
         await tx.estoqueLoja.update({
           where: {
@@ -163,7 +184,6 @@ export class ExitsService {
         });
       }
 
-      
       return tx.saida.update({
         where: { id },
         data: updateSaidaDto,
