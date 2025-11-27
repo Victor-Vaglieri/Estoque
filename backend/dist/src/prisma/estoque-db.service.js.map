@@ -1,0 +1,1 @@
+{"version":3,"file":"estoque-db.service.js","sourceRoot":"","sources":["../../../src/prisma/estoque-db.service.ts"],"names":[],"mappings":";;;;;;;;;AACA,2CAA0D;AAC1D,2DAAuE;AAGhE,IAAM,gBAAgB,GAAtB,MAAM,gBAAiB,SAAQ,6BAAa;IACjD,KAAK,CAAC,YAAY;QAChB,MAAM,IAAI,CAAC,QAAQ,EAAE,CAAC;IACxB,CAAC;CACF,CAAA;AAJY,4CAAgB;2BAAhB,gBAAgB;IAD5B,IAAA,mBAAU,GAAE;GACA,gBAAgB,CAI5B"}
