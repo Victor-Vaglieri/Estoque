@@ -83,7 +83,7 @@ export default function PerfisPage() {
     const fetchData = async () => {
         setIsLoading(true);
         clearFeedback();
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (!token) {
             router.push('/login');
             return;
@@ -143,7 +143,7 @@ export default function PerfisPage() {
             return;
         }
         
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         const method = fornecedorEditing ? 'PATCH' : 'POST';
         const url = fornecedorEditing 
             ? `${process.env.NEXT_PUBLIC_API_URL}/perfis/fornecedores/${fornecedorEditing.id}`
@@ -171,7 +171,7 @@ export default function PerfisPage() {
         if (!window.confirm("Tem certeza que deseja excluir este fornecedor?")) return;
         
         setIsSubmitting(id);
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/fornecedores/${id}`, {
@@ -208,7 +208,7 @@ export default function PerfisPage() {
         if (selectedFuncoes.length === 0) { setError("Selecione pelo menos uma função."); return; }
         if (!selectedLojaId) { setError("Selecione uma loja para o usuário."); return; }
         setIsSubmitting(solicitacaoParaAprovar.id);
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/aprovar/${solicitacaoParaAprovar.id}`, {
                 method: 'POST',
@@ -224,7 +224,7 @@ export default function PerfisPage() {
     const handleRejeitar = async (cadastroId: number) => {
         if (!window.confirm('Rejeitar solicitação permanentemente?')) return;
         setIsSubmitting(cadastroId);
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         try {
             await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/rejeitar/${cadastroId}`, {
                 method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` },
@@ -258,7 +258,7 @@ export default function PerfisPage() {
         if (editForm.funcoes.length === 0) { setError("O usuário deve ter pelo menos uma função."); return; }
         if (!editForm.lojaId) { setError("O usuário deve estar associado a uma loja."); return; }
         setIsSubmitting(usuarioParaEditar.id);
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         try {
             const payload: any = { nome: editForm.nome, login: editForm.login, lojaId: parseInt(editForm.lojaId), funcoes: editForm.funcoes };
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/usuario/${usuarioParaEditar.id}`, {
@@ -274,7 +274,7 @@ export default function PerfisPage() {
         if (userId === currentUserId) { setError("Você não pode remover a si mesmo."); return; }
         if (!window.confirm("Tem certeza que deseja remover este usuário?")) return;
         setIsSubmitting(userId);
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/usuario/${userId}`, {
                 method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` },

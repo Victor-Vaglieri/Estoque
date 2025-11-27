@@ -47,7 +47,7 @@ export default function SaidasEstoquePage() {
 
     // --- CARREGAMENTO DE DADOS ---
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (!token) {
             router.push('/login');
             return;
@@ -189,7 +189,7 @@ export default function SaidasEstoquePage() {
         }
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const headers = {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',

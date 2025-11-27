@@ -80,7 +80,7 @@ export default function AvisosPage() {
 
   const fetchAlertas = async () => {
     clearFeedback();
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
 
     setIsLoading(true);
@@ -100,7 +100,7 @@ export default function AvisosPage() {
   };
 
   const fetchUsuarios = async () => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) return;
 
     try {
@@ -204,7 +204,7 @@ export default function AvisosPage() {
     e.preventDefault();
     setIsSubmitting(true);
     clearFeedback();
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) { router.push('/login'); setIsSubmitting(false); return; }
 
     const method = isEditing ? 'PATCH' : 'POST';
@@ -257,7 +257,7 @@ export default function AvisosPage() {
     if (!confirm("Tem certeza que deseja excluir este aviso?")) return;
 
     clearFeedback();
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
 
     try {
@@ -278,7 +278,7 @@ export default function AvisosPage() {
 
   const handleToggleConcluido = async (alerta: Alerta) => {
     clearFeedback();
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) { router.push('/login'); return; }
 
     const newStatus = !alerta.concluido;

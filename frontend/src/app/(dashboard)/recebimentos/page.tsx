@@ -58,7 +58,7 @@ export default function RecebimentosPage() {
     const fetchPendingReceipts = async () => {
         setIsLoading(true);
         clearFeedback();
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (!token) {
             router.push('/login');
             return;
@@ -115,7 +115,7 @@ export default function RecebimentosPage() {
         clearFeedback();
         setIsSubmittingMap(prev => ({ ...prev, [receiptId]: true }));
 
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (!token) {
             router.push('/login');
             setIsSubmittingMap(prev => ({ ...prev, [receiptId]: false }));

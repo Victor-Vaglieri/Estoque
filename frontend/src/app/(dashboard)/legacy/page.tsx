@@ -144,7 +144,7 @@ export default function LegacyFormPage() {
         const url = `${process.env.NEXT_PUBLIC_API_URL}/legacy/${tipo.toLowerCase()}`;
         try {
             
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             if (!token) {
                 router.push('/login');
                 return;
@@ -218,7 +218,7 @@ export default function LegacyFormPage() {
 
         try {
             
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             if (!token) {
                 router.push('/login');
                 return;
@@ -297,7 +297,7 @@ export default function LegacyFormPage() {
         };
         try {
             
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             if (!token) {
                 router.push('/login');
                 setIsSaving(false); 

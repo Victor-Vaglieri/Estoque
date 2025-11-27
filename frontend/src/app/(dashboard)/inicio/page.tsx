@@ -46,11 +46,11 @@ export default function DashboardHomePage() {
   useEffect(() => {
     
     const fetchDashboardData = async () => {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         setError("Usuário não autenticado.");
         setIsLoading(false);
-        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
         router.push('/login');
         return;
       }
