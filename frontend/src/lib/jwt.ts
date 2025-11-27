@@ -24,6 +24,7 @@ export function decodeToken(token: string | null): UserData | null {
     }
 
     return {
+      id: payload.sub,
       sub: payload.sub,
       login: payload.username,
       funcoes: Array.isArray(payload.funcoes) ? payload.funcoes : [],
