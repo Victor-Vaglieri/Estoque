@@ -13,7 +13,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
     JwtModule.register({
       global: true,
       secret: JWT_SECRET,
-      signOptions: { expiresIn: '7d' },
+      signOptions: { expiresIn: '5d' },
     }),
   ],
   controllers: [AuthController],
