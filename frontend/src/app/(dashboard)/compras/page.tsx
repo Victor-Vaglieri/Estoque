@@ -43,7 +43,7 @@ export default function ComprasPage() {
   const fetchProductsToBuy = async () => {
     setIsLoading(true);
     clearFeedback();
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) {
       router.push('/login');
       return;
@@ -79,7 +79,7 @@ export default function ComprasPage() {
     clearFeedback();
     setSubmittingSupplier(fornecedorNome);
 
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) {
       router.push('/login');
       return;

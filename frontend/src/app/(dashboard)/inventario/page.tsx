@@ -54,7 +54,7 @@ export default function InventarioPage() {
             clearFeedback();
             setEditedQuantities({});
 
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             if (!token) {
                 router.push('/login');
                 return;
@@ -94,7 +94,7 @@ export default function InventarioPage() {
     const handleSaveChanges = async () => {
         setIsSaving(true);
         clearFeedback();
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (!token) {
             router.push('/login');
             setIsSaving(false);

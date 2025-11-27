@@ -16,13 +16,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (token) {
         const decodedUser = decodeToken(token);
         if (decodedUser) {
           setUser(decodedUser);
         } else {
-          localStorage.removeItem('token');
+          sessionStorage.removeItem('token');
         }
       }
     } catch (error) {
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []); 
 
   const login = (token: string) => {
-    localStorage.setItem('token', token);
+    sessionStorage.setItem('token', token);
     const decodedUser = decodeToken(token);
     console.log("Token recebido pelo AuthContext:", token);
     if (decodedUser) {
@@ -42,12 +42,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       router.push('/'); 
     } else {
       console.error("Token recebido no login é inválido.");
-      localStorage.removeItem('token');
+      sessionStorage.removeItem('token');
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
     setUser(null);
     router.push('/login');
   };

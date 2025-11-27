@@ -49,11 +49,11 @@ export default function ProductsHomePage() {
     const [showCreateForm, setShowCreateForm] = useState(false);
 
     const fetchProductsData = async () => {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (!token) {
             setError("Usuário não autenticado.");
             setIsLoading(false);
-            localStorage.removeItem('token');
+            sessionStorage.removeItem('token');
             router.push('/login');
             return;
         }
@@ -113,7 +113,7 @@ export default function ProductsHomePage() {
     const handleUpdateProduct = async (event: React.FormEvent<HTMLFormElement>, productId: number) => {
         event.preventDefault();
         setError(null); 
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         
         const formData = new FormData(event.currentTarget);
 
@@ -152,7 +152,7 @@ export default function ProductsHomePage() {
     const handleCreateProduct = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setError(null);
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         const formData = new FormData(event.currentTarget);
         
         const lojaIdValue = formData.get('lojaId');

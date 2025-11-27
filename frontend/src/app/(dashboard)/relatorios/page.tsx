@@ -49,7 +49,7 @@ export default function RelatoriosPage() {
     const fetchReportData = async () => {
         setIsLoading(true);
         setError(null);
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (!token) {
             router.push('/login');
             return;
@@ -100,7 +100,7 @@ export default function RelatoriosPage() {
             }
             fetchReportData();
         } else {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             if (!token) {
                 router.push('/login');
             }
@@ -112,7 +112,7 @@ export default function RelatoriosPage() {
     const handleDownloadXLSX = async (reportType: 'controle' | 'fornecedores') => {
         setIsDownloading(true);
         setError(null);
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (!token) {
             router.push('/login');
             setIsDownloading(false);

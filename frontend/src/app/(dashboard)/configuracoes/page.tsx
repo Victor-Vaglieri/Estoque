@@ -45,7 +45,7 @@ export default function ConfiguracoesPage() {
         clearFeedback();
         setIsSubmitting(true);
 
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (!token) {
             router.push('/login');
             return;
@@ -91,7 +91,7 @@ export default function ConfiguracoesPage() {
         }
 
         setIsSubmitting(true);
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (!token) {
             router.push('/login');
             return;

@@ -12,7 +12,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!loading) {
-      if (user) {
+      if (user && sessionStorage.getItem('token')) {
         router.replace('/inicio');
       } else {
         router.replace('/login');
