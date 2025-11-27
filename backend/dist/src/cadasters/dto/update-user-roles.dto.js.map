@@ -1,1 +1,0 @@
-{"version":3,"file":"update-user-roles.dto.js","sourceRoot":"","sources":["../../../../src/cadasters/dto/update-user-roles.dto.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,qDAAkD;AAElD,6DAAiD;AAEjD,MAAa,kBAAkB;IAM3B,OAAO,CAAW;CACrB;AAPD,gDAOC;AADG;IALC,IAAA,yBAAO,GAAE;IACT,IAAA,wBAAM,EAAC,wBAAM,EAAE;QACZ,IAAI,EAAE,IAAI;QACV,OAAO,EAAE,wEAAwE;KACpF,CAAC;;mDACgB"}
