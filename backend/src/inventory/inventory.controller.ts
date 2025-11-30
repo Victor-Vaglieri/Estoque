@@ -26,6 +26,7 @@ export class InventarioController {
   @Get()
   findAll(@Req() req) {
     const authUser = req.user as AuthUser;
+    console.log('InventoryController - User Loja ID:', authUser.lojaId);
     if (!authUser?.lojaId) {
       throw new ForbiddenException('Usuário não associado a uma loja.');
     }

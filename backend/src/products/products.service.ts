@@ -19,7 +19,7 @@ export class ProductsService {
   }
 
   async findAll(lojaId: number) {
-    
+    console.log('Loja ID recebida em ProductsService:', lojaId);
     const idLojaUsuario = Number(lojaId);
 
     const produtos = await this.estoqueDb.produto.findMany({
@@ -34,8 +34,6 @@ export class ProductsService {
     return produtos.map((produto) => {
       
       const estoqueDaLojaAtual = produto.estoqueLojas.find(e => e.lojaId === idLojaUsuario);
-      
-      
       const qualquerEstoque = produto.estoqueLojas[0];
 
       return {
