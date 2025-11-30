@@ -34,6 +34,7 @@ export class ProductsController {
   @Get()
   async getProducts(@Req() req) {
     const authUser = req.user as AuthUser;
+    console.log('ServiceController - User Loja ID:', authUser.lojaId);
     if (!authUser?.lojaId) {
       throw new ForbiddenException('Usuário não associado a uma loja.');
     }
