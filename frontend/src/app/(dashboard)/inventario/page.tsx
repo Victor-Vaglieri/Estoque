@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
-
 import './inventario.css';
 
 interface Product {
@@ -11,14 +10,14 @@ interface Product {
     nome: string;
     unidade: string;
     marca: string | null;
-    codigo: string | null; 
-    quantidadeEst: number; 
+    codigo: string | null;
+    quantidadeEst: number;
     quantidadeMin: number;
 }
 
 type SortConfig = {
-    key: keyof Product | null; 
-    direction: 'ascending' | 'descending'; 
+    key: keyof Product | null;
+    direction: 'ascending' | 'descending';
 } | null;
 
 export default function InventarioPage() {
@@ -34,15 +33,12 @@ export default function InventarioPage() {
     
     const [sortConfig, setSortConfig] = useState<SortConfig>(null);
 
-    const clearFeedback = () => {
-        setError(null);
-        setSuccess(null);
-    }
+    const clearFeedback = () => { setError(null); setSuccess(null); }
 
     useEffect(() => {
         const loadData = async () => {
             if (user) {
-                if (!Array.isArray(user?.funcoes) || !user.funcoes.some((f: string) => f === 'INVENTARIO' || f === 'GESTOR')) {
+                if (!Array.isArray(user?.funcoes) || !user.funcoes.some(f => f === 'INVENTARIO' || f === 'GESTOR')) {
                     router.push('/inicio');
                     return;
                 }
@@ -68,7 +64,7 @@ export default function InventarioPage() {
 
                 if (!response.ok) {
                     let errorMsg = 'Falha ao carregar o inventário.';
-                    try { const errorData = await response.json(); errorMsg = errorData.message || errorMsg; } catch (e) {  }
+                    try { const errorData = await response.json(); errorMsg = errorData.message || errorMsg; } catch (e) { }
                     throw new Error(errorMsg);
                 }
                 const data: Product[] = await response.json();
@@ -108,11 +104,12 @@ export default function InventarioPage() {
                 const originalProduct = products.find(p => p.id === produtoId);
 
                 if (!isNaN(newQuantity) && newQuantity >= 0 && originalProduct && newQuantity !== originalProduct.quantidadeEst) {
+                    // Importante: O backend espera 'produtoId' (conforme corrigimos antes)
                     return { produtoId, newQuantity };
                 }
                 return null;
             })
-            .filter(update => update !== null) as { produtoId: number, newQuantity: number }[];
+            .filter(update => update !== null);
 
         if (updates.length === 0) {
             setSuccess("Nenhuma alteração para salvar.");
@@ -129,7 +126,7 @@ export default function InventarioPage() {
 
             if (!response.ok) {
                 let errorMsg = 'Falha ao salvar o inventário.';
-                try { const errorData = await response.json(); errorMsg = errorData.message || errorMsg; } catch (e) {  }
+                try { const errorData = await response.json(); errorMsg = errorData.message || errorMsg; } catch (e) { }
                 throw new Error(errorMsg);
             }
 
@@ -138,7 +135,7 @@ export default function InventarioPage() {
             setIsLoading(true);
             const refetchResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inventario`, {
                 method: 'GET',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                headers: { 'Authorization': `Bearer ${token}` },
             });
             if (refetchResponse.ok) {
                 const data: Product[] = await refetchResponse.json();
@@ -203,7 +200,6 @@ export default function InventarioPage() {
 
             {error && !isLoading && <p className="inventario-message inventario-error">{error}</p>}
             {success && <p className="inventario-message inventario-success">{success}</p>}
-
             {isLoading && <p>Carregando inventário...</p>}
 
             {!isLoading && products.length === 0 && !error && (
@@ -218,33 +214,18 @@ export default function InventarioPage() {
                     <table className="inventario-table">
                         <thead>
                             <tr>
-                                <th>
-                                    <button type="button" onClick={() => requestSort('nome')} className={`sort-button ${getSortDirectionClass('nome')}`}>
-                                        Nome
-                                    </button>
-                                </th>
-                                <th>
-                                    <button type="button" onClick={() => requestSort('marca')} className={`sort-button ${getSortDirectionClass('marca')}`}>
-                                        Marca
-                                    </button>
-                                </th>
-                                <th>
-                                    <button type="button" onClick={() => requestSort('unidade')} className={`sort-button ${getSortDirectionClass('unidade')}`}>
-                                        Unidade
-                                    </button>
-                                </th>
-                                {/* --- MUDANÇA: Nova Coluna --- */}
+                                <th><button type="button" onClick={() => requestSort('nome')} className={`sort-button ${getSortDirectionClass('nome')}`}>Nome</button></th>
+                                <th><button type="button" onClick={() => requestSort('marca')} className={`sort-button ${getSortDirectionClass('marca')}`}>Marca</button></th>
+                                <th><button type="button" onClick={() => requestSort('unidade')} className={`sort-button ${getSortDirectionClass('unidade')}`}>Un</button></th>
+                                
+                                {/* NOVA COLUNA DE ESTOQUE ATUAL (SISTEMA) */}
                                 <th>
                                     <button type="button" onClick={() => requestSort('quantidadeEst')} className={`sort-button ${getSortDirectionClass('quantidadeEst')}`}>
-                                        Estoque Atual (Sistema)
+                                        Estoque Atual
                                     </button>
                                 </th>
-                                {/* -------------------------- */}
-                                <th>
-                                    <button type="button" onClick={() => requestSort('quantidadeMin')} className={`sort-button ${getSortDirectionClass('quantidadeMin')}`}>
-                                        Mínimo
-                                    </button>
-                                </th>
+                                
+                                <th><button type="button" onClick={() => requestSort('quantidadeMin')} className={`sort-button ${getSortDirectionClass('quantidadeMin')}`}>Mínimo</button></th>
                                 <th>Quantidade Contada</th>
                             </tr>
                         </thead>
@@ -259,11 +240,10 @@ export default function InventarioPage() {
                                         <td data-label="Marca">{product.marca || '-'}</td>
                                         <td data-label="Unidade">{product.unidade}</td>
                                         
-                                        {/* --- MUDANÇA: Exibindo Estoque Atual --- */}
-                                        <td data-label="Estoque Atual" style={{ fontWeight: 'bold' }}>
+                                        {/* VALOR DO ESTOQUE ATUAL (SISTEMA) */}
+                                        <td data-label="Estoque Atual" style={{ fontWeight: 'bold', color: 'var(--primary)' }}>
                                             {product.quantidadeEst}
                                         </td>
-                                        {/* ------------------------------------- */}
 
                                         <td data-label="Estoque Mínimo">{product.quantidadeMin}</td>
                                         <td data-label="Qtd. Contada">
