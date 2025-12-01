@@ -4,7 +4,8 @@ import { useState, useEffect, FormEvent, ChangeEvent, useMemo } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
-import './avisos.css';
+// 1. Importação do CSS Module
+import styles from './avisos.module.css';
 
 enum Importancia {
   BAIXA = 'BAIXA',
@@ -19,7 +20,6 @@ interface User {
   role: string;
 }
 
-// Interface atualizada conforme o novo Schema do Prisma
 interface AlertaDestinatarioRelation {
   userId: number;
 }
@@ -32,13 +32,9 @@ interface Alerta {
   concluido: boolean;
   createdAt: string;
   finishedAt?: string | null;
-
-  // Novos campos do schema
   criadorId: number;
   criadorNome: string;
   lojaId: number;
-
-  // Relacionamento
   destinatarios: AlertaDestinatarioRelation[];
 }
 
@@ -46,8 +42,8 @@ interface AlertaFormData {
   titulo: string;
   descricao: string;
   importancia: Importancia;
-  isPublico: boolean; // Controle visual para facilitar
-  destinatariosIds: number[]; // Array de IDs selecionados
+  isPublico: boolean;
+  destinatariosIds: number[];
 }
 
 const initialFormData: AlertaFormData = {
@@ -148,7 +144,6 @@ export default function AvisosPage() {
       return;
     }
 
-    // Mapeia os destinatários vindos do banco para o array de IDs do form
     const idsExistentes = alerta.destinatarios.map(d => d.userId);
     const isPublic = idsExistentes.length === 0;
 
@@ -176,7 +171,6 @@ export default function AvisosPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Função específica para alternar checkboxes de usuários
   const toggleDestinatario = (userId: number) => {
     setFormData(prev => {
       const exists = prev.destinatariosIds.includes(userId);
@@ -190,13 +184,12 @@ export default function AvisosPage() {
     });
   };
 
-  // Alternar entre Público e Específico
   const handlePublicToggle = (e: ChangeEvent<HTMLInputElement>) => {
     const isChecked = e.target.checked;
     setFormData(prev => ({
       ...prev,
       isPublico: isChecked,
-      destinatariosIds: isChecked ? [] : prev.destinatariosIds // Limpa IDs se for público
+      destinatariosIds: isChecked ? [] : prev.destinatariosIds
     }));
   };
 
@@ -212,8 +205,6 @@ export default function AvisosPage() {
       ? `${process.env.NEXT_PUBLIC_API_URL}/avisos/${isEditing}`
       : `${process.env.NEXT_PUBLIC_API_URL}/avisos`;
 
-    // Se for público, enviamos array vazio (assumindo lógica do backend)
-    // Se não for, enviamos os IDs selecionados
     const destinatariosPayload = formData.isPublico ? [] : formData.destinatariosIds;
 
     if (!formData.isPublico && destinatariosPayload.length === 0) {
@@ -226,7 +217,7 @@ export default function AvisosPage() {
       titulo: formData.titulo,
       descricao: formData.descricao,
       importancia: formData.importancia,
-      destinatarios: destinatariosPayload, // Enviando array de IDs
+      destinatarios: destinatariosPayload,
     };
 
     try {
@@ -252,8 +243,6 @@ export default function AvisosPage() {
   };
 
   const handleDelete = async (id: number) => {
-    // Nota: Removido verificação de criadorId aqui para simplificar, 
-    // o backend deve validar se o usuário pode deletar.
     if (!confirm("Tem certeza que deseja excluir este aviso?")) return;
 
     clearFeedback();
@@ -319,22 +308,23 @@ export default function AvisosPage() {
   }, [alertas, sortCriteria]);
 
   return (
-    <>
-      <div className="page-header-avisos">
-        <h1 className="page-title-avisos">Quadro de Avisos</h1>
-        <button className="btn-primary" onClick={handleAddClick} disabled={showForm}>
+    // 2. Wrapper para escopo
+    <div className={styles['main-wrapper']}>
+      <div className={styles['page-header-avisos']}>
+        <h1 className={styles['page-title-avisos']}>Quadro de Avisos</h1>
+        <button className={styles['btn-primary']} onClick={handleAddClick} disabled={showForm}>
           + Adicionar Aviso
         </button>
       </div>
 
-      {error && <p className="avisos-message avisos-error">{error}</p>}
-      {success && <p className="avisos-message avisos-success">{success}</p>}
+      {error && <p className={`${styles['avisos-message']} ${styles['avisos-error']}`}>{error}</p>}
+      {success && <p className={`${styles['avisos-message']} ${styles['avisos-success']}`}>{success}</p>}
 
       {/* --- Formulário --- */}
       {showForm && (
-        <div className="avisos-form-container">
-          <h2 className="form-title">{isEditing ? 'Editar Aviso' : 'Novo Aviso'}</h2>
-          <form onSubmit={handleFormSubmit} className="avisos-form">
+        <div className={styles['avisos-form-container']}>
+          <h2 className={styles['form-title']}>{isEditing ? 'Editar Aviso' : 'Novo Aviso'}</h2>
+          <form onSubmit={handleFormSubmit} className={styles['avisos-form']}>
             <label>
               Título:
               <input name="titulo" type="text" value={formData.titulo} onChange={handleFormChange} required maxLength={100} />
@@ -344,7 +334,7 @@ export default function AvisosPage() {
               <textarea name="descricao" value={formData.descricao} onChange={handleFormChange} required rows={4} />
             </label>
 
-            <div className="form-row">
+            <div className={styles['form-row']}>
               <label style={{ flex: '0 0 150px' }}>
                 Importância:
                 <select name="importancia" value={formData.importancia} onChange={handleFormChange}>
@@ -355,12 +345,11 @@ export default function AvisosPage() {
               </label>
             </div>
 
-            {/* Seção de Destinatários Melhorada */}
-            <div className="destinatarios-section">
+            <div className={styles['destinatarios-section']}>
               <label>Destinatários:</label>
 
               <div style={{ marginBottom: '0.5rem' }}>
-                <label className="checkbox-option">
+                <label className={styles['checkbox-option']}>
                   <input
                     type="checkbox"
                     checked={formData.isPublico}
@@ -371,9 +360,9 @@ export default function AvisosPage() {
               </div>
 
               {!formData.isPublico && (
-                <div className="users-checklist">
+                <div className={styles['users-checklist']}>
                   {usuariosList.map((usuario) => (
-                    <label key={usuario.id} className="user-checkbox-item">
+                    <label key={usuario.id} className={styles['user-checkbox-item']}>
                       <input
                         type="checkbox"
                         checked={formData.destinatariosIds.includes(usuario.id)}
@@ -386,11 +375,11 @@ export default function AvisosPage() {
               )}
             </div>
 
-            <div className="form-actions">
-              <button type="submit" className="btn-primary" disabled={isSubmitting}>
+            <div className={styles['form-actions']}>
+              <button type="submit" className={styles['btn-primary']} disabled={isSubmitting}>
                 {isSubmitting ? 'Salvando...' : (isEditing ? 'Atualizar' : 'Criar')}
               </button>
-              <button type="button" className="btn-secondary" onClick={handleCancelForm} disabled={isSubmitting}>
+              <button type="button" className={styles['btn-secondary']} onClick={handleCancelForm} disabled={isSubmitting}>
                 Cancelar
               </button>
             </div>
@@ -402,11 +391,16 @@ export default function AvisosPage() {
       {isLoading && <p>Carregando avisos...</p>}
 
       {!isLoading && (
-        <div className="avisos-list-container">
+        <div className={styles['avisos-list-container']}>
           {alertas.length > 0 && (
-            <div className="sort-selector-container">
+            <div className={styles['sort-selector-container']}>
               <label htmlFor="sort-avisos">Ordenar por:</label>
-              <select id="sort-avisos" className="sort-selector" value={sortCriteria} onChange={(e) => setSortCriteria(e.target.value as SortCriteria)}>
+              <select 
+                id="sort-avisos" 
+                className={styles['sort-selector']} 
+                value={sortCriteria} 
+                onChange={(e) => setSortCriteria(e.target.value as SortCriteria)}
+              >
                 <option value="recentes">Mais Recentes</option>
                 <option value="antigos">Mais Antigos</option>
                 <option value="importancia">Importância</option>
@@ -415,27 +409,34 @@ export default function AvisosPage() {
           )}
 
           {alertas.length === 0 && !error && (
-            <p className="no-avisos-message">Nenhum aviso encontrado.</p>
+            <p className={styles['no-avisos-message']}>Nenhum aviso encontrado.</p>
           )}
 
           {sortedAlertas.length > 0 && (
-            <div className="avisos-grid">
+            <div className={styles['avisos-grid']}>
               {sortedAlertas.map((alerta) => {
                 const isPublic = !alerta.destinatarios || alerta.destinatarios.length === 0;
+                
+                // 3. Classes Dinâmicas
+                const importanciaClass = styles[`importancia-${alerta.importancia.toLowerCase()}`];
+                const concluidoClass = alerta.concluido ? styles['concluido'] : '';
+                const badgeClass = styles[`badge-${alerta.importancia.toLowerCase()}`];
+                const toggleBtnClass = alerta.concluido ? styles['btn-reabrir'] : styles['btn-concluir'];
+
                 return (
-                  <div key={alerta.id} className={`aviso-card importancia-${alerta.importancia.toLowerCase()} ${alerta.concluido ? 'concluido' : ''}`}>
-                    <div className="aviso-header">
-                      <h3 className="aviso-title">{alerta.titulo}</h3>
-                      <span className={`aviso-badge badge-${alerta.importancia.toLowerCase()}`}>{alerta.importancia}</span>
+                  <div key={alerta.id} className={`${styles['aviso-card']} ${importanciaClass} ${concluidoClass}`}>
+                    <div className={styles['aviso-header']}>
+                      <h3 className={styles['aviso-title']}>{alerta.titulo}</h3>
+                      <span className={`${styles['aviso-badge']} ${badgeClass}`}>{alerta.importancia}</span>
                     </div>
 
-                    <p className="aviso-descricao">{alerta.descricao}</p>
+                    <p className={styles['aviso-descricao']}>{alerta.descricao}</p>
 
-                    <div className="aviso-footer">
-                      <div className="aviso-meta">
-                        <span className="aviso-creator">Por: <strong>{alerta.criadorNome}</strong></span>
-                        <span className="aviso-date">{new Date(alerta.createdAt).toLocaleDateString()}</span>
-                        <div className="aviso-targets" style={{ fontSize: '0.8rem', marginTop: '4px', color: 'var(--text-secondary)' }}>
+                    <div className={styles['aviso-footer']}>
+                      <div className={styles['aviso-meta']}>
+                        <span className={styles['aviso-creator']}>Por: <strong>{alerta.criadorNome}</strong></span>
+                        <span className={styles['aviso-date']}>{new Date(alerta.createdAt).toLocaleDateString()}</span>
+                        <div className={styles['aviso-targets']} style={{ fontSize: '0.8rem', marginTop: '4px', color: 'var(--text-secondary)' }}>
                           {isPublic ? (
                             <span>🌍 Para: Todos (Público)</span>
                           ) : (
@@ -444,23 +445,23 @@ export default function AvisosPage() {
                         </div>
                       </div>
 
-                      <div className="aviso-actions">
+                      <div className={styles['aviso-actions']}>
                         <button
-                          className="btn-aviso btn-remover"
+                          className={`${styles['btn-aviso']} ${styles['btn-remover']}`}
                           onClick={() => handleDelete(alerta.id)}
                           disabled={showForm}
                         >
                           Remover
                         </button>
                         <button
-                          className="btn-aviso btn-editar"
+                          className={`${styles['btn-aviso']} ${styles['btn-editar']}`}
                           onClick={() => handleEditClick(alerta)}
                           disabled={showForm || alerta.concluido}
                         >
                           Editar
                         </button>
                         <button
-                          className={`btn-aviso btn-toggle-status ${alerta.concluido ? 'btn-reabrir' : 'btn-concluir'}`}
+                          className={`${styles['btn-aviso']} ${styles['btn-toggle-status']} ${toggleBtnClass}`}
                           onClick={() => handleToggleConcluido(alerta)}
                         >
                           {alerta.concluido ? 'Reabrir' : 'Concluir'}
@@ -468,7 +469,7 @@ export default function AvisosPage() {
                       </div>
                     </div>
                     {alerta.finishedAt && (
-                      <span className="aviso-finished-date">
+                      <span className={styles['aviso-finished-date']}>
                         Concluído em: {new Date(alerta.finishedAt).toLocaleDateString()}
                       </span>
                     )}
@@ -479,6 +480,6 @@ export default function AvisosPage() {
           )}
         </div>
       )}
-    </>
+    </div>
   );
 }

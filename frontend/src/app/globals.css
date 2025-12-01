@@ -71,38 +71,123 @@
 
 /* Quando o link está ativo (página atual) */
 .nav-link.active .sidebar-icon {
-  color: var(--primary); /* Cor do tema (azul) */
+  color: var(--primary);
+  /* Cor do tema (azul) */
 }
 
 /* (Opcional) Quando passa o mouse no link */
 .nav-link:hover .sidebar-icon {
-  color: var(--text-primary); /* Ou use var(--primary) se preferir */
+  color: var(--text-primary);
+  /* Ou use var(--primary) se preferir */
 }
 
 :root {
   /* Cores de Fundo (Agora com 'Zinc' - neutro) */
-  --background-page: #f4f4f5; /* Zinc-100 */
-  --background-surface: #ffffff; /* White */
-  --background-header-table: #fafafa; /* Zinc-50 */
-  --nav-link-background: #e4e4e7; /* Zinc-200 */
+  --background-page: #f4f4f5;
+  /* Zinc-100 */
+  --background-surface: #ffffff;
+  /* White */
+  --background-header-table: #fafafa;
+  /* Zinc-50 */
+  --nav-link-background: #e4e4e7;
+  /* Zinc-200 */
 
   /* Cores de Texto (Agora com 'Zinc' - neutro) */
-  --text-primary: #27272a; /* Zinc-800 */
-  --text-secondary: #71717a; /* Zinc-500 */
-  --text-tertiary: #52525b; /* Zinc-600 */
+  --text-primary: #27272a;
+  /* Zinc-800 */
+  --text-secondary: #71717a;
+  /* Zinc-500 */
+  --text-tertiary: #52525b;
+  /* Zinc-600 */
   --text-on-primary-button: #ffffff;
 
   /* Cores de Ação (Mantidas) */
-  --primary: #2563eb; /* Blue-600 */
-  --primary-hover: #1d4ed8; /* Blue-700 */
-  --primary-focus: #3b82f6; /* Blue-500 */
+  --primary: #2563eb;
+  /* Blue-600 */
+  --primary-hover: #1d4ed8;
+  /* Blue-700 */
+  --primary-focus: #3b82f6;
+  /* Blue-500 */
 
   /* Cores de UI (Agora com 'Zinc' - neutro) */
-  --border-color: #d4d4d8; /* Zinc-300 */
-  --eye-color: #27272a; /* Zinc-800 */
+  --border-color: #d4d4d8;
+  /* Zinc-300 */
+  --eye-color: #27272a;
+  /* Zinc-800 */
   --shadow-color: rgba(0, 0, 0, 0.1);
-  --error-color: #ef4444; /* Red-500 */
-  --sucess-color: #16a34a; /* Green-600 */
+  --error-color: #ef4444;
+  /* Red-500 */
+  --sucess-color: #16a34a;
+  /* Green-600 */
+
+  --background-page: #f4f4f5;
+  --background-surface: #ffffff;
+  --background-header-table: #fafafa;
+  --nav-link-background: #e4e4e7;
+
+
+  --text-primary: #27272a;
+  --text-secondary: #71717a;
+  --text-tertiary: #52525b;
+  --text-on-primary-button: #ffffff;
+
+
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-focus: #3b82f6;
+
+
+  --border-color: #d4d4d8;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --error-color: #ef4444;
+  --sucess-color: #16a34a;
+
+
+
+
+  --sucess-hover: #15803d;
+  --error-hover: #dc2626;
+
+  --primary-focus-shadow: rgba(59, 130, 246, 0.25);
+
+
+  --neutral-button-bg: var(--nav-link-background);
+  --neutral-button-hover: var(--border-color);
+
+
+  --shadow: 0 4px 12px var(--shadow-color);
+  --border-radius: 8px;
+
+  --role-gestor-bg: #fef2f2;
+  --role-gestor-text: #b91c1c;
+  --role-gestor-border: #fecaca;
+  --role-funcionario-bg: #f0fdf4;
+  --role-funcionario-text: #15803d;
+  --role-funcionario-border: #bbf7d0;
+  --role-terceiros-bg: #faf5ff;
+  --role-terceiros-text: #7e22ce;
+  --role-terceiros-border: #e9d5ff;
+  --role-saida-bg: #fff7ed;
+  --role-saida-text: #c2410c;
+  --role-saida-border: #fed7aa;
+  --role-recebimento-bg: #fffbeb;
+  --role-recebimento-text: #b45309;
+  --role-recebimento-border: #fde68a;
+  --role-inventario-bg: #f0fdfa;
+  --role-inventario-text: #0f766e;
+  --role-inventario-border: #ccfbf1;
+  --role-avisos-bg: #fdf2f8;
+  --role-avisos-text: #be185d;
+  --role-avisos-border: #fbcfe8;
+  --role-cadastro-bg: #eef2ff;
+  --role-cadastro-text: #4338ca;
+  --role-cadastro-border: #c7d2fe;
+  --role-lista-bg: #ecfeff;
+  --role-lista-text: #0e7490;
+  --role-lista-border: #a5f3fc;
+  --role-nd-bg: #f4f4f5;
+  --role-nd-text: #52525b;
+  --role-nd-border: #d4d4d8;
 }
 
 .menu-toggle {
@@ -295,7 +380,7 @@ body {
   font-weight: 500;
   /* Adicionado */
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-  background-color: var(--nav-link-background); 
+  background-color: var(--nav-link-background);
 }
 
 .nav-link:hover {
@@ -360,27 +445,72 @@ body {
 
 :root[data-theme="dark"] {
   /* Cores de Fundo (Agora com 'Zinc' - neutro) */
-  --background-page: #18181b; /* Zinc-900 */
-  --background-surface: #27272a; /* Zinc-800 */
-  --background-header-table: #3f3f46; /* Zinc-700 */
-  --eye-color: #e4e4e7; /* Zinc-200 */
-  --nav-link-background: rgba(24, 24, 27, 0.25); /* Zinc-900 com opacidade */
+  --background-page: #18181b;
+  /* Zinc-900 */
+  --background-surface: #27272a;
+  /* Zinc-800 */
+  --background-header-table: #3f3f46;
+  /* Zinc-700 */
+  --eye-color: #e4e4e7;
+  /* Zinc-200 */
+  --nav-link-background: rgba(24, 24, 27, 0.25);
+  /* Zinc-900 com opacidade */
 
   /* Cores de Texto (Agora com 'Zinc' - neutro) */
-  --text-primary: #e4e4e7; /* Zinc-200 */
+  --text-primary: #e4e4e7;
+  /* Zinc-200 */
   --text-on-primary-button: #ffffff;
-  --text-secondary: #a1a1aa; /* Zinc-400 */
-  --text-tertiary: #d4d4d8; /* Zinc-300 */
+  --text-secondary: #a1a1aa;
+  /* Zinc-400 */
+  --text-tertiary: #d4d4d8;
+  /* Zinc-300 */
 
   /* Cores de Ação (Mantidas) */
-  --primary: #0b58d4; /* Blue-500 */
-  --primary-hover: #2563eb; /* Blue-600 */
-  --primary-focus: #60a5fa; /* Blue-400 */
+  --primary: #0b58d4;
+  /* Blue-500 */
+  --primary-hover: #2563eb;
+  /* Blue-600 */
+  --primary-focus: #60a5fa;
+  /* Blue-400 */
   /* Cores de UI (Agora com 'Zinc' - neutro) */
-  --border-color: #3f3f46; /* Zinc-700 */
+  --border-color: #3f3f46;
+  /* Zinc-700 */
   --shadow-color: rgba(0, 0, 0, 0.5);
-  --error-color: #e04444; /* Red-400 */
-  --sucess-color: #0fa145; /* Green-500 */
+  --error-color: #e04444;
+  /* Red-400 */
+  --sucess-color: #0fa145;
+  /* Green-500 */
+
+  --role-gestor-bg: #450a0a;
+  --role-gestor-text: #fecaca;
+  --role-gestor-border: #7f1d1d;
+  --role-funcionario-bg: #052e16;
+  --role-funcionario-text: #bbf7d0;
+  --role-funcionario-border: #14532d;
+  --role-terceiros-bg: #3b0764;
+  --role-terceiros-text: #e9d5ff;
+  --role-terceiros-border: #6b21a8;
+  --role-saida-bg: #431407;
+  --role-saida-text: #fed7aa;
+  --role-saida-border: #9a3412;
+  --role-recebimento-bg: #451a03;
+  --role-recebimento-text: #fde68a;
+  --role-recebimento-border: #92400e;
+  --role-inventario-bg: #042f2e;
+  --role-inventario-text: #99f6e4;
+  --role-inventario-border: #115e59;
+  --role-avisos-bg: #500724;
+  --role-avisos-text: #fbcfe8;
+  --role-avisos-border: #9d174d;
+  --role-cadastro-bg: #1e1b4b;
+  --role-cadastro-text: #c7d2fe;
+  --role-cadastro-border: #3730a3;
+  --role-lista-bg: #083344;
+  --role-lista-text: #a5f3fc;
+  --role-lista-border: #155e75;
+  --role-nd-bg: #27272a;
+  --role-nd-text: #d4d4d8;
+  --role-nd-border: #52525b;
 }
 
 /* Ajustes específicos do tema escuro para links da sidebar */

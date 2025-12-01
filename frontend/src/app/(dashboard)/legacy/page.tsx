@@ -4,7 +4,8 @@ import React, { useState, useEffect, useCallback, ChangeEvent } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
-import './legacy.css';
+// 1. Importação do CSS Module
+import styles from './legacy.module.css';
 
 const CAMPOS_FIXOS = {
     "Costura": ["ROL", "Nome Cliente", "Meio de Contato", "Data Recebimento", "Data da entrega"],
@@ -66,18 +67,19 @@ interface LegacyNavProps {
 
 const LegacyNav: React.FC<LegacyNavProps> = ({ tipoAtual, onTipoChange, onToggleMenu, isMenuOpen }) => {
     return (
-        <nav className="opcoes">
-            <button className="burger" aria-label="Menu" onClick={onToggleMenu}>
+        <nav className={styles['opcoes']}>
+            <button className={styles['burger']} aria-label="Menu" onClick={onToggleMenu}>
                 &#9776;
             </button>
-            <div className={`menu ${isMenuOpen ? 'show' : ''}`}>
-                { }
+            {/* 2. Classes condicionais com styles */}
+            <div className={`${styles['menu']} ${isMenuOpen ? styles['show'] : ''}`}>
+                
                 {(['Costura', 'Tingimento', 'Tapete', 'Mala'] as TipoServico[]).map((tipo) => (
                     <button
                         key={tipo}
                         type="button"
                         onClick={() => onTipoChange(tipo)}
-                        className={`tipo-btn ${tipoAtual === tipo ? 'ativo' : ''}`}
+                        className={`${styles['tipo-btn']} ${tipoAtual === tipo ? styles['ativo'] : ''}`}
                     >
                         {tipo}
                     </button>
@@ -90,7 +92,6 @@ const LegacyNav: React.FC<LegacyNavProps> = ({ tipoAtual, onTipoChange, onToggle
 
 
 export default function LegacyFormPage() {
-
 
     const [tipoAtual, setTipoAtual] = useState<TipoServico>('Costura');
     const [fixedData, setFixedData] = useState<RecordString>(() => getInitialFixedState(tipoAtual));
@@ -106,8 +107,6 @@ export default function LegacyFormPage() {
 
     const { user } = useAuth();
     const router = useRouter();
-
-
 
     const resetForm = useCallback(() => {
         setFixedData(getInitialFixedState(tipoAtual));
@@ -143,7 +142,6 @@ export default function LegacyFormPage() {
 
         const url = `${process.env.NEXT_PUBLIC_API_URL}/legacy/${tipo.toLowerCase()}`;
         try {
-            
             const token = sessionStorage.getItem('token');
             if (!token) {
                 router.push('/login');
@@ -158,7 +156,6 @@ export default function LegacyFormPage() {
             });
             if (!res.ok) throw new Error('Falha ao buscar registros');
 
-
             const data: RegistroCompleto[] = await res.json();
             setAllRegistros(data);
         } catch (err) {
@@ -169,18 +166,13 @@ export default function LegacyFormPage() {
     }, [router]); 
 
     useEffect(() => {
-        
         if (user) {
             if (!user.funcoes.some((f: string) => f === 'TERCEIROS' || f === 'GESTOR')) {
                 router.push('/inicio');
                 return;
             }
         }
-
-        
-        
         resetForm();
-        
         console.log(`Buscando registros para: ${tipoAtual}`); 
         fetchAllRegistros(tipoAtual);
 
@@ -188,22 +180,18 @@ export default function LegacyFormPage() {
 
 
     useEffect(() => {
-
-
         if (!isEditing && !isListLoading) {
             const maxRol = allRegistros.reduce((max, r) => (r.rol > max ? r.rol : max), 0);
             const nextRol = maxRol + 1;
             const rolKey = normalizeKey("ROL");
 
             setFixedData(prev => {
-
                 if (prev[rolKey] !== nextRol) {
                     return { ...prev, [rolKey]: nextRol };
                 }
                 return prev;
             });
         }
-
     }, [allRegistros, isEditing, isListLoading]);
 
 
@@ -217,7 +205,6 @@ export default function LegacyFormPage() {
         const url = `${process.env.NEXT_PUBLIC_API_URL}/legacy/${tipoAtual.toLowerCase()}?rol=${rolToSearch}`;
 
         try {
-            
             const token = sessionStorage.getItem('token');
             if (!token) {
                 router.push('/login');
@@ -239,19 +226,15 @@ export default function LegacyFormPage() {
             }
             const data = await res.json();
             const dateKeys = CAMPOS_FIXOS[tipoAtual]
-
                 .filter(label => label.includes("Data") || label.includes("Envio") || label.includes("Retorno"))
                 .map(label => normalizeKey(label));
-
 
             const formattedFixos = { ...data.fixos };
 
             for (const key of dateKeys) {
                 const isoString = formattedFixos[key] as string;
-
                 if (isoString) {
                     try {
-
                         formattedFixos[key] = new Date(isoString).toISOString().split('T')[0];
                     } catch (e) {
                         console.error(`Formato de data inválido para ${key}: ${isoString}`);
@@ -296,7 +279,6 @@ export default function LegacyFormPage() {
             multiplos: multiplosFiltrados,
         };
         try {
-            
             const token = sessionStorage.getItem('token');
             if (!token) {
                 router.push('/login');
@@ -329,7 +311,6 @@ export default function LegacyFormPage() {
     const formatDate = (dateString: string) => {
         if (!dateString) return '-';
         try {
-
             return new Date(dateString).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
         } catch (e) {
             return dateString;
@@ -337,7 +318,7 @@ export default function LegacyFormPage() {
     };
 
     return (
-        <section className="parent">
+        <section className={styles['parent']}>
             <LegacyNav
                 tipoAtual={tipoAtual}
                 onTipoChange={setTipoAtual}
@@ -345,12 +326,11 @@ export default function LegacyFormPage() {
                 onToggleMenu={() => setIsMenuOpen(!isMenuOpen)}
             />
 
-            { }
-            <section className="div-fixos">
-                <h2 className="section-title">
+            <section className={styles['div-fixos']}>
+                <h2 className={styles['section-title']}>
                     {isEditing ? `Editando ROL: ${fixedData.rol}` : 'Criar Novo Registro'}
                 </h2>
-                <div className="linha-fixos">
+                <div className={styles['linha-fixos']}>
                     {currentFixedLabels.map((label) => {
                         const key = normalizeKey(label);
 
@@ -360,7 +340,7 @@ export default function LegacyFormPage() {
 
                         if (isRolField) {
                             return (
-                                <div key={key} className="div-rol">
+                                <div key={key} className={styles['div-rol']}>
                                     <label htmlFor={key}>{label}:</label>
                                     <input
                                         type="number"
@@ -373,7 +353,7 @@ export default function LegacyFormPage() {
                                         type="button"
                                         onClick={handleSearch}
                                         disabled={isLoading}
-                                        className="button-rol"
+                                        className={styles['button-rol']}
                                     >
                                         {isLoading ? '...' : 'Pesquisar'}
                                     </button>
@@ -381,10 +361,9 @@ export default function LegacyFormPage() {
                             );
                         }
 
-                        
                         if (isContatoField) {
                              return (
-                                <div key={key} className="campo-fixo">
+                                <div key={key} className={styles['campo-fixo']}>
                                     <label htmlFor={key}>{label}:</label>
                                     <select
                                         id={key}
@@ -404,7 +383,7 @@ export default function LegacyFormPage() {
                         }
 
                         return (
-                            <div key={key} className="campo-fixo">
+                            <div key={key} className={styles['campo-fixo']}>
                                 <label htmlFor={key}>{label}:</label>
                                 <input
                                     type={isDateField ? 'date' : 'text'}
@@ -419,17 +398,16 @@ export default function LegacyFormPage() {
                 </div>
             </section>
 
-            { }
-            <section className="div-multiplos">
-                <h2 className="section-title">Itens do Registro</h2>
-                <div className="table-wrapper">
+            <section className={styles['div-multiplos']}>
+                <h2 className={styles['section-title']}>Itens do Registro</h2>
+                <div className={styles['table-wrapper']}>
                     <table id="tabelaMultiplos">
                         <thead>
                             <tr>
                                 {currentMultipleLabels.map((label) => (
                                     <th key={label}>{label}</th>
                                 ))}
-                                <th className="col-acao"></th>
+                                <th className={styles['col-acao']}></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -451,13 +429,13 @@ export default function LegacyFormPage() {
                                             </td>
                                         );
                                     })}
-                                    <td className="col-acao" data-label="Ação">
+                                    <td className={styles['col-acao']} data-label="Ação">
                                         {multipleData.length > 1 && (
                                             <button
                                                 type="button"
                                                 onClick={() => removerLinha(rowIndex)}
                                                 title="Remover linha"
-                                                className="button-remover"
+                                                className={styles['button-remover']}
                                             >
                                                 X
                                             </button>
@@ -469,17 +447,29 @@ export default function LegacyFormPage() {
                     </table>
                 </div>
 
-                <div className="form-actions">
-                <button type="button" id="resetForm" onClick={resetForm}>
+                {/* 3. Adicionei classes baseadas nos IDs para permitir estilização modular */}
+                <div className={styles['form-actions']}>
+                    <button 
+                        type="button" 
+                        id="resetForm" 
+                        className={styles['resetForm']} 
+                        onClick={resetForm}
+                    >
                         Limpar Formulário
                     </button>
-                    <button type="button" id="addLinha" onClick={adicionarLinha}>
+                    <button 
+                        type="button" 
+                        id="addLinha" 
+                        className={styles['addLinha']} 
+                        onClick={adicionarLinha}
+                    >
                         + Adicionar Linha
                     </button>
 
                     <button
                         type="button"
                         id="salvar"
+                        className={styles['salvar']} 
                         onClick={handleSave}
                         disabled={isSaving}
                     >
@@ -488,10 +478,10 @@ export default function LegacyFormPage() {
                 </div>
             </section>
 
-            { }
-            <section className="div-multiplos div-lista">
-                <h2 className="section-title">Registros Salvos ({tipoAtual})</h2>
-                <div className="table-wrapper">
+            {/* 4. Duas classes combinadas */}
+            <section className={`${styles['div-multiplos']} ${styles['div-lista']}`}>
+                <h2 className={styles['section-title']}>Registros Salvos ({tipoAtual})</h2>
+                <div className={styles['table-wrapper']}>
                     <table id="tabelaRegistros">
                         <thead>
                             <tr>
@@ -499,7 +489,7 @@ export default function LegacyFormPage() {
                                 <th>Cliente</th>
                                 <th>Data Recebimento</th>
                                 <th>Data da Entrega</th>
-                                <th className="col-acao">Ações</th>
+                                <th className={styles['col-acao']}>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -518,10 +508,10 @@ export default function LegacyFormPage() {
                                         <td data-label="Cliente">{reg.nome_cliente || '-'}</td>
                                         <td data-label="Data Recebimento">{formatDate(reg.data_recebimento)}</td>
                                         <td data-label="Data da Entrega">{formatDate(reg.data_da_entrega)}</td>
-                                        <td className="col-acao" data-label="Ação">
+                                        <td className={styles['col-acao']} data-label="Ação">
                                             <button
                                                 type="button"
-                                                className="button-editar"
+                                                className={styles['button-editar']}
                                                 onClick={() => loadRegistroByRol(reg.rol)}
                                                 disabled={isLoading || isSaving}
                                             >

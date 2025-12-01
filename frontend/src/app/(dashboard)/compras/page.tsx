@@ -4,7 +4,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
-import './compras.css';
+// 1. Importação do CSS Module
+import styles from './compras.module.css';
 
 interface ProductToBuy {
   nome: string;
@@ -99,15 +100,13 @@ export default function ComprasPage() {
       return;
     }
 
-    // REMOVIDO: Validação de preços (não é mais necessário)
-
     try {
       // 2. Envia requisições em paralelo
       const promises = itemsToBuy.map((product) => {
         const payload = {
           productId: product.id,
           quantidade: product.neededQuantity,
-          precoTotal: 0, // Enviando 0 pois o preço será definido no recebimento ou é irrelevante agora
+          precoTotal: 0,
         };
 
         return fetch(`${process.env.NEXT_PUBLIC_API_URL}/compras/registrar`, {
@@ -142,19 +141,21 @@ export default function ComprasPage() {
   );
 
   return (
-    <>
-      <div className="page-header-produtos">
-        <h1 className="page-title-produtos">Lista de Compras (Automática)</h1>
+    // 2. Wrapper principal para isolar o CSS Module
+    <div className={styles['main-wrapper']}>
+      <div className={styles['page-header-produtos']}>
+        <h1 className={styles['page-title-produtos']}>Lista de Compras (Automática)</h1>
       </div>
 
-      {error && <p className="compras-message compras-error">{error}</p>}
-      {success && <p className="compras-message compras-success">{success}</p>}
+      {/* 3. Classes compostas com Template Literals */}
+      {error && <p className={`${styles['compras-message']} ${styles['compras-error']}`}>{error}</p>}
+      {success && <p className={`${styles['compras-message']} ${styles['compras-success']}`}>{success}</p>}
 
       {isLoading && <p>Carregando lista...</p>}
 
       {!isLoading && !hasProductsToBuy && (
-        <div className="compras-container" style={{ textAlign: 'center' }}>
-          <h2 className="compras-title">Estoque Completo!</h2>
+        <div className={styles['compras-container']} style={{ textAlign: 'center' }}>
+          <h2 className={styles['compras-title']}>Estoque Completo!</h2>
           <p style={{ color: 'var(--text-secondary)' }}>
             Nenhum produto precisa ser comprado no momento.
           </p>
@@ -162,18 +163,17 @@ export default function ComprasPage() {
       )}
 
       {!isLoading && hasProductsToBuy && (
-        <div className="fornecedor-sections-container">
+        <div className={styles['fornecedor-sections-container']}>
           {Object.entries(productsToBuy).map(([fornecedorNome, products]) => {
-            // Verifica se há itens compráveis para habilitar o botão
             const hasItemsToBuy = products.some(
               (p) => p.quantidadeMax - p.quantidadeEst - p.quantidadePendenteFaltante > 0
             );
 
             return (
-              <section key={fornecedorNome} className="fornecedor-section">
-                <h2 className="fornecedor-title">{fornecedorNome}</h2>
+              <section key={fornecedorNome} className={styles['fornecedor-section']}>
+                <h2 className={styles['fornecedor-title']}>{fornecedorNome}</h2>
 
-                <div className="compras-grid">
+                <div className={styles['compras-grid']}>
                   {products.map((product) => {
                     const neededQuantity = Math.max(
                       0,
@@ -181,10 +181,10 @@ export default function ComprasPage() {
                     );
 
                     return (
-                      <div key={product.id} className="compras-container">
-                        <h2 className="compras-title">{product.nome}</h2>
+                      <div key={product.id} className={styles['compras-container']}>
+                        <h2 className={styles['compras-title']}>{product.nome}</h2>
                         
-                        <div className="compras-details">
+                        <div className={styles['compras-details']}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                             <span>Marca: {product.marca || '-'}</span>
                             <span>Un: {product.unidade}</span>
@@ -201,7 +201,7 @@ export default function ComprasPage() {
                             </div>
                           </div>
 
-                          <div className="compras-pending-info">
+                          <div className={styles['compras-pending-info']}>
                             {product.quantidadePendenteFaltante > 0 && (
                               <p style={{ color: '#eab308', fontWeight: 'bold', fontSize: '0.8rem' }}>
                                 (Pendente: {product.quantidadePendenteFaltante})
@@ -211,12 +211,12 @@ export default function ComprasPage() {
 
                           {neededQuantity > 0 ? (
                             <div style={{ marginTop: '1rem', borderTop: '1px dashed var(--border-color)', paddingTop: '1rem' }}>
-                              <p className="compras-needed" style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>
+                              <p className={styles['compras-needed']} style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>
                                 Comprar: <strong>{neededQuantity} {product.unidade}</strong>
                               </p>
                             </div>
                           ) : (
-                            <p className="compras-waiting-message" style={{ marginTop: '1rem' }}>
+                            <p className={styles['compras-waiting-message']} style={{ marginTop: '1rem' }}>
                               Aguardando entrega.
                             </p>
                           )}
@@ -227,12 +227,12 @@ export default function ComprasPage() {
                 </div>
 
                 {/* BOTÃO GERAL DO FORNECEDOR */}
-                <div className="fornecedor-footer">
-                  <div className="summary-text">
+                <div className={styles['fornecedor-footer']}>
+                  <div className={styles['summary-text']}>
                     Confirme o envio do pedido de reposição automática.
                   </div>
                   <button
-                    className="btn-primary btn-large"
+                    className={`${styles['btn-primary']} ${styles['btn-large']}`}
                     onClick={() => handleBulkSubmit(fornecedorNome, products)}
                     disabled={!hasItemsToBuy || submittingSupplier === fornecedorNome}
                   >
@@ -246,6 +246,6 @@ export default function ComprasPage() {
           })}
         </div>
       )}
-    </>
+    </div>
   );
 }

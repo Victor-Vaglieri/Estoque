@@ -3,7 +3,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import './inventario.css';
+
+// 1. Importação do CSS Module
+import styles from './inventario.module.css';
 
 interface Product {
     id: number;
@@ -104,7 +106,6 @@ export default function InventarioPage() {
                 const originalProduct = products.find(p => p.id === produtoId);
 
                 if (!isNaN(newQuantity) && newQuantity >= 0 && originalProduct && newQuantity !== originalProduct.quantidadeEst) {
-                    // Importante: O backend espera 'produtoId' (conforme corrigimos antes)
                     return { produtoId, newQuantity };
                 }
                 return null;
@@ -178,18 +179,20 @@ export default function InventarioPage() {
         setSortConfig({ key, direction });
     };
     
+    // 2. Refatorei a função para retornar a classe do módulo diretamente
     const getSortDirectionClass = (key: keyof Product) => {
         if (!sortConfig || sortConfig.key !== key) return '';
-        return sortConfig.direction === 'ascending' ? 'sort-asc' : 'sort-desc';
+        return sortConfig.direction === 'ascending' ? styles['sort-asc'] : styles['sort-desc'];
     };
 
     return (
-        <>
-            <div className="page-header-inventario">
-                <h1 className="page-title-inventario">Fazer Inventário</h1>
+        // 3. Wrapper principal para escopo de CSS
+        <div className={styles['main-wrapper']}>
+            <div className={styles['page-header-inventario']}>
+                <h1 className={styles['page-title-inventario']}>Fazer Inventário</h1>
                 {Object.keys(editedQuantities).length > 0 && (
                     <button
-                        className="btn-primary btn-save-inventory"
+                        className={`${styles['btn-primary']} ${styles['btn-save-inventory']}`}
                         onClick={handleSaveChanges}
                         disabled={isSaving}
                     >
@@ -198,34 +201,70 @@ export default function InventarioPage() {
                 )}
             </div>
 
-            {error && !isLoading && <p className="inventario-message inventario-error">{error}</p>}
-            {success && <p className="inventario-message inventario-success">{success}</p>}
+            {error && !isLoading && <p className={`${styles['inventario-message']} ${styles['inventario-error']}`}>{error}</p>}
+            {success && <p className={`${styles['inventario-message']} ${styles['inventario-success']}`}>{success}</p>}
+            
             {isLoading && <p>Carregando inventário...</p>}
 
             {!isLoading && products.length === 0 && !error && (
-                <div className="inventario-container">
-                    <h2 className="inventario-title">Inventário Vazio</h2>
+                <div className={styles['inventario-container']}>
+                    <h2 className={styles['inventario-title']}>Inventário Vazio</h2>
                     <p>Nenhum produto encontrado para inventariar.</p>
                 </div>
             )}
 
             {!isLoading && products.length > 0 && (
-                <div className="inventario-table-container">
-                    <table className="inventario-table">
+                <div className={styles['inventario-table-container']}>
+                    <table className={styles['inventario-table']}>
                         <thead>
                             <tr>
-                                <th><button type="button" onClick={() => requestSort('nome')} className={`sort-button ${getSortDirectionClass('nome')}`}>Nome</button></th>
-                                <th><button type="button" onClick={() => requestSort('marca')} className={`sort-button ${getSortDirectionClass('marca')}`}>Marca</button></th>
-                                <th><button type="button" onClick={() => requestSort('unidade')} className={`sort-button ${getSortDirectionClass('unidade')}`}>Un</button></th>
-                                
-                                {/* NOVA COLUNA DE ESTOQUE ATUAL (SISTEMA) */}
                                 <th>
-                                    <button type="button" onClick={() => requestSort('quantidadeEst')} className={`sort-button ${getSortDirectionClass('quantidadeEst')}`}>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => requestSort('nome')} 
+                                        className={`${styles['sort-button']} ${getSortDirectionClass('nome')}`}
+                                    >
+                                        Nome
+                                    </button>
+                                </th>
+                                <th>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => requestSort('marca')} 
+                                        className={`${styles['sort-button']} ${getSortDirectionClass('marca')}`}
+                                    >
+                                        Marca
+                                    </button>
+                                </th>
+                                <th>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => requestSort('unidade')} 
+                                        className={`${styles['sort-button']} ${getSortDirectionClass('unidade')}`}
+                                    >
+                                        Un
+                                    </button>
+                                </th>
+                                
+                                <th>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => requestSort('quantidadeEst')} 
+                                        className={`${styles['sort-button']} ${getSortDirectionClass('quantidadeEst')}`}
+                                    >
                                         Estoque Atual
                                     </button>
                                 </th>
                                 
-                                <th><button type="button" onClick={() => requestSort('quantidadeMin')} className={`sort-button ${getSortDirectionClass('quantidadeMin')}`}>Mínimo</button></th>
+                                <th>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => requestSort('quantidadeMin')} 
+                                        className={`${styles['sort-button']} ${getSortDirectionClass('quantidadeMin')}`}
+                                    >
+                                        Mínimo
+                                    </button>
+                                </th>
                                 <th>Quantidade Contada</th>
                             </tr>
                         </thead>
@@ -235,12 +274,11 @@ export default function InventarioPage() {
                                 const isEdited = editedQuantities[product.id] !== undefined;
 
                                 return (
-                                    <tr key={product.id} className={isEdited ? 'edited-row' : ''}>
+                                    <tr key={product.id} className={isEdited ? styles['edited-row'] : ''}>
                                         <td data-label="Nome">{product.nome}</td>
                                         <td data-label="Marca">{product.marca || '-'}</td>
                                         <td data-label="Unidade">{product.unidade}</td>
                                         
-                                        {/* VALOR DO ESTOQUE ATUAL (SISTEMA) */}
                                         <td data-label="Estoque Atual" style={{ fontWeight: 'bold', color: 'var(--primary)' }}>
                                             {product.quantidadeEst}
                                         </td>
@@ -252,7 +290,7 @@ export default function InventarioPage() {
                                                 inputMode="decimal"
                                                 value={currentQuantityValue}
                                                 onChange={(e) => handleQuantityChange(product.id, e.target.value)}
-                                                className="quantity-input"
+                                                className={styles['quantity-input']}
                                                 placeholder={product.quantidadeEst.toString()}
                                             />
                                         </td>
@@ -263,6 +301,6 @@ export default function InventarioPage() {
                     </table>
                 </div>
             )}
-        </>
+        </div>
     );
 }

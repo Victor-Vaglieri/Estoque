@@ -1,21 +1,19 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
+// 1. Mudança na importação
+import styles from './inicio.module.css'; 
 
-import './inicio.css'; 
-
-
+// 2. StatCard usando styles
 const StatCard = ({ title, value }: { title: string; value: string }) => (
-  <div className="stat-card">
-    <h3 className="stat-card-title">{title}</h3>
-    <p className="stat-card-value">{value}</p>
+  <div className={styles['stat-card']}>
+    <h3 className={styles['stat-card-title']}>{title}</h3>
+    <p className={styles['stat-card-value']}>{value}</p>
   </div>
 );
-
 
 interface DashboardStats {
   quantidade_itens_abaixo_min: number;
@@ -23,7 +21,6 @@ interface DashboardStats {
   historico_compra_pendente: number;
   nome_ultimo_produto_chego: string;
 }
-
 
 interface Alert {
   id: number;
@@ -33,7 +30,6 @@ interface Alert {
   criadorNome: string; 
   createdAt: string; 
 }
-
 
 export default function DashboardHomePage() {
   const router = useRouter();
@@ -57,7 +53,6 @@ export default function DashboardHomePage() {
 
       setIsLoading(true); 
       try {
-        
         const responseDashboards = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboard/stats`, {
           method: 'GET',
           headers: {
@@ -66,7 +61,6 @@ export default function DashboardHomePage() {
           },
         });
 
-        
         const responseAlerts = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/avisos`, {
           method: 'GET',
           headers: {
@@ -83,9 +77,6 @@ export default function DashboardHomePage() {
         }
 
         const alertsData = await responseAlerts.json();
-        
-        
-        
         setAlerts(alertsData);
 
         const data: DashboardStats = await responseDashboards.json();
@@ -97,7 +88,6 @@ export default function DashboardHomePage() {
       }
     };
 
-    
     if (user) {
       fetchDashboardData();
     }
@@ -106,17 +96,17 @@ export default function DashboardHomePage() {
 
   return (
     <>
-      {}
-      <div className="page-header">
-        <h2 className="page-title">Visão da Loja</h2>
+      <div className={styles['page-header']}>
+        <h2 className={styles['page-title']}>Visão da Loja</h2>
       </div>
 
-      {}
       {isLoading && <p>Carregando estatísticas...</p>}
-      {error && <p className="dash-message dash-error">{error}</p>}
+      
+      {/* 3. Classes compostas (dash-message + dash-error) */}
+      {error && <p className={`${styles['dash-message']} ${styles['dash-error']}`}>{error}</p>}
       
       {!isLoading && stats && (
-        <div className="stats-grid">
+        <div className={styles['stats-grid']}>
           <StatCard title="Itens com Estoque Baixo" value={stats?.quantidade_itens_abaixo_min.toString() || '0'} />
           <StatCard title="Saídas de Itens (Hoje)" value={stats?.quantidade_saida.toString() || '0'} />
           <StatCard title="Recebimentos Pendentes" value={stats?.historico_compra_pendente.toString() || '0'} />
@@ -124,35 +114,34 @@ export default function DashboardHomePage() {
         </div>
       )}
 
-
-      {}
-      <div className="section-header">
-        <h1 className="section-title">Alertas e Avisos</h1>
+      <div className={styles['section-header']}>
+        <h1 className={styles['section-title']}>Alertas e Avisos</h1>
       </div>
       
-      {}
       {!isLoading && alerts.length === 0 && !error && (
-         <p className="no-alerts-message">Nenhum alerta no momento.</p>
+         <p className={styles['no-alerts-message']}>Nenhum alerta no momento.</p>
       )}
 
-      {}
       {alerts.length > 0 && (
-        <ul className="table-list">
-          {alerts.map((alert) => (
-            
-            <li key={alert.id} className={`table-container importancia-${alert.importancia.toLowerCase()}`}>
-              {}
-              {}
-              <h2>
-                {alert.importancia === 'ALTA' ? '🚨' : (alert.importancia === 'MEDIA' ? '⚠️' : 'ℹ️')}
-                {alert.titulo}
-              </h2>
-              <p>{alert.descricao}</p>
-              <span className="alert-creator">
-                Criado por: {alert.criadorNome} (Em: {new Date(alert.createdAt).toLocaleDateString()})
-              </span>
-            </li>
-          ))}
+        <ul className={styles['table-list']}>
+          {alerts.map((alert) => {
+            // 4. Lógica para classe dinâmica baseada na importância
+            // Ex: styles['importancia-alta']
+            const importanceClass = styles[`importancia-${alert.importancia.toLowerCase()}`];
+
+            return (
+                <li key={alert.id} className={`${styles['table-container']} ${importanceClass}`}>
+                  <h2>
+                    {alert.importancia === 'ALTA' ? '🚨' : (alert.importancia === 'MEDIA' ? '⚠️' : 'ℹ️')}
+                    {alert.titulo}
+                  </h2>
+                  <p>{alert.descricao}</p>
+                  <span className={styles['alert-creator']}>
+                    Criado por: {alert.criadorNome} (Em: {new Date(alert.createdAt).toLocaleDateString()})
+                  </span>
+                </li>
+            );
+          })}
         </ul>
       )}
     </>
