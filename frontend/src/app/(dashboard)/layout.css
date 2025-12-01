@@ -1,5 +1,5 @@
 
-/* Por defeito (Desktop), não fazemos nada, o globals.css cuida de tudo. */
+
 .sidebar-overlay {
     display: none;
 }
@@ -7,50 +7,50 @@
     display: none;
 }
 
-/* Quando estamos em ecrãs de telemóvel */
+
 @media (max-width: 768px) {
-  /* 1. A Sidebar fica visível (em vez de display:none), mas FORA do ecrã */
-  /* O !important é necessário para sobrepor o display:none do globals.css */
+  
+  
   .sidebar {
     display: flex !important; 
     flex-direction: column;
-    position: fixed; /* Fica por cima de tudo */
+    position: fixed; 
     top: 0;
     left: 0;
     bottom: 0;
-    width: 16rem; /* A sua largura definida */
+    width: 16rem; 
     z-index: 1000;
-    transform: translateX(-100%); /* Começa fora do ecrã, à esquerda */
+    transform: translateX(-100%); 
     transition: transform 0.3s ease-in-out;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-    /* Garante que o fundo é opaco */
+    
     background-color: var(--background-surface); 
   }
 
-  /* 2. O Overlay (fundo escuro) */
+  
   .sidebar-overlay {
-    display: none; /* Escondido por defeito */
+    display: none; 
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Cor preta semi-transparente */
+    background-color: rgba(0, 0, 0, 0.5); 
     z-index: 999;
   }
 
-  /* 3. O Estado ABERTO (ativado pelo layout.tsx) */
+  
   .sidebar-mobile-open .sidebar {
-    transform: translateX(0); /* Desliza a sidebar para dentro do ecrã */
+    transform: translateX(0); 
   }
 
   .sidebar-mobile-open .sidebar-overlay {
-    display: block; /* Mostra o overlay escuro */
+    display: block; 
   }
 
-  /* 4. O botão 'X' de fechar dentro da sidebar */
+  
   .sidebar-close-button {
-    display: block; /* Visível em mobile */
+    display: block; 
     position: absolute;
     top: 0.5rem;
     right: 0.5rem;

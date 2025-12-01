@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import { IconDown } from '@/app/components/icons/IconDown';
 import { IconLeft } from '@/app/components/icons/IconLeft';
 
-import './produtos.css';
+// 1. Importação do CSS Module
+import styles from './produtos.module.css';
 
 interface Fornecedor {
     id: number;
@@ -33,7 +34,7 @@ interface Product {
     observacoes: string | null;
     ativo: boolean;
     fornecedor?: Fornecedor;
-    lojaId?: number; // ID da loja onde o produto está (para edição)
+    lojaId?: number; 
 }
 
 export default function ProductsHomePage() {
@@ -75,11 +76,9 @@ export default function ProductsHomePage() {
             const productsData = await resProducts.json();
             const fornecedoresData = await resFornecedores.json();
             
-            // Mapeia para extrair o lojaId do primeiro estoque encontrado (para preencher o select de edição)
             const mappedProducts = productsData.map((p: any) => ({
                 ...p,
                 lojaId: p.realLojaId || 1
-     
             }));
 
             setProducts(mappedProducts);
@@ -116,8 +115,6 @@ export default function ProductsHomePage() {
         const token = sessionStorage.getItem('token');
         
         const formData = new FormData(event.currentTarget);
-
-        // Captura o lojaId do formulário de edição
         const lojaIdValue = formData.get('lojaId');
         const lojaIdFinal = lojaIdValue ? parseInt(lojaIdValue as string, 10) : undefined;
 
@@ -134,7 +131,7 @@ export default function ProductsHomePage() {
             quantidadeEst: parseInt(formData.get('quantidadeEst') as string, 10), 
             observacoes: formData.get('observacoes') as string,
             ativo: (event.currentTarget.elements.namedItem('ativo') as HTMLInputElement).checked,
-            lojaId: lojaIdFinal // Envia o novo ID da loja
+            lojaId: lojaIdFinal 
         };
 
         try {
@@ -198,43 +195,46 @@ export default function ProductsHomePage() {
     if (isLoading) return <p>Carregando produtos...</p>;
     
     return (
-        <>
-            <div className="page-header-produtos">
-                <h1 className="page-title-produtos">Produtos</h1>
+        // 2. Wrapper principal para o CSS Module
+        <div className={styles['main-wrapper']}>
+            <div className={styles['page-header-produtos']}>
+                <h1 className={styles['page-title-produtos']}>Produtos</h1>
             </div>
-            {error && <p className="error-message">{error}</p>}
+            {error && <p className={styles['error-message']}>{error}</p>}
 
-            <ul className="table-list-produtos">
+            <ul className={styles['table-list-produtos']}>
                 {products.map((product) => (
-                    <li key={product.id} className={`table-container-produtos ${!product.ativo ? 'produto-inativo' : ''}`}>
-                        <div className="section-header-produtos">
-                            <h2 className="section-title-produtos" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    // 3. Classes condicionais
+                    <li key={product.id} className={`${styles['table-container-produtos']} ${!product.ativo ? styles['produto-inativo'] : ''}`}>
+                        <div className={styles['section-header-produtos']}>
+                            <h2 className={styles['section-title-produtos']} style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
                                 {product.codigo && <span style={{ color: 'var(--text-secondary)', fontSize: '0.9em' }}>({product.codigo})</span>}
                                 <span>{product.nome}</span>
                                 <span style={{ fontWeight: 'normal', color: 'var(--text-secondary)', fontSize: '0.9em' }}>
                                     ({product.unidade}) {product.marca ? `- ${product.marca}` : ''}
                                 </span>
                                 {product.producao && (
-                                    <span className="badge-producao" title="Produção Própria">🏭 Produção</span>
+                                    <span className={styles['badge-producao']} title="Produção Própria">🏭 Produção</span>
                                 )}
                             </h2>
-                            <button className="action-details" onClick={() => handleToggleEdit(product.id)}>
-                                {editingProductId === product.id ? <IconDown className='arrow-icon' /> : <IconLeft className='arrow-icon' />}
+                            <button className={styles['action-details']} onClick={() => handleToggleEdit(product.id)}>
+                                {editingProductId === product.id ? 
+                                    <IconDown className={styles['arrow-icon']} /> : 
+                                    <IconLeft className={styles['arrow-icon']} />
+                                }
                             </button>
                         </div>
                         <p><strong>Estoque (Loja):</strong> {product.quantidadeEst} | <strong>Mínimo:</strong> {product.quantidadeMin} | <strong>Máximo:</strong> {product.quantidadeMax}</p>
                         {product.observacoes && <p><strong>Observações:</strong> {product.observacoes}</p>}
 
                         {editingProductId === product.id && (
-                            <div className="form-divider-produtos">
-                                <h3 className="table-title-produtos">Editar Produto</h3>
+                            <div className={styles['form-divider-produtos']}>
+                                <h3 className={styles['table-title-produtos']}>Editar Produto</h3>
                                 <form onSubmit={(e) => handleUpdateProduct(e, product.id)}>
                                     
-                                    {/* MUDANÇA: Agora é possível editar a Loja */}
                                     <label>
                                         Loja:
-                                        <select name="lojaId" defaultValue={product.lojaId || 1
-                                 || ""} required>
+                                        <select name="lojaId" defaultValue={product.lojaId || 1 || ""} required>
                                             {lojas.map(l => (
                                                 <option key={l.id} value={l.id}>{l.nome}</option>
                                             ))}
@@ -255,11 +255,12 @@ export default function ProductsHomePage() {
                                     <label>Max (Nec):<input type="number" name="quantidadeMax" defaultValue={product.quantidadeMax} required /></label>
                                     <label>Estoque (Loja):<input type="number" name="quantidadeEst" defaultValue={product.quantidadeEst} required /></label>
                                     <label>Observações:<textarea name="observacoes" defaultValue={product.observacoes ?? ''}></textarea></label>
-                                    <label className="checkbox-label">Produção:<input type="checkbox" name="producao" defaultChecked={product.producao} /></label>
-                                    <label className="checkbox-label">Ativo:<input type="checkbox" name="ativo" defaultChecked={product.ativo} /></label>
-                                    <div className="form-actions">
-                                        <button type="submit" className="btn-primary">Salvar Alterações</button>
-                                        <button type="button" className="btn-secondary" onClick={() => setEditingProductId(null)}>Cancelar</button>
+                                    <label className={styles['checkbox-label']}>Produção:<input type="checkbox" name="producao" defaultChecked={product.producao} /></label>
+                                    <label className={styles['checkbox-label']}>Ativo:<input type="checkbox" name="ativo" defaultChecked={product.ativo} /></label>
+                                    
+                                    <div className={styles['form-actions']}>
+                                        <button type="submit" className={styles['btn-primary']}>Salvar Alterações</button>
+                                        <button type="button" className={styles['btn-secondary']} onClick={() => setEditingProductId(null)}>Cancelar</button>
                                     </div>
                                 </form>
                             </div>
@@ -267,16 +268,19 @@ export default function ProductsHomePage() {
                     </li>
                 ))}
 
-                <li key="add-product-card" className="table-container-produtos">
-                    <div className="section-header-produtos">
-                        <h2 className="section-title-produtos">Adicionar Novo Produto</h2>
-                        <button className="action-details" onClick={() => setShowCreateForm(!showCreateForm)}>
-                            {showCreateForm ? <IconDown className='arrow-icon' /> : <IconLeft className='arrow-icon' />}
+                <li key="add-product-card" className={styles['table-container-produtos']}>
+                    <div className={styles['section-header-produtos']}>
+                        <h2 className={styles['section-title-produtos']}>Adicionar Novo Produto</h2>
+                        <button className={styles['action-details']} onClick={() => setShowCreateForm(!showCreateForm)}>
+                            {showCreateForm ? 
+                                <IconDown className={styles['arrow-icon']} /> : 
+                                <IconLeft className={styles['arrow-icon']} />
+                            }
                         </button>
                     </div>
 
                     {!showCreateForm && !error && (
-                        <button className="btn-primary" onClick={() => setShowCreateForm(true)}>
+                        <button className={styles['btn-primary']} onClick={() => setShowCreateForm(true)}>
                             Adicionar
                         </button>
                     )}
@@ -285,8 +289,7 @@ export default function ProductsHomePage() {
                         <form onSubmit={handleCreateProduct}>
                             <label>
                                 Loja de Origem:
-                                <select name="lojaId" defaultValue={1
-                         || ""} required>
+                                <select name="lojaId" defaultValue={1 || ""} required>
                                     <option value="" disabled>Selecione a Loja...</option>
                                     {lojas.map(l => (
                                         <option key={l.id} value={l.id}>{l.nome}</option>
@@ -309,18 +312,18 @@ export default function ProductsHomePage() {
                             <label>Max (Nec):<input type="number" name="quantidadeMax" defaultValue={0} required /></label>
                             <label>Estoque (Inicial Loja):<input type="number" name="quantidadeEst" defaultValue={0} required /></label>
                             <label>Observações:<textarea name="observacoes"></textarea></label>
-                            <label className="checkbox-label">
+                            <label className={styles['checkbox-label']}>
                                 Produção:
                                 <input type="checkbox" name="producao" defaultChecked={false} />
                             </label>
-                            <label className="checkbox-label">
+                            <label className={styles['checkbox-label']}>
                                 Ativo:
                                 <input type="checkbox" name="ativo" defaultChecked={true} />
                             </label>
 
-                            <div className="form-actions">
-                                <button type="submit" className="btn-primary">Salvar Produto</button>
-                                <button type="button" className="btn-secondary" onClick={() => setShowCreateForm(false)}>
+                            <div className={styles['form-actions']}>
+                                <button type="submit" className={styles['btn-primary']}>Salvar Produto</button>
+                                <button type="button" className={styles['btn-secondary']} onClick={() => setShowCreateForm(false)}>
                                     Cancelar
                                 </button>
                             </div>
@@ -328,6 +331,6 @@ export default function ProductsHomePage() {
                     )}
                 </li>
             </ul>
-        </>
+        </div>
     );
 }

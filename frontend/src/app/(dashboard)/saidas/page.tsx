@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import './saidas.css';
+// 1. Importação como Objeto styles
+import styles from './saidas.module.css';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { IconPlus } from '../../components/icons/IconPlus';
@@ -14,7 +15,7 @@ type Product = {
     marca: string | null;
     codigo: string | null;
     quantidadeMin: number;
-    quantidadeEst: number; // Estoque atual na loja
+    quantidadeEst: number; 
     quantidadeMax: number;
     observacoes: string | null;
 };
@@ -39,7 +40,6 @@ export default function SaidasEstoquePage() {
     const [isEditing, setIsEditing] = useState(false);
     const [currentSaida, setCurrentSaida] = useState<Partial<Saida>>({});
     
-    // Armazena a quantidade original para somar ao estoque na hora da edição
     const [originalQuantity, setOriginalQuantity] = useState(0);
 
     const { user } = useAuth();
@@ -128,16 +128,15 @@ export default function SaidasEstoquePage() {
         setCurrentSaida({
             ...saida,
             data: new Date(saida.data).toISOString().split('T')[0],
-            produtoId: Number(saida.produtoId), // Garante número
+            produtoId: Number(saida.produtoId), 
         });
         
-        setOriginalQuantity(Number(saida.quantidade)); // Garante número
+        setOriginalQuantity(Number(saida.quantidade)); 
         
         setIsEditing(true);
         setIsFormVisible(true);
         setError(null);
         
-        // DEBUG: Verifique no Console do navegador (F12)
         const estoqueAtual = getEstoqueNumerico(saida.produtoId);
         console.log(`EDITANDO: Estoque Banco=${estoqueAtual}, Original=${saida.quantidade}, Limite=${estoqueAtual + saida.quantidade}`);
     };
@@ -182,7 +181,6 @@ export default function SaidasEstoquePage() {
             return;
         }
 
-        // Validação final
         if (currentSaida.quantidade > maxQuantityInput) {
             setError(`Quantidade indisponível. O máximo permitido é ${maxQuantityInput}.`);
             return;
@@ -228,7 +226,6 @@ export default function SaidasEstoquePage() {
                 }
             }
 
-            // Força recarregamento total para atualizar lista e estoques
             window.location.reload();
 
         } catch (err) {
@@ -237,22 +234,24 @@ export default function SaidasEstoquePage() {
     };
 
     return (
-        <div className="main-container-saidas">
-            <header className="page-header-saidas">
-                <h1 className="page-title-saidas">Gerenciar Saídas de Estoque</h1>
-                <button className="btn-primary" onClick={handleToggleForm}>
+        // 2. Uso de Bracket Notation styles['class-name']
+        <div className={styles['main-container-saidas']}>
+            <header className={styles['page-header-saidas']}>
+                <h1 className={styles['page-title-saidas']}>Gerenciar Saídas de Estoque</h1>
+                <button className={styles['btn-primary']} onClick={handleToggleForm}>
                     <IconPlus />
                     {isFormVisible ? 'Fechar Formulário' : 'Registrar Nova Saída'}
                 </button>
             </header>
 
-            {error && <div className="form-error-message">{error}</div>}
+            {error && <div className={styles['form-error-message']}>{error}</div>}
 
-            <div className={`saida-form-container ${isFormVisible ? 'visible' : ''}`}>
-                <form className="saida-form" onSubmit={handleSubmit}>
-                    <h2 className="form-title">{isEditing ? 'Editar Saída' : 'Registrar Nova Saída'}</h2>
+            {/* 3. Condicional com styles */}
+            <div className={`${styles['saida-form-container']} ${isFormVisible ? styles['visible'] : ''}`}>
+                <form className={styles['saida-form']} onSubmit={handleSubmit}>
+                    <h2 className={styles['form-title']}>{isEditing ? 'Editar Saída' : 'Registrar Nova Saída'}</h2>
 
-                    <div className="form-group">
+                    <div className={styles['form-group']}>
                         <label htmlFor="produtoId">Produto</label>
                         <select
                             id="produtoId"
@@ -271,10 +270,10 @@ export default function SaidasEstoquePage() {
                         </select>
                     </div>
 
-                    <div className="form-group">
+                    <div className={styles['form-group']}>
                         <label htmlFor="quantidade">
                             Quantidade
-                            <span className="stock-info">
+                            <span className={styles['stock-info']}>
                                 (Disp: {getEstoqueAtualFormatado(currentSaida.produtoId)}
                                 {isEditing && <span style={{ color: 'var(--primary)', marginLeft: '5px' }}>+ {originalQuantity} (retornável)</span>}
                                 )
@@ -287,7 +286,6 @@ export default function SaidasEstoquePage() {
                             value={currentSaida.quantidade || ''}
                             onChange={handleChange}
                             min="1"
-                            // Definimos o max aqui para ajudar a UI, mas o importante é a validação no submit
                             max={maxQuantityInput > 0 ? maxQuantityInput : undefined}
                             required
                         />
@@ -296,7 +294,7 @@ export default function SaidasEstoquePage() {
                         </small>
                     </div>
 
-                    <div className="form-group">
+                    <div className={styles['form-group']}>
                         <label htmlFor="data">Data da Saída</label>
                         <input
                             type="date"
@@ -308,7 +306,7 @@ export default function SaidasEstoquePage() {
                         />
                     </div>
 
-                    <div className="form-group full-width">
+                    <div className={`${styles['form-group']} ${styles['full-width']}`}>
                         <label htmlFor="motivo">Motivo / Observação</label>
                         <textarea
                             id="motivo"
@@ -320,24 +318,24 @@ export default function SaidasEstoquePage() {
                         ></textarea>
                     </div>
 
-                    <div className="form-actions full-width">
-                        <button type="button" className="btn-secondary" onClick={handleToggleForm}>
+                    <div className={`${styles['form-actions']} ${styles['full-width']}`}>
+                        <button type="button" className={styles['btn-secondary']} onClick={handleToggleForm}>
                             Cancelar
                         </button>
-                        <button type="submit" className="btn-primary">
+                        <button type="submit" className={styles['btn-primary']}>
                             {isEditing ? 'Salvar Alterações' : 'Registrar Saída'}
                         </button>
                     </div>
                 </form>
             </div>
 
-            <div className="saida-list-container">
-                <h2 className="list-title">Histórico de Saídas Recentes</h2>
+            <div className={styles['saida-list-container']}>
+                <h2 className={styles['list-title']}>Histórico de Saídas Recentes</h2>
                 {isLoading ? (
                     <p>Carregando...</p>
                 ) : (
-                    <div className="saidas-table-wrapper">
-                        <table className="saidas-table">
+                    <div className={styles['saidas-table-wrapper']}>
+                        <table className={styles['saidas-table']}>
                             <thead>
                                 <tr>
                                     <th>Produto</th>
@@ -354,19 +352,19 @@ export default function SaidasEstoquePage() {
                                             <td data-label="Produto">
                                                 {saida.produto?.nome || 'Produto não encontrado'}
                                             </td>
-                                            <td className="col-quantidade" data-label="Qtd.">
+                                            <td className={styles['col-quantidade']} data-label="Qtd.">
                                                 {saida.quantidade}
-                                                <span className="unidade-table">{saida.produto?.unidade}</span>
+                                                <span className={styles['unidade-table']}>{saida.produto?.unidade}</span>
                                             </td>
-                                            <td className="col-data" data-label="Data">
+                                            <td className={styles['col-data']} data-label="Data">
                                                 {new Date(saida.data).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
                                             </td>
-                                            <td className="col-motivo" data-label="Motivo">
+                                            <td className={styles['col-motivo']} data-label="Motivo">
                                                 {saida.motivo}
                                             </td>
-                                            <td className="col-acoes">
+                                            <td className={styles['col-acoes']}>
                                                 <button
-                                                    className="btn-aviso btn-editar"
+                                                    className={`${styles['btn-aviso']} ${styles['btn-editar']}`}
                                                     title="Editar"
                                                     onClick={() => handleEditClick(saida)}
                                                 >
@@ -377,7 +375,7 @@ export default function SaidasEstoquePage() {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={5} className="no-data-message">
+                                        <td colSpan={5} className={styles['no-data-message']}>
                                             Nenhuma saída registrada ainda.
                                         </td>
                                     </tr>

@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
-import "./perfis.css";
+// 1. Importação do CSS Module
+import styles from './perfis.module.css';
 
 enum Funcao {
     TERCEIROS = 'TERCEIROS',
@@ -39,7 +40,6 @@ interface Loja {
     nome: string;
 }
 
-// NOVA INTERFACE
 interface Fornecedor {
     id: number;
     nome: string;
@@ -52,10 +52,7 @@ export default function PerfisPage() {
 
     const [solicitacoes, setSolicitacoes] = useState<CadastroRequest[]>([]);
     const [usuarios, setUsuarios] = useState<User[]>([]);
-    // const [solicitacoesConfirmadas, setSolicitacoesConfirmadas] = useState<CadastroRequest[]>([]); // Não estava sendo usado visualmente, mantive comentado se quiser limpar
     const [lojas, setLojas] = useState<Loja[]>([]);
-    
-    // NOVO ESTADO
     const [fornecedores, setFornecedores] = useState<Fornecedor[]>([]);
 
     const [isLoading, setIsLoading] = useState(true);
@@ -72,11 +69,10 @@ export default function PerfisPage() {
     const [usuarioParaEditar, setUsuarioParaEditar] = useState<User | null>(null);
     const [editForm, setEditForm] = useState({ nome: '', login: '', lojaId: '', funcoes: [] as Funcao[] });
 
-    // NOVO: Estados Modal Fornecedor
+    // Estados Modal Fornecedor
     const [showFornecedorModal, setShowFornecedorModal] = useState(false);
-    const [fornecedorEditing, setFornecedorEditing] = useState<Fornecedor | null>(null); // Se null, é criação
+    const [fornecedorEditing, setFornecedorEditing] = useState<Fornecedor | null>(null); 
     const [fornecedorName, setFornecedorName] = useState("");
-
 
     const clearFeedback = () => { setError(null); setSuccess(null); };
 
@@ -96,14 +92,12 @@ export default function PerfisPage() {
                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/solicitacoes`, { headers }),
                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/usuarios`, { headers }),
                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/lojas`, { headers }),
-                // NOVO FETCH
                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/perfis/fornecedores`, { headers }) 
             ]);
 
             if (results[0].status === 'fulfilled' && results[0].value.ok) setSolicitacoes(await results[0].value.json());
             if (results[1].status === 'fulfilled' && results[1].value.ok) setUsuarios(await results[1].value.json());
             if (results[2].status === 'fulfilled' && results[2].value.ok) setLojas(await results[2].value.json());
-            // NOVO SET
             if (results[3].status === 'fulfilled' && results[3].value.ok) setFornecedores(await results[3].value.json());
 
         } catch (err) {
@@ -124,7 +118,6 @@ export default function PerfisPage() {
     }, [router, user]);
 
     // --- FUNÇÕES DE FORNECEDOR ---
-
     const handleOpenFornecedorModal = (fornecedor?: Fornecedor) => {
         clearFeedback();
         if (fornecedor) {
@@ -160,13 +153,12 @@ export default function PerfisPage() {
 
             setSuccess(`Fornecedor ${fornecedorEditing ? 'atualizado' : 'criado'} com sucesso!`);
             setShowFornecedorModal(false);
-            fetchData(); // Recarrega a lista
+            fetchData(); 
         } catch (err) {
             setError("Erro ao salvar fornecedor.");
         }
     };
 
-    // NOVA FUNÇÃO: DELETAR FORNECEDOR
     const handleDeleteFornecedor = async (id: number) => {
         if (!window.confirm("Tem certeza que deseja excluir este fornecedor?")) return;
         
@@ -180,13 +172,12 @@ export default function PerfisPage() {
             });
 
             if (!response.ok) {
-                // Tenta ler a mensagem de erro do backend (ex: "Possui produtos vinculados")
                 const errorData = await response.json();
                 throw new Error(errorData.message || 'Falha ao remover fornecedor.');
             }
 
             setSuccess('Fornecedor removido com sucesso.');
-            await fetchData(); // Recarrega a lista
+            await fetchData(); 
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Erro ao remover.');
         } finally {
@@ -194,8 +185,7 @@ export default function PerfisPage() {
         }
     };
 
-
-    // ... (Funções de Aprovação e Edição de Usuário MANTIDAS IGUAIS - Omitidas para brevidade, mantenha as suas) ...
+    // --- FUNÇÕES USUÁRIOS (Aprovação/Edição) ---
     const handleAprovarClick = (solicitacao: CadastroRequest) => {
         setSolicitacaoParaAprovar(solicitacao);
         setSelectedFuncoes([Funcao.TERCEIROS]);
@@ -285,28 +275,30 @@ export default function PerfisPage() {
         } catch (err) { setError('Erro ao remover.'); } finally { setIsSubmitting(null); }
     };
 
-
     return (
-        <>
-            <div className="page-header-perfis">
-                <h1 className="page-title-perfis">Gestão de Perfis</h1>
+        // 2. Wrapper Principal
+        <div className={styles['main-wrapper']}>
+            <div className={styles['page-header-perfis']}>
+                <h1 className={styles['page-title-perfis']}>Gestão de Perfis</h1>
             </div>
 
-            {error && <p className="perfis-message perfis-error">{error}</p>}
-            {success && <p className="perfis-message perfis-success">{success}</p>}
+            {/* 3. Feedback Classes */}
+            {error && <p className={`${styles['perfis-message']} ${styles['perfis-error']}`}>{error}</p>}
+            {success && <p className={`${styles['perfis-message']} ${styles['perfis-success']}`}>{success}</p>}
+            
             {isLoading && <p>Carregando dados...</p>}
 
             {!isLoading && (
-                <div className="perfis-container">
+                <div className={styles['perfis-container']}>
 
-                    {/* --- SEÇÃO 1: SOLICITAÇÕES (Mantida) --- */}
-                    <section className="perfis-section">
-                        <h2 className="section-title">Solicitações Pendentes</h2>
+                    {/* --- SEÇÃO 1: SOLICITAÇÕES --- */}
+                    <section className={styles['perfis-section']}>
+                        <h2 className={styles['section-title']}>Solicitações Pendentes</h2>
                         {solicitacoes.length === 0 ? (
-                            <p className="no-data-message">Nenhuma solicitação pendente.</p>
+                            <p className={styles['no-data-message']}>Nenhuma solicitação pendente.</p>
                         ) : (
-                            <div className="perfis-table-container">
-                                <table className="perfis-table">
+                            <div className={styles['perfis-table-container']}>
+                                <table className={styles['perfis-table']}>
                                     <thead>
                                         <tr>
                                             <th>Nome</th><th>Login</th><th>Data</th><th>Ações</th>
@@ -319,9 +311,21 @@ export default function PerfisPage() {
                                                 <td data-label="Login">{req.login}</td>
                                                 <td data-label="Data">{new Date(req.createdAt).toLocaleDateString()}</td>
                                                 <td data-label="Ações">
-                                                    <div className="perfis-actions">
-                                                        <button className="btn-action btn-rejeitar" onClick={() => handleRejeitar(req.id)} disabled={isSubmitting === req.id}>Rejeitar</button>
-                                                        <button className="btn-action btn-aprovar" onClick={() => handleAprovarClick(req)} disabled={isSubmitting === req.id}>Aprovar</button>
+                                                    <div className={styles['perfis-actions']}>
+                                                        <button 
+                                                            className={`${styles['btn-action']} ${styles['btn-rejeitar']}`} 
+                                                            onClick={() => handleRejeitar(req.id)} 
+                                                            disabled={isSubmitting === req.id}
+                                                        >
+                                                            Rejeitar
+                                                        </button>
+                                                        <button 
+                                                            className={`${styles['btn-action']} ${styles['btn-aprovar']}`} 
+                                                            onClick={() => handleAprovarClick(req)} 
+                                                            disabled={isSubmitting === req.id}
+                                                        >
+                                                            Aprovar
+                                                        </button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -332,14 +336,14 @@ export default function PerfisPage() {
                         )}
                     </section>
 
-                    {/* --- SEÇÃO 2: USUÁRIOS (Mantida) --- */}
-                    <section className="perfis-section">
-                        <h2 className="section-title">Utilizadores Atuais</h2>
+                    {/* --- SEÇÃO 2: USUÁRIOS --- */}
+                    <section className={styles['perfis-section']}>
+                        <h2 className={styles['section-title']}>Utilizadores Atuais</h2>
                         {usuarios.length === 0 ? (
-                            <p className="no-data-message">Nenhum utilizador encontrado.</p>
+                            <p className={styles['no-data-message']}>Nenhum utilizador encontrado.</p>
                         ) : (
-                            <div className="perfis-table-container">
-                                <table className="perfis-table">
+                            <div className={styles['perfis-table-container']}>
+                                <table className={styles['perfis-table']}>
                                     <thead>
                                         <tr>
                                             <th>ID</th><th>Nome</th><th>Login</th><th>Loja</th><th>Funções</th><th>Ações</th>
@@ -347,23 +351,37 @@ export default function PerfisPage() {
                                     </thead>
                                     <tbody>
                                         {usuarios.map((u) => (
-                                            <tr key={u.id} className={u.id === currentUserId ? 'current-user-row' : ''}>
+                                            <tr key={u.id} className={u.id === currentUserId ? styles['current-user-row'] : ''}>
                                                 <td data-label="ID">{u.id}</td>
                                                 <td data-label="Nome">{u.nome} {u.id === currentUserId && '(Você)'}</td>
                                                 <td data-label="Login">{u.login}</td>
                                                 <td data-label="Loja">{lojas.find(l => l.id === u.lojaId)?.nome || 'N/A'}</td>
                                                 <td data-label="Funções">
-                                                    <div className="role-badge-container">
-                                                        {u.role && u.role.split(', ').map(role => (
-                                                            <span key={role} className={`role-badge role-${role.toLowerCase()}`}>{role}</span>
-                                                        ))}
+                                                    <div className={styles['role-badge-container']}>
+                                                        {u.role && u.role.split(', ').map(role => {
+                                                            // 4. Classes dinâmicas para roles
+                                                            const roleClass = styles[`role-${role.toLowerCase()}`];
+                                                            return <span key={role} className={`${styles['role-badge']} ${roleClass}`}>{role}</span>
+                                                        })}
                                                     </div>
                                                 </td>
                                                 <td data-label="Ações">
-                                                    <div className="perfis-actions">
-                                                        <button className="btn-action btn-editar" onClick={() => handleEditUserClick(u)} disabled={isSubmitting !== null}>Editar</button>
+                                                    <div className={styles['perfis-actions']}>
+                                                        <button 
+                                                            className={`${styles['btn-action']} ${styles['btn-editar']}`} 
+                                                            onClick={() => handleEditUserClick(u)} 
+                                                            disabled={isSubmitting !== null}
+                                                        >
+                                                            Editar
+                                                        </button>
                                                         {u.id !== currentUserId && (
-                                                            <button className="btn-action btn-rejeitar" onClick={() => handleDeleteUser(u.id)} disabled={isSubmitting !== null}>Remover</button>
+                                                            <button 
+                                                                className={`${styles['btn-action']} ${styles['btn-rejeitar']}`} 
+                                                                onClick={() => handleDeleteUser(u.id)} 
+                                                                disabled={isSubmitting !== null}
+                                                            >
+                                                                Remover
+                                                            </button>
                                                         )}
                                                     </div>
                                                 </td>
@@ -375,18 +393,18 @@ export default function PerfisPage() {
                         )}
                     </section>
 
-                    {/* --- SEÇÃO 3: FORNECEDORES (NOVA) --- */}
-                    <section className="perfis-section">
+                    {/* --- SEÇÃO 3: FORNECEDORES --- */}
+                    <section className={styles['perfis-section']}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                            <h2 className="section-title" style={{ marginBottom: 0 }}>Fornecedores</h2>
-                            <button className="btn-primary" onClick={() => handleOpenFornecedorModal()}>+ Novo Fornecedor</button>
+                            <h2 className={styles['section-title']} style={{ marginBottom: 0 }}>Fornecedores</h2>
+                            <button className={styles['btn-primary']} onClick={() => handleOpenFornecedorModal()}>+ Novo Fornecedor</button>
                         </div>
                         
                         {fornecedores.length === 0 ? (
-                            <p className="no-data-message">Nenhum fornecedor cadastrado.</p>
+                            <p className={styles['no-data-message']}>Nenhum fornecedor cadastrado.</p>
                         ) : (
-                            <div className="perfis-table-container">
-                                <table className="perfis-table">
+                            <div className={styles['perfis-table-container']}>
+                                <table className={styles['perfis-table']}>
                                     <thead>
                                         <tr>
                                             <th>ID</th>
@@ -400,18 +418,17 @@ export default function PerfisPage() {
                                                 <td data-label="ID" style={{ width: '80px' }}>{f.id}</td>
                                                 <td data-label="Nome">{f.nome}</td>
                                                 <td data-label="Ações" style={{ width: '150px' }}>
-                                                    <div className="perfis-actions">
+                                                    <div className={styles['perfis-actions']}>
                                                         <button 
-                                                            className="btn-action btn-editar" 
+                                                            className={`${styles['btn-action']} ${styles['btn-editar']}`} 
                                                             onClick={() => handleOpenFornecedorModal(f)}
                                                             disabled={isSubmitting !== null}
                                                         >
                                                             Editar
                                                         </button>
                                                         
-                                                        {/* NOVO BOTÃO DE REMOVER */}
                                                         <button 
-                                                            className="btn-action btn-rejeitar" 
+                                                            className={`${styles['btn-action']} ${styles['btn-rejeitar']}`} 
                                                             onClick={() => handleDeleteFornecedor(f.id)}
                                                             disabled={isSubmitting !== null}
                                                         >
@@ -430,30 +447,35 @@ export default function PerfisPage() {
                 </div>
             )}
 
-            {/* --- MODAIS (Mantidos os anteriores) --- */}
+            {/* --- MODAIS --- */}
             
             {/* Modal Aprovar */}
             {showApproveModal && solicitacaoParaAprovar && (
-                <div className="perfis-modal-overlay">
-                    <div className="perfis-modal-content">
-                        <h3 className="modal-title">Aprovar {solicitacaoParaAprovar.nome}</h3>
-                        <label className="modal-label">Loja:</label>
-                        <select className="modal-select" value={selectedLojaId} onChange={(e) => setSelectedLojaId(e.target.value)}>
+                <div className={styles['perfis-modal-overlay']}>
+                    <div className={styles['perfis-modal-content']}>
+                        <h3 className={styles['modal-title']}>Aprovar {solicitacaoParaAprovar.nome}</h3>
+                        <label className={styles['modal-label']}>Loja:</label>
+                        <select className={styles['modal-select']} value={selectedLojaId} onChange={(e) => setSelectedLojaId(e.target.value)}>
                             <option value="">Selecione a Loja...</option>
                             {lojas.map(l => <option key={l.id} value={l.id}>{l.nome}</option>)}
                         </select>
-                        <label className="modal-label">Funções:</label>
-                        <div className="funcoes-checkbox-group">
-                            {Object.values(Funcao).map((funcao) => (
-                                <label key={funcao} className={`funcao-tag tag-${funcao.toLowerCase()} ${selectedFuncoes.includes(funcao) ? 'selected' : ''}`}>
-                                    <input type="checkbox" checked={selectedFuncoes.includes(funcao)} onChange={() => handleFuncaoChange(funcao)} className="hidden-checkbox" />
-                                    {funcao}
-                                </label>
-                            ))}
+                        <label className={styles['modal-label']}>Funções:</label>
+                        <div className={styles['funcoes-checkbox-group']}>
+                            {Object.values(Funcao).map((funcao) => {
+                                const tagClass = styles[`tag-${funcao.toLowerCase()}`];
+                                const selectedClass = selectedFuncoes.includes(funcao) ? styles['selected'] : '';
+                                
+                                return (
+                                    <label key={funcao} className={`${styles['funcao-tag']} ${tagClass} ${selectedClass}`}>
+                                        <input type="checkbox" checked={selectedFuncoes.includes(funcao)} onChange={() => handleFuncaoChange(funcao)} className={styles['hidden-checkbox']} />
+                                        {funcao}
+                                    </label>
+                                );
+                            })}
                         </div>
-                        <div className="modal-actions">
-                            <button className="btn-secondary" onClick={() => setShowApproveModal(false)}>Cancelar</button>
-                            <button className="btn-primary" onClick={handleConfirmAprovacao} disabled={!selectedLojaId || selectedFuncoes.length === 0}>Confirmar</button>
+                        <div className={styles['modal-actions']}>
+                            <button className={styles['btn-secondary']} onClick={() => setShowApproveModal(false)}>Cancelar</button>
+                            <button className={styles['btn-primary']} onClick={handleConfirmAprovacao} disabled={!selectedLojaId || selectedFuncoes.length === 0}>Confirmar</button>
                         </div>
                     </div>
                 </div>
@@ -461,10 +483,10 @@ export default function PerfisPage() {
 
             {/* Modal Editar Usuário */}
             {showEditModal && usuarioParaEditar && (
-                <div className="perfis-modal-overlay">
-                    <div className="perfis-modal-content">
-                        <h3 className="modal-title">Editar Usuário</h3>
-                        <div className="edit-form-grid">
+                <div className={styles['perfis-modal-overlay']}>
+                    <div className={styles['perfis-modal-content']}>
+                        <h3 className={styles['modal-title']}>Editar Usuário</h3>
+                        <div className={styles['edit-form-grid']}>
                             <label>Nome:<input type="text" name="nome" value={editForm.nome} onChange={handleEditFormChange} /></label>
                             <label>Loja:
                                 <select name="lojaId" value={editForm.lojaId} onChange={handleEditFormChange}>
@@ -473,30 +495,36 @@ export default function PerfisPage() {
                                 </select>
                             </label>
                         </div>
-                        <label className="modal-label">Funções:</label>
-                        <div className="funcoes-checkbox-group">
-                            {Object.values(Funcao).map((funcao) => (
-                                <label key={funcao} className={`funcao-tag tag-${funcao.toLowerCase()} ${editForm.funcoes.includes(funcao) ? 'selected' : ''} ${usuarioParaEditar.id === currentUserId && funcao === Funcao.GESTOR ? 'disabled' : ''}`}>
-                                    <input type="checkbox" checked={editForm.funcoes.includes(funcao)} onChange={() => handleEditFuncaoChange(funcao)} disabled={usuarioParaEditar.id === currentUserId && funcao === Funcao.GESTOR} className="hidden-checkbox" />
-                                    {funcao}
-                                </label>
-                            ))}
+                        <label className={styles['modal-label']}>Funções:</label>
+                        <div className={styles['funcoes-checkbox-group']}>
+                            {Object.values(Funcao).map((funcao) => {
+                                const tagClass = styles[`tag-${funcao.toLowerCase()}`];
+                                const selectedClass = editForm.funcoes.includes(funcao) ? styles['selected'] : '';
+                                const disabledClass = (usuarioParaEditar.id === currentUserId && funcao === Funcao.GESTOR) ? styles['disabled'] : '';
+
+                                return (
+                                    <label key={funcao} className={`${styles['funcao-tag']} ${tagClass} ${selectedClass} ${disabledClass}`}>
+                                        <input type="checkbox" checked={editForm.funcoes.includes(funcao)} onChange={() => handleEditFuncaoChange(funcao)} disabled={usuarioParaEditar.id === currentUserId && funcao === Funcao.GESTOR} className={styles['hidden-checkbox']} />
+                                        {funcao}
+                                    </label>
+                                );
+                            })}
                         </div>
-                        <div className="modal-actions">
-                            <button className="btn-secondary" onClick={() => setShowEditModal(false)}>Cancelar</button>
-                            <button className="btn-primary" onClick={handleConfirmEdit}>Salvar</button>
+                        <div className={styles['modal-actions']}>
+                            <button className={styles['btn-secondary']} onClick={() => setShowEditModal(false)}>Cancelar</button>
+                            <button className={styles['btn-primary']} onClick={handleConfirmEdit}>Salvar</button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* --- NOVO: Modal Editar/Criar Fornecedor --- */}
+            {/* Modal Editar/Criar Fornecedor */}
             {showFornecedorModal && (
-                <div className="perfis-modal-overlay">
-                    <div className="perfis-modal-content" style={{ maxWidth: '400px' }}>
-                        <h3 className="modal-title">{fornecedorEditing ? 'Editar Fornecedor' : 'Novo Fornecedor'}</h3>
+                <div className={styles['perfis-modal-overlay']}>
+                    <div className={styles['perfis-modal-content']} style={{ maxWidth: '400px' }}>
+                        <h3 className={styles['modal-title']}>{fornecedorEditing ? 'Editar Fornecedor' : 'Novo Fornecedor'}</h3>
                         
-                        <div className="edit-form-grid" style={{ gridTemplateColumns: '1fr' }}>
+                        <div className={styles['edit-form-grid']} style={{ gridTemplateColumns: '1fr' }}>
                             <label>
                                 Nome do Fornecedor:
                                 <input 
@@ -509,13 +537,13 @@ export default function PerfisPage() {
                             </label>
                         </div>
 
-                        <div className="modal-actions">
-                            <button className="btn-secondary" onClick={() => setShowFornecedorModal(false)}>Cancelar</button>
-                            <button className="btn-primary" onClick={handleSaveFornecedor}>Salvar</button>
+                        <div className={styles['modal-actions']}>
+                            <button className={styles['btn-secondary']} onClick={() => setShowFornecedorModal(false)}>Cancelar</button>
+                            <button className={styles['btn-primary']} onClick={handleSaveFornecedor}>Salvar</button>
                         </div>
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 }

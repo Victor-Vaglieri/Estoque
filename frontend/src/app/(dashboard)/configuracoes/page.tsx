@@ -1,45 +1,36 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
-
-import './configuracoes.css';
+// 1. Importação do CSS Module
+import styles from './configuracoes.module.css';
 
 export default function ConfiguracoesPage() {
     const router = useRouter();
-    
     const { user } = useAuth(); 
 
-    
     const [login, setLogin] = useState('');
-    
-    
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
-    
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    
     useEffect(() => {
         if ((user as any)?.login) {
             setLogin((user as any).login);
         }
     }, [user]);
 
-    
     const clearFeedback = () => {
         setError(null);
         setSuccess(null);
     };
 
-    
     const handleUpdateLogin = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         clearFeedback();
@@ -67,10 +58,6 @@ export default function ConfiguracoesPage() {
             }
 
             setSuccess('Login atualizado com sucesso!');
-            
-            
-            
-            
             router.refresh(); 
 
         } catch (err) {
@@ -80,7 +67,6 @@ export default function ConfiguracoesPage() {
         }
     };
 
-    
     const handleUpdatePassword = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         clearFeedback();
@@ -128,19 +114,21 @@ export default function ConfiguracoesPage() {
     };
 
     return (
-        <>
-            <div className="page-header-produtos"> 
-                <h1 className="page-title-produtos">Configurações</h1>
+        // 2. Wrapper principal para isolar o CSS
+        <div className={styles['main-wrapper']}>
+            <div className={styles['page-header-produtos']}> 
+                <h1 className={styles['page-title-produtos']}>Configurações</h1>
             </div>
             
-            {error && <p className="config-message config-error">{error}</p>}
-            {success && <p className="config-message config-success">{success}</p>}
+            {/* 3. Classes compostas para feedback */}
+            {error && <p className={`${styles['config-message']} ${styles['config-error']}`}>{error}</p>}
+            {success && <p className={`${styles['config-message']} ${styles['config-success']}`}>{success}</p>}
 
-            <div className="config-grid">
-                {}
-                <div className="config-container">
-                    <h2 className="config-title">Alterar Login</h2>
-                    <form onSubmit={handleUpdateLogin} className="config-form">
+            <div className={styles['config-grid']}>
+                {/* Card 1: Alterar Login */}
+                <div className={styles['config-container']}>
+                    <h2 className={styles['config-title']}>Alterar Login</h2>
+                    <form onSubmit={handleUpdateLogin} className={styles['config-form']}>
                         <label>
                             Login
                             <input
@@ -151,18 +139,18 @@ export default function ConfiguracoesPage() {
                                 required
                             />
                         </label>
-                        <div className="form-actions">
-                            <button type="submit" className="btn-primary" disabled={isSubmitting}>
+                        <div className={styles['form-actions']}>
+                            <button type="submit" className={styles['btn-primary']} disabled={isSubmitting}>
                                 {isSubmitting ? 'Salvando...' : 'Salvar Login'}
                             </button>
                         </div>
                     </form>
                 </div>
 
-                {}
-                <div className="config-container">
-                    <h2 className="config-title">Alterar Senha</h2>
-                    <form onSubmit={handleUpdatePassword} className="config-form">
+                {/* Card 2: Alterar Senha */}
+                <div className={styles['config-container']}>
+                    <h2 className={styles['config-title']}>Alterar Senha</h2>
+                    <form onSubmit={handleUpdatePassword} className={styles['config-form']}>
                         <label>
                             Senha Atual
                             <input
@@ -193,15 +181,14 @@ export default function ConfiguracoesPage() {
                                 required
                             />
                         </label>
-                        <div className="form-actions">
-                            <button type="submit" className="btn-primary" disabled={isSubmitting}>
+                        <div className={styles['form-actions']}>
+                            <button type="submit" className={styles['btn-primary']} disabled={isSubmitting}>
                                 {isSubmitting ? 'Salvando...' : 'Alterar Senha'}
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
-        </>
+        </div>
     );
 }
-

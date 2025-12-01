@@ -1,35 +1,36 @@
-
-@import "tailwindcss";
-
-
-:root {
+.main-wrapper input[type="text"],
+.main-wrapper input[type="password"], 
+.main-wrapper select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  background-color: var(--background-surface);
   
-  --role-gestor-bg: #fef2f2; --role-gestor-text: #b91c1c; --role-gestor-border: #fecaca;
-  --role-funcionario-bg: #f0fdf4; --role-funcionario-text: #15803d; --role-funcionario-border: #bbf7d0;
-  --role-terceiros-bg: #faf5ff; --role-terceiros-text: #7e22ce; --role-terceiros-border: #e9d5ff;
-  --role-saida-bg: #fff7ed; --role-saida-text: #c2410c; --role-saida-border: #fed7aa;
-  --role-recebimento-bg: #fffbeb; --role-recebimento-text: #b45309; --role-recebimento-border: #fde68a;
-  --role-inventario-bg: #f0fdfa; --role-inventario-text: #0f766e; --role-inventario-border: #ccfbf1;
-  --role-avisos-bg: #fdf2f8; --role-avisos-text: #be185d; --role-avisos-border: #fbcfe8;
-  --role-cadastro-bg: #eef2ff; --role-cadastro-text: #4338ca; --role-cadastro-border: #c7d2fe;
-  --role-lista-bg: #ecfeff; --role-lista-text: #0e7490; --role-lista-border: #a5f3fc;
-  --role-nd-bg: #f4f4f5; --role-nd-text: #52525b; --role-nd-border: #d4d4d8;
+  /* Remove estilo padrão e adiciona seta SVG customizada */
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2371717a' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25em;
+  padding-right: 2.5rem;
 }
 
-
-:root[data-theme='dark'] {
-  --role-gestor-bg: #450a0a; --role-gestor-text: #fecaca; --role-gestor-border: #7f1d1d;
-  --role-funcionario-bg: #052e16; --role-funcionario-text: #bbf7d0; --role-funcionario-border: #14532d;
-  --role-terceiros-bg: #3b0764; --role-terceiros-text: #e9d5ff; --role-terceiros-border: #6b21a8;
-  --role-saida-bg: #431407; --role-saida-text: #fed7aa; --role-saida-border: #9a3412;
-  --role-recebimento-bg: #451a03; --role-recebimento-text: #fde68a; --role-recebimento-border: #92400e;
-  --role-inventario-bg: #042f2e; --role-inventario-text: #99f6e4; --role-inventario-border: #115e59;
-  --role-avisos-bg: #500724; --role-avisos-text: #fbcfe8; --role-avisos-border: #9d174d;
-  --role-cadastro-bg: #1e1b4b; --role-cadastro-text: #c7d2fe; --role-cadastro-border: #3730a3;
-  --role-lista-bg: #083344; --role-lista-text: #a5f3fc; --role-lista-border: #155e75;
-  --role-nd-bg: #27272a; --role-nd-text: #d4d4d8; --role-nd-border: #52525b;
+.main-wrapper input:focus, 
+.main-wrapper select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-focus-shadow, rgba(37, 99, 235, 0.2));
 }
 
+.main-wrapper option {
+  background-color: var(--background-surface);
+  color: var(--text-primary);
+}
+
+/* --- LAYOUT E ESTRUTURA --- */
 
 .perfis-layout {
   display: flex;
@@ -52,7 +53,7 @@
   overflow-y: auto;
 }
 
-.perfis-container, .main-container-perfis {
+.perfis-container {
   display: flex;
   flex-direction: column;
   gap: 3rem;
@@ -69,6 +70,7 @@
   width: 100%;
 }
 
+/* --- CABEÇALHOS --- */
 
 .page-header-perfis {
   display: flex;
@@ -85,7 +87,7 @@
   font-weight: 700;
 }
 
-.section-title, .section-title-perfis {
+.section-title {
   color: var(--text-primary);
   font-size: 1.25rem;
   font-weight: 600;
@@ -101,6 +103,8 @@
   margin-bottom: 1rem;
 }
 
+/* --- FEEDBACK MESSAGES --- */
+
 .no-data-message {
   color: var(--text-secondary);
   background-color: var(--background-surface);
@@ -111,7 +115,6 @@
   font-style: italic;
 }
 
-
 .perfis-message {
   padding: 1rem;
   border-radius: 0.5rem;
@@ -121,7 +124,7 @@
 .perfis-error { background-color: #fef2f2; color: var(--error-color); border: 1px solid var(--error-color); }
 .perfis-success { background-color: #f0fdf4; color: var(--sucess-color); border: 1px solid var(--sucess-color); }
 
-
+/* --- TABELAS --- */
 
 .perfis-table-container {
   background-color: var(--background-surface);
@@ -131,12 +134,12 @@
   border: 1px solid var(--border-color);
 }
 
-.perfis-table {
+.main-wrapper table.perfis-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.perfis-table th {
+.main-wrapper .perfis-table th {
   background-color: var(--background-header-table);
   color: var(--text-secondary);
   font-weight: 600;
@@ -148,7 +151,7 @@
   white-space: nowrap;
 }
 
-.perfis-table td {
+.main-wrapper .perfis-table td {
   padding: 1rem;
   font-size: 0.875rem;
   color: var(--text-primary);
@@ -156,7 +159,7 @@
   vertical-align: middle;
 }
 
-.perfis-table tbody tr:last-child td {
+.main-wrapper .perfis-table tbody tr:last-child td {
   border-bottom: none;
 }
 
@@ -164,6 +167,7 @@
   background-color: var(--nav-link-background); 
 }
 
+/* --- ROLES (BADGES) --- */
 
 .role-badge-container {
   display: flex;
@@ -180,7 +184,7 @@
   border: 1px solid transparent;
 }
 
-
+/* Cores específicas dos cargos */
 .role-gestor { background-color: var(--role-gestor-bg); color: var(--role-gestor-text); border-color: var(--role-gestor-border); }
 .role-funcionario { background-color: var(--role-funcionario-bg); color: var(--role-funcionario-text); border-color: var(--role-funcionario-border); }
 .role-terceiros { background-color: var(--role-terceiros-bg); color: var(--role-terceiros-text); border-color: var(--role-terceiros-border); }
@@ -192,7 +196,7 @@
 .role-lista { background-color: var(--role-lista-bg); color: var(--role-lista-text); border-color: var(--role-lista-border); }
 .role-nd { background-color: var(--role-nd-bg); color: var(--role-nd-text); border-color: var(--role-nd-border); }
 
-
+/* --- MODAIS --- */
 
 .perfis-modal-overlay {
   position: fixed;
@@ -229,7 +233,6 @@
   margin: 0;
 }
 
-
 .modal-subtitle {
   padding: 0 1.5rem 1rem;
   border-bottom: 1px solid var(--border-color);
@@ -264,35 +267,7 @@
   margin-top: 1rem;
 }
 
-.modal-select, input[type="text"] {
-  width: 100%;
-  padding: 0.6rem 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  background-color: var(--background-surface);
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2371717a' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
-  background-position: right 0.5rem center;
-  background-repeat: no-repeat;
-  background-size: 1.25em;
-  padding-right: 2.5rem;
-}
-
-
-.modal-select option {
-  background-color: var(--background-surface);
-  color: var(--text-primary);
-}
-
-.modal-select:focus, input[type="text"]:focus, input[type="password"]:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px var(--primary-focus-shadow, rgba(37, 99, 235, 0.2));
-}
-
-
+/* --- TAGS DE FUNÇÕES (Checkbox) --- */
 
 .funcoes-checkbox-group {
   display: flex;
@@ -304,7 +279,6 @@
 .hidden-checkbox {
   display: none;
 }
-
 
 .funcao-tag {
   display: inline-flex;
@@ -331,9 +305,7 @@
   cursor: not-allowed;
 }
 
-
-
-
+/* Estilos de tags selecionadas (combinando com cores das roles) */
 .tag-gestor.selected { background-color: var(--role-gestor-bg); color: var(--role-gestor-text); border-color: var(--role-gestor-border); }
 .tag-funcionario.selected { background-color: var(--role-funcionario-bg); color: var(--role-funcionario-text); border-color: var(--role-funcionario-border); }
 .tag-terceiros.selected { background-color: var(--role-terceiros-bg); color: var(--role-terceiros-text); border-color: var(--role-terceiros-border); }
@@ -344,7 +316,7 @@
 .tag-cadastro.selected { background-color: var(--role-cadastro-bg); color: var(--role-cadastro-text); border-color: var(--role-cadastro-border); }
 .tag-lista.selected { background-color: var(--role-lista-bg); color: var(--role-lista-text); border-color: var(--role-lista-border); }
 
-
+/* --- AÇÕES (BOTÕES) --- */
 
 .modal-actions {
   padding: 1rem 1.5rem;
@@ -357,7 +329,6 @@
   border-bottom-right-radius: 0.75rem;
 }
 
-
 .btn-primary {
   background-color: var(--primary);
   color: var(--text-on-primary-button);
@@ -367,6 +338,7 @@
   border: none;
   cursor: pointer;
 }
+
 .btn-secondary {
   background-color: var(--background-surface);
   color: var(--text-primary);
@@ -391,29 +363,33 @@
   cursor: pointer;
   border: none;
 }
+
 .btn-editar { background-color: var(--background-page); color: var(--primary); border: 1px solid var(--primary); }
 .btn-rejeitar { background-color: var(--background-page); color: var(--error-color); border: 1px solid var(--error-color); }
 .btn-aprovar { background-color: var(--sucess-color); color: white; }
 
-
+/* --- MEDIA QUERIES --- */
 
 @media (max-width: 768px) {
   .perfis-table thead { display: none; }
-  .perfis-table tr {
+  
+  .main-wrapper .perfis-table tr {
     display: block;
     margin-bottom: 1rem;
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
     background-color: var(--background-surface); 
   }
-  .perfis-table td {
+  
+  .main-wrapper .perfis-table td {
     display: flex;
     justify-content: space-between;
     text-align: right;
     padding-left: 40%;
     position: relative;
   }
-  .perfis-table td::before {
+  
+  .main-wrapper .perfis-table td::before {
     content: attr(data-label);
     position: absolute;
     left: 1rem;

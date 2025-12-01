@@ -70,7 +70,6 @@ export default function Sidebar({ closeSidebar }: { closeSidebar: () => void }) 
             const linkClassName = `nav-link ${isActive ? 'active' : ''}`;
             return (
               <li key={link.name} className="nav-item">
-                {/* --- 3. Adiciona onClick para fechar o menu ao navegar --- */}
                 <Link href={link.href} className={linkClassName} onClick={closeSidebar}>
                   {link.icon}
                   {link.name}
