@@ -1,15 +1,15 @@
-// app/auth/login/page.tsx (VERSÃO CORRIGIDA E INTEGRADA)
+
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
-import { useAuth } from "@/app/context/AuthContext"; // 1. Importe o useAuth
+import { useAuth } from "@/app/context/AuthContext"; 
 import { IconEye } from '@/app/components/icons/IconEye';
 import { IconEyeSlash } from '@/app/components/icons/IconEyeSlash';
 import { loginUser } from "@/lib/authService";
 
 export default function LoginPage() {
-  const { login: authLogin } = useAuth(); // 2. Pegue a função de login do contexto
+  const { login: authLogin } = useAuth(); 
 
   const [login, setLogin] = useState("");
   const [senha, setSenha] = useState("");
@@ -24,7 +24,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // 3. O serviço continua igual, ele busca o token
+      
       const token = await loginUser(login, senha);
 
       authLogin(token);
@@ -37,7 +37,7 @@ export default function LoginPage() {
     }
   }
 
-  // O JSX (return) continua exatamente o mesmo...
+  
   return (
     <div className="login-container">
       <form onSubmit={handleSubmit} className="login-form">
