@@ -1,6 +1,6 @@
 "use client";
 
-// --- CORREÇÃO: Caminhos relativos para os ícones ---
+
 import { IconEye } from '@/app/components/icons/IconEye';
 import { IconEyeSlash } from '@/app/components/icons/IconEyeSlash';
 import { useState } from "react";
@@ -10,18 +10,18 @@ import { useRouter } from "next/navigation";
 export default function CreateUserPage() {
     const router = useRouter();
 
-    // --- ESTADOS ATUALIZADOS ---
+    
     const [nome, setNome] = useState(""); 
     const [login, setLogin] = useState("");
     const [senha, setSenha] = useState("");
     const [confirmarSenha, setConfirmarSenha] = useState("");
-    // --- REMOVIDO: Estado do responsavelId ---
-    // const [responsavelId, setResponsavelId] = useState(""); 
+    
+    
 
     const [verSenha, setVerSenha] = useState(false);
     const [verConfirmacaoSenha, setVerConfirmacaoSenha] = useState(false);
 
-    // Estados para feedback ao usuário
+    
     const [erro, setErro] = useState("");
     const [sucesso, setSucesso] = useState("");
 
@@ -31,37 +31,37 @@ export default function CreateUserPage() {
         setErro(""); 
         setSucesso(""); 
 
-        // 1. Validação de senha
+        
         if (senha !== confirmarSenha) {
             setErro("As senhas não coincidem.");
             return; 
         }
 
-        // --- REMOVIDO: Validação do responsavelId ---
+        
 
-        // 2. Chama sua API
+        
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cadastrar_usuario`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            // 3. Envia o payload (sem responsavelId)
+            
             body: JSON.stringify({ 
                 nome: nome,
                 login: login, 
                 senha: senha
-                // responsavelId: respIdNum // REMOVIDO
+                
             }),
         });
 
         if (res.ok) {
-            // Mensagem de sucesso atualizada
+            
             setSucesso("Solicitação enviada com sucesso! Você poderá fazer o login quando seu gestor aprovar.");
-            // Limpa o formulário
+            
             setNome("");
             setLogin("");
             setSenha("");
             setConfirmarSenha("");
-            // setResponsavelId(""); // REMOVIDO
-            // Opcional: redirecionar para o login após alguns segundos
+            
+            
             setTimeout(() => router.push('/'), 3000); 
         } else {
             const errorData = await res.json();
@@ -77,7 +77,7 @@ export default function CreateUserPage() {
             >
                 <h1 className="login-title">Solicitar Nova Conta</h1>
 
-                {/* --- Campo Nome --- */}
+                {}
                  <input
                     type="text"
                     placeholder="Nome Completo"
@@ -119,7 +119,7 @@ export default function CreateUserPage() {
                     <button type="button" onClick={() => setVerConfirmacaoSenha(!verConfirmacaoSenha)} className="toggle-password-button" aria-label={verConfirmacaoSenha ? "Esconder senha" : "Mostrar senha"}>{verConfirmacaoSenha ? <IconEyeSlash className="icon" /> : <IconEye className="icon" />}</button>
                 </div>
 
-                {/* Mensagens de feedback */}
+                {}
                 {erro && <p className="error-message">{erro}</p>}
                 {sucesso && <p className="success-message">{sucesso}</p>} 
 
