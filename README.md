@@ -120,7 +120,7 @@ JWT_SECRET="sua_chave_secreta_aqui"
 PORT=3001
 
 # Banco de Dados (Substitua pelos seus dados de conexão)
-# Nota: Cada URL aponta para um schema específico (estoque, controle, alertas, etc.)
+# Nota: Cada URL aponta para um schema específico
 DATABASE_URL_ESTOQUE="postgresql://usuario:senha@host/banco?schema=estoque"
 DATABASE_URL_CONTROLE="postgresql://usuario:senha@host/banco?schema=controle"
 DATABASE_URL_ALERTAS="postgresql://usuario:senha@host/banco?schema=alertas"
